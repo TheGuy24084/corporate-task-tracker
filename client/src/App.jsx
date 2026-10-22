@@ -1,6 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import { ListTodo, Shield, Users } from 'lucide-react'
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import { AuthProvider } from './AuthContext';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import { ListTodo, Shield, Users, ArrowRight } from 'lucide-react';
 
 function Home() {
   return (
@@ -20,15 +24,22 @@ function Home() {
       <div className="flex flex-wrap items-center justify-center gap-4">
         <Link
           to="/dashboard"
-          className="px-6 py-3 rounded-xl font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02]"
+          className="px-6 py-3 rounded-xl font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] flex items-center gap-2"
         >
-          Go to Dashboard
+          <span>Go to Dashboard</span>
+          <ArrowRight className="w-4 h-4" />
         </Link>
         <Link
           to="/login"
           className="px-6 py-3 rounded-xl font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all hover:scale-[1.02]"
         >
           Sign In
+        </Link>
+        <Link
+          to="/register"
+          className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.02]"
+        >
+          Create Account
         </Link>
       </div>
 
@@ -56,55 +67,26 @@ function Home() {
         </div>
       </div>
     </div>
-  )
-}
-
-function DashboardPlaceholder() {
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4">
-        Overview
-      </div>
-      <h2 className="text-3xl font-bold text-white mb-4">Dashboard</h2>
-      <p className="text-slate-400 max-w-md mx-auto mb-8">
-        Welcome to the task dashboard. Connect with the backend API to manage and monitor ongoing tasks.
-      </p>
-      <div className="p-8 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 text-slate-500">
-        Dashboard content will be displayed here.
-      </div>
-    </div>
-  )
-}
-
-function LoginPlaceholder() {
-  return (
-    <div className="max-w-md mx-auto px-4 py-16">
-      <div className="p-8 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl backdrop-blur-sm">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">Account Login</h2>
-        <p className="text-sm text-slate-400 text-center mb-6">
-          Sign in to access your corporate task workspace.
-        </p>
-        <div className="p-6 rounded-xl border border-dashed border-slate-800 bg-slate-950/50 text-slate-500 text-center text-sm">
-          Authentication form placeholder
-        </div>
-      </div>
-    </div>
-  )
+  );
 }
 
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-        <Navbar />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<DashboardPlaceholder />} />
-            <Route path="/login" element={<LoginPlaceholder />} />
-          </Routes>
-        </main>
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+          <Navbar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      </AuthProvider>
     </Router>
-  )
+  );
 }
