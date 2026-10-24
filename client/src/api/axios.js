@@ -15,6 +15,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Normalize url if it begins with /api/ to prevent /api/api/...
+    if (config.url && config.url.startsWith('/api/')) {
+      config.url = config.url.replace(/^\/api/, '');
+    }
     return config;
   },
   (error) => {

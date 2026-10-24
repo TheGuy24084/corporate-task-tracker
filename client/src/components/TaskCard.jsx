@@ -1,8 +1,12 @@
-import { User, Calendar, Tag } from 'lucide-react';
+import { useState, useContext } from 'react';
+import { User, Calendar, Tag, Trash2, Loader2 } from 'lucide-react';
+import AuthContext from '../AuthContext';
+import api from '../api/axios';
 
 /**
  * TaskCard Component
- * Reusable card displaying task title, description, color-coded priority badge, and creator name.
+ * Reusable card displaying task title, description, color-coded priority badge, creator name,
+ * status change dropdown (PUT /api/tasks/:id), and role-based red Delete button (DELETE /api/tasks/:id).
  * Priority color codes: Low = Blue, Medium = Yellow, High = Red.
  */
 export default function TaskCard({
@@ -14,8 +18,14 @@ export default function TaskCard({
   creator: propCreator,
   creatorName: propCreatorName,
   createdAt: propCreatedAt,
+  user: propUser,
+  onUpdateTask,
+  onStatusChange,
+  onDeleteTask,
+  onDelete,
 }) {
   const currentTask = task || {};
+  const taskId = currentTask._id || currentTask.id;
   const title = propTitle || currentTask.title || 'Untitled Task';
   const description = propDescription || currentTask.description || '';
   const priority = propPriority || currentTask.priority || 'Medium';
@@ -23,6 +33,83 @@ export default function TaskCard({
   const creator = propCreator || currentTask.creator;
   const creatorName = propCreatorName || currentTask.creatorName;
   const createdAt = propCreatedAt || currentTask.createdAt;
+
+  // Resolve current user to determine role
+  const auth = useContext(AuthContext);
+  const resolveUser = () => {
+    if (propUser) return propUser;
+    if (auth?.user) return auth.user;
+    try {
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const currentUser = resolveUser();
+  const isAdmin =
+    currentUser?.role === 'Admin' ||
+    (typeof currentUser?.role === 'string' &&
+      currentUser?.role.toLowerCase() === 'admin');
+
+  // Local state for optimistic status tracking and loading states
+  const [localStatus, setLocalStatus] = useState(null);
+  const currentStatus = localStatus ?? (currentTask.status || 'To-Do');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Handle changing status via PUT /api/tasks/:id
+  const handleStatusChange = async (e) => {
+    const newStatus = e.target.value;
+    if (!taskId || newStatus === currentStatus) return;
+
+    setLocalStatus(newStatus);
+    setIsUpdatingStatus(true);
+    try {
+      const response = await api.put(`/tasks/${taskId}`, { status: newStatus });
+      const updated = response?.data || { ...currentTask, status: newStatus };
+      if (typeof onUpdateTask === 'function') {
+        onUpdateTask(updated);
+      }
+      if (typeof onStatusChange === 'function') {
+        onStatusChange(taskId, newStatus, updated);
+      }
+    } catch (err) {
+      setLocalStatus(null);
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to update task status';
+      alert(message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  // Handle deleting task via DELETE /api/tasks/:id
+  const handleDelete = async () => {
+    if (!taskId) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/tasks/${taskId}`);
+      if (typeof onDeleteTask === 'function') {
+        onDeleteTask(taskId);
+      }
+      if (typeof onDelete === 'function') {
+        onDelete(taskId);
+      }
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to delete task';
+      alert(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Resolve the creator's display name
   const resolveCreatorName = () => {
@@ -124,8 +211,63 @@ export default function TaskCard({
         )}
       </div>
 
+      {/* Task Actions Bar: Status Dropdown & Role-based Red Delete Button */}
+      <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <label
+            htmlFor={`status-select-${taskId || title}`}
+            className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider"
+          >
+            Status:
+          </label>
+          <div className="relative inline-flex items-center">
+            <select
+              id={`status-select-${taskId || title}`}
+              data-testid="status-select"
+              aria-label="Change task status"
+              value={currentStatus}
+              onChange={handleStatusChange}
+              disabled={isUpdatingStatus}
+              className="text-xs font-medium bg-slate-950/80 text-slate-200 border border-slate-700/80 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 hover:border-slate-600 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <option value="To-Do" className="bg-slate-900 text-slate-100">
+                To-Do
+              </option>
+              <option value="In Progress" className="bg-slate-900 text-slate-100">
+                In Progress
+              </option>
+              <option value="Completed" className="bg-slate-900 text-slate-100">
+                Completed
+              </option>
+            </select>
+            {isUpdatingStatus && (
+              <Loader2 className="w-3.5 h-3.5 ml-1.5 text-indigo-400 animate-spin" />
+            )}
+          </div>
+        </div>
+
+        {/* Conditionally render red Delete button ONLY for Admin users */}
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            data-testid="delete-task-button"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-red-600 hover:bg-red-500 active:bg-red-700 rounded-lg shadow-sm border border-red-500/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            title="Delete Task (Admin Only)"
+          >
+            {isDeleting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+            <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
+          </button>
+        )}
+      </div>
+
       {/* Task Footer: Creator's Name */}
-      <div className="mt-4 pt-3.5 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+      <div className="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700/80 flex items-center justify-center text-indigo-400">
             <User className="w-3.5 h-3.5" />
