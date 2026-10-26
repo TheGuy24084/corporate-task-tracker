@@ -16,6 +16,9 @@ import {
   Plus,
   X,
   Loader2,
+  Search,
+  Filter,
+  RotateCcw,
 } from 'lucide-react';
 
 const KANBAN_COLUMNS = [
@@ -85,6 +88,21 @@ export default function Dashboard() {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Check if any filter is active
+  const isFiltered = Boolean(searchQuery.trim() || priorityFilter !== 'All' || statusFilter !== 'All');
+
+  // Reset all filters to default
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setPriorityFilter('All');
+    setStatusFilter('All');
+  };
 
   // Redirect unauthenticated users to /login
   useEffect(() => {
@@ -208,7 +226,7 @@ export default function Dashboard() {
         priority: formData.priority,
       };
 
-      const response = await api.post('/api/tasks', payload);
+      const response = await api.post('/tasks', payload);
       const newTask = response.data;
 
       // Update React state with newly created task
@@ -250,10 +268,31 @@ export default function Dashboard() {
     return <Navigate to="/login" replace />;
   }
 
-  // Calculate task counts per column
-  const todoTasks = tasks.filter((t) => KANBAN_COLUMNS[0].matcher(t.status));
-  const inProgressTasks = tasks.filter((t) => KANBAN_COLUMNS[1].matcher(t.status));
-  const completedTasks = tasks.filter((t) => KANBAN_COLUMNS[2].matcher(t.status));
+  // Filter tasks dynamically by Search Query (Title/Description), Priority, and Status
+  const filteredTasks = tasks.filter((t) => {
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !q ||
+      (t.title && t.title.toLowerCase().includes(q)) ||
+      (t.description && t.description.toLowerCase().includes(q));
+
+    const matchesPriority =
+      priorityFilter === 'All' ||
+      (t.priority && t.priority.toLowerCase() === priorityFilter.toLowerCase());
+
+    let matchesStatus = true;
+    if (statusFilter !== 'All') {
+      const targetCol = KANBAN_COLUMNS.find((col) => col.id === statusFilter);
+      matchesStatus = targetCol ? targetCol.matcher(t.status) : t.status === statusFilter;
+    }
+
+    return matchesSearch && matchesPriority && matchesStatus;
+  });
+
+  // Calculate task counts per column from filtered tasks
+  const todoTasks = filteredTasks.filter((t) => KANBAN_COLUMNS[0].matcher(t.status));
+  const inProgressTasks = filteredTasks.filter((t) => KANBAN_COLUMNS[1].matcher(t.status));
+  const completedTasks = filteredTasks.filter((t) => KANBAN_COLUMNS[2].matcher(t.status));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -375,6 +414,128 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Task Filter & Search Toolbar */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-md backdrop-blur-sm space-y-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Search Input Field */}
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Search className="w-4 h-4" />
+            </div>
+            <input
+              type="text"
+              id="search-input"
+              data-testid="search-input"
+              aria-label="Filter tasks by title or keyword"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search or filter tasks by title..."
+              className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                title="Clear search query"
+                aria-label="Clear search input"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter Dropdowns */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Status Filter */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="status-filter"
+                className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline"
+              >
+                Status:
+              </label>
+              <select
+                id="status-filter"
+                data-testid="status-filter"
+                aria-label="Filter tasks by status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+              >
+                <option value="All" className="bg-slate-900 text-slate-100">All Statuses</option>
+                <option value="To-Do" className="bg-slate-900 text-slate-100">To-Do</option>
+                <option value="In Progress" className="bg-slate-900 text-slate-100">In Progress</option>
+                <option value="Completed" className="bg-slate-900 text-slate-100">Completed</option>
+              </select>
+            </div>
+
+            {/* Priority Filter */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="priority-filter"
+                className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline"
+              >
+                Priority:
+              </label>
+              <select
+                id="priority-filter"
+                data-testid="priority-filter"
+                aria-label="Filter tasks by priority"
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+              >
+                <option value="All" className="bg-slate-900 text-slate-100">All Priorities</option>
+                <option value="High" className="bg-slate-900 text-slate-100">High (Red)</option>
+                <option value="Medium" className="bg-slate-900 text-slate-100">Medium (Yellow)</option>
+                <option value="Low" className="bg-slate-900 text-slate-100">Low (Blue)</option>
+              </select>
+            </div>
+
+            {/* Reset / Clear Filters Button */}
+            {isFiltered && (
+              <button
+                type="button"
+                id="clear-filters"
+                data-testid="clear-filters"
+                onClick={handleClearFilters}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-all cursor-pointer"
+                title="Reset all filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Active Filters Summary & Results Count */}
+        <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+          <div className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-indigo-400" />
+            <span>
+              {isFiltered ? (
+                <>
+                  Showing <strong className="text-white">{filteredTasks.length}</strong> of{' '}
+                  <strong className="text-white">{tasks.length}</strong> tasks matching criteria
+                </>
+              ) : (
+                <>
+                  Showing all <strong className="text-white">{tasks.length}</strong> tasks across sprints
+                </>
+              )}
+            </span>
+          </div>
+
+          {isFiltered && (
+            <span className="text-[11px] text-indigo-400 font-medium">
+              Filters Active
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Responsive 3-Column Kanban Board Layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         {KANBAN_COLUMNS.map((column) => {
@@ -452,15 +613,26 @@ export default function Dashboard() {
                       <Sparkles className="w-4 h-4 text-slate-500" />
                     </div>
                     <p className="text-xs font-medium text-slate-400">
-                      No tasks in {column.title}
+                      {isFiltered ? `No ${column.title} tasks match filter` : `No tasks in ${column.title}`}
                     </p>
-                    <button
-                      onClick={() => openModal(column.id)}
-                      className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
-                    >
-                      <Plus className="w-3 h-3" />
-                      <span>Create a task</span>
-                    </button>
+                    {isFiltered ? (
+                      <button
+                        type="button"
+                        onClick={handleClearFilters}
+                        className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Clear filters</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => openModal(column.id)}
+                        className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Create a task</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

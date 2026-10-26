@@ -36,7 +36,20 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Name, email, and password cannot be empty" });
     }
 
-    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : email;
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "A valid email is required" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return res.status(400).json({ message: "Please provide a valid email address" });
+    }
+
+    if (typeof password === "string" && password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -98,11 +111,12 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body || {};
 
-    if (!email || !password) {
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const trimmedPassword = typeof password === "string" ? password.trim() : "";
+
+    if (!normalizedEmail || !trimmedPassword) {
       return res.status(400).json({ message: "Email and password are required" });
     }
-
-    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : email;
 
     // Find user by email
     const user = await User.findOne({ email: normalizedEmail });

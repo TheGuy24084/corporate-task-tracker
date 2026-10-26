@@ -34,7 +34,21 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// 404 Not Found handler for unmatched routes
+app.use((req, res) => {
+  res.status(404).json({ message: "API endpoint not found" });
+});
+
+// Centralized error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Internal Server Error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal server error",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 

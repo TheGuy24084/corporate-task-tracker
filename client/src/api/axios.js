@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create Axios instance with base URL configured for the backend API
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,6 +21,14 @@ api.interceptors.request.use(
     }
     return config;
   },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Axios response interceptor to handle common error patterns
+api.interceptors.response.use(
+  (response) => response,
   (error) => {
     return Promise.reject(error);
   }
