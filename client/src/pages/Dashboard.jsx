@@ -181,11 +181,19 @@ export default function Dashboard() {
     };
   }, [isAuthenticated]);
 
-  // Open modal with optional prefilled column status
-  const openModal = (initialStatus = 'To-Do') => {
+  // Open modal with optional prefilled column status, sprint, and milestone
+  const openModal = (
+    initialStatus = 'To-Do',
+    initialSprint,
+    initialMilestone
+  ) => {
     setFormData({
       ...INITIAL_FORM_DATA,
       status: initialStatus,
+      sprint:
+        initialSprint ||
+        (methodology === 'Scrum' ? 'Sprint 1' : 'Backlog'),
+      milestone: initialMilestone || 'Phase 1: Planning',
     });
     setFormError('');
     setIsModalOpen(true);

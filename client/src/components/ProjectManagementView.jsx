@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState, useContext } from 'react';
 import {
   Calendar,
   Clock,
@@ -65,7 +65,7 @@ export default function ProjectManagementView({
   const completionPercentage =
     totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
 
-  const currentTime = useMemo(() => Date.now(), []);
+  const [currentTime] = useState(() => Date.now());
   const overdueTasks = tasks.filter((t) => {
     if (!t.dueDate) return false;
     if (String(t.status || '').toLowerCase() === 'completed') return false;
@@ -593,7 +593,7 @@ export default function ProjectManagementView({
                       {typeof openModal === 'function' && (
                         <button
                           type="button"
-                          onClick={() => openModal('To-Do')}
+                          onClick={() => openModal('To-Do', 'Backlog', milestoneKey)}
                           className="mt-2 text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>Add milestone deliverable</span>

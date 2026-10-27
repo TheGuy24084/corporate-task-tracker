@@ -411,7 +411,7 @@ export default function ScrumView({
                     {typeof openModal === 'function' && (
                       <button
                         type="button"
-                        onClick={() => openModal(column.id)}
+                        onClick={() => openModal(column.id, selectedSprint)}
                         className="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
                         title={`Add task to ${column.title}`}
                       >

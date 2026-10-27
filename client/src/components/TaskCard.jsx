@@ -75,6 +75,7 @@ export default function TaskCard({
     try {
       const response = await api.put(`/tasks/${taskId}`, { status: newStatus });
       const updated = response?.data || { ...currentTask, status: newStatus };
+      setLocalStatus(null);
       if (typeof onUpdateTask === 'function') {
         onUpdateTask(updated);
       }
