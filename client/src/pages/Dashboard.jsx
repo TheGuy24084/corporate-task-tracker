@@ -19,7 +19,31 @@ import {
   Search,
   Filter,
   RotateCcw,
+  Zap,
+  Calendar,
+  Target,
 } from 'lucide-react';
+
+const METHODOLOGIES = [
+  {
+    id: 'Kanban',
+    title: 'Kanban Board',
+    subtitle: 'Continuous flow',
+    icon: Kanban,
+  },
+  {
+    id: 'Scrum',
+    title: 'Scrum Mode',
+    subtitle: 'Sprints, Backlog & Story Points',
+    icon: Zap,
+  },
+  {
+    id: 'Project Management',
+    title: 'Project Management',
+    subtitle: 'Milestones, Timelines & Deadlines',
+    icon: Calendar,
+  },
+];
 
 const KANBAN_COLUMNS = [
   {
@@ -32,7 +56,7 @@ const KANBAN_COLUMNS = [
     iconColor: 'text-indigo-400',
     matcher: (status) => {
       const s = String(status || '').trim().toLowerCase();
-      return s === 'to-do' || s === 'todo' || s === 'to do' || !status;
+      return s === 'to-do' || s === 'todo' || s === 'to do' || s === 'backlog' || !status;
     },
   },
   {
@@ -73,11 +97,18 @@ const INITIAL_FORM_DATA = {
   description: '',
   status: 'To-Do',
   priority: 'Medium',
+  sprint: 'Backlog',
+  storyPoints: 1,
+  milestone: 'Phase 1: Planning',
+  dueDate: '',
 };
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Methodology Switcher State: 'Kanban' | 'Scrum' | 'Project Management'
+  const [methodology, setMethodology] = useState('Kanban');
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -224,6 +255,10 @@ export default function Dashboard() {
         description: formData.description.trim(),
         status: formData.status,
         priority: formData.priority,
+        sprint: formData.sprint || 'Backlog',
+        storyPoints: Number(formData.storyPoints) || 1,
+        milestone: formData.milestone || 'Phase 1: Planning',
+        dueDate: formData.dueDate || undefined,
       };
 
       const response = await api.post('/tasks', payload);
@@ -282,8 +317,12 @@ export default function Dashboard() {
 
     let matchesStatus = true;
     if (statusFilter !== 'All') {
-      const targetCol = KANBAN_COLUMNS.find((col) => col.id === statusFilter);
-      matchesStatus = targetCol ? targetCol.matcher(t.status) : t.status === statusFilter;
+      if (statusFilter === 'Backlog') {
+        matchesStatus = String(t.status || '').trim().toLowerCase() === 'backlog';
+      } else {
+        const targetCol = KANBAN_COLUMNS.find((col) => col.id === statusFilter);
+        matchesStatus = targetCol ? targetCol.matcher(t.status) : t.status === statusFilter;
+      }
     }
 
     return matchesSearch && matchesPriority && matchesStatus;
@@ -296,19 +335,95 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Methodology Switcher Segmented Control */}
+      <div
+        data-testid="methodology-switcher"
+        className="p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md grid grid-cols-1 md:grid-cols-3 gap-2"
+      >
+        {METHODOLOGIES.map((item) => {
+          const isActive = methodology === item.id;
+          const ItemIcon = item.icon;
+          const testId = `methodology-tab-${item.id.toLowerCase().replace(/\s+/g, '-')}`;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              id={testId}
+              data-testid={testId}
+              onClick={() => setMethodology(item.id)}
+              aria-selected={isActive}
+              className={`relative flex items-center gap-3 p-3 sm:py-3.5 sm:px-4 rounded-xl text-left transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? 'bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25 border border-indigo-400/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                <ItemIcon className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span
+                  className={`text-sm font-bold tracking-tight truncate ${
+                    isActive ? 'text-white' : 'text-slate-200'
+                  }`}
+                >
+                  {item.title}
+                </span>
+                <span
+                  className={`text-xs truncate ${
+                    isActive ? 'text-indigo-100' : 'text-slate-400'
+                  }`}
+                >
+                  {item.subtitle}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Header Banner */}
       <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-indigo-950/30 border border-slate-800 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-              <Kanban className="w-3.5 h-3.5" />
-              <span>Project Kanban Board</span>
+              {methodology === 'Scrum' ? (
+                <>
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Scrum Mode</span>
+                </>
+              ) : methodology === 'Project Management' ? (
+                <>
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Project Management</span>
+                </>
+              ) : (
+                <>
+                  <Kanban className="w-3.5 h-3.5" />
+                  <span>Project Kanban Board</span>
+                </>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Corporate Task Workflow
+              {methodology === 'Scrum'
+                ? 'Sprint & Velocity Management'
+                : methodology === 'Project Management'
+                ? 'Milestones & Project Roadmaps'
+                : 'Corporate Task Workflow'}
             </h1>
             <p className="text-sm text-slate-400 max-w-xl">
-              Track, organize, and monitor corporate sprints across team deliverables.
+              {methodology === 'Scrum'
+                ? 'Manage sprint iterations, estimate effort with story points, and commit backlog deliverables.'
+                : methodology === 'Project Management'
+                ? 'Monitor cross-phase milestones, track project schedules, and enforce critical path deadlines.'
+                : 'Track, organize, and monitor corporate continuous flow across team deliverables.'}{' '}
               Logged in as <span className="text-slate-200 font-medium">{user?.name || user?.email}</span>.
             </p>
           </div>
@@ -340,60 +455,170 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Metric Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Total Tasks
-            </span>
-            <Layers className="w-4 h-4 text-slate-400" />
+      {/* Metric Summary Cards based on Methodology */}
+      {methodology === 'Scrum' ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                Total Story Points
+              </span>
+              <Zap className="w-4 h-4 text-purple-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {tasks.reduce((sum, t) => sum + (Number(t.storyPoints) || 1), 0)} pts
+            </p>
+            <span className="text-[11px] text-slate-500">Estimated effort across tasks</span>
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-            {tasks.length}
-          </p>
-          <span className="text-[11px] text-slate-500">All registered items</span>
-        </div>
 
-        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
-              To-Do
-            </span>
-            <ListTodo className="w-4 h-4 text-indigo-400" />
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                Backlog Items
+              </span>
+              <ListTodo className="w-4 h-4 text-indigo-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {tasks.filter((t) => t.sprint === 'Backlog' || t.status === 'Backlog').length}
+            </p>
+            <span className="text-[11px] text-slate-500">Uncommitted queue</span>
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-            {todoTasks.length}
-          </p>
-          <span className="text-[11px] text-slate-500">Backlog queue</span>
-        </div>
 
-        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-              In Progress
-            </span>
-            <Clock className="w-4 h-4 text-amber-400" />
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                In Sprint Dev
+              </span>
+              <Clock className="w-4 h-4 text-amber-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {inProgressTasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Active sprint velocity</span>
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-            {inProgressTasks.length}
-          </p>
-          <span className="text-[11px] text-slate-500">Active development</span>
-        </div>
 
-        <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
-              Completed
-            </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+                Delivered Velocity
+              </span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {completedTasks.reduce((sum, t) => sum + (Number(t.storyPoints) || 1), 0)} pts
+            </p>
+            <span className="text-[11px] text-slate-500">Completed story points</span>
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-            {completedTasks.length}
-          </p>
-          <span className="text-[11px] text-slate-500">Delivered & verified</span>
         </div>
-      </div>
+      ) : methodology === 'Project Management' ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                Deliverables
+              </span>
+              <Target className="w-4 h-4 text-cyan-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {tasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Project scope items</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                Active Milestones
+              </span>
+              <Layers className="w-4 h-4 text-indigo-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {new Set(tasks.map((t) => t.milestone || 'Phase 1: Planning')).size}
+            </p>
+            <span className="text-[11px] text-slate-500">Project phase tracks</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                Deadlines Scheduled
+              </span>
+              <Calendar className="w-4 h-4 text-amber-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {tasks.filter((t) => Boolean(t.dueDate)).length}
+            </p>
+            <span className="text-[11px] text-slate-500">Target milestones with due dates</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+                Delivered
+              </span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {completedTasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Milestones verified</span>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Total Tasks
+              </span>
+              <Layers className="w-4 h-4 text-slate-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {tasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">All registered items</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                To-Do
+              </span>
+              <ListTodo className="w-4 h-4 text-indigo-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {todoTasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Backlog queue</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                In Progress
+              </span>
+              <Clock className="w-4 h-4 text-amber-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {inProgressTasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Active development</span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+                Completed
+              </span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              {completedTasks.length}
+            </p>
+            <span className="text-[11px] text-slate-500">Delivered & verified</span>
+          </div>
+        </div>
+      )}
 
       {/* Error Notice */}
       {error && (
@@ -464,6 +689,7 @@ export default function Dashboard() {
                 className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
               >
                 <option value="All" className="bg-slate-900 text-slate-100">All Statuses</option>
+                <option value="Backlog" className="bg-slate-900 text-slate-100">Backlog</option>
                 <option value="To-Do" className="bg-slate-900 text-slate-100">To-Do</option>
                 <option value="In Progress" className="bg-slate-900 text-slate-100">In Progress</option>
                 <option value="Completed" className="bg-slate-900 text-slate-100">Completed</option>
@@ -601,6 +827,7 @@ export default function Dashboard() {
                     <TaskCard
                       key={task._id || task.id || task.title}
                       task={task}
+                      methodology={methodology}
                       user={user}
                       onUpdateTask={handleUpdateTask}
                       onDeleteTask={handleDeleteTask}
@@ -652,7 +879,7 @@ export default function Dashboard() {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 animate-scale-in">
+          <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 animate-scale-in max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
               <div className="flex items-center gap-3">
@@ -752,6 +979,9 @@ export default function Dashboard() {
                     onChange={handleFormChange}
                     className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
+                    <option value="Backlog" className="bg-slate-900 text-slate-100">
+                      Backlog
+                    </option>
                     <option value="To-Do" className="bg-slate-900 text-slate-100">
                       To-Do
                     </option>
@@ -790,6 +1020,124 @@ export default function Dashboard() {
                       High (Red)
                     </option>
                   </select>
+                </div>
+              </div>
+
+              {/* Sprint & Story Points Selects */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Sprint */}
+                <div>
+                  <label
+                    htmlFor="task-sprint"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  >
+                    Sprint
+                  </label>
+                  <select
+                    id="task-sprint"
+                    name="sprint"
+                    data-testid="task-sprint-input"
+                    value={formData.sprint}
+                    onChange={handleFormChange}
+                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                  >
+                    <option value="Backlog" className="bg-slate-900 text-slate-100">
+                      Backlog
+                    </option>
+                    <option value="Sprint 1" className="bg-slate-900 text-slate-100">
+                      Sprint 1
+                    </option>
+                    <option value="Sprint 2" className="bg-slate-900 text-slate-100">
+                      Sprint 2
+                    </option>
+                  </select>
+                </div>
+
+                {/* Story Points */}
+                <div>
+                  <label
+                    htmlFor="task-story-points"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  >
+                    Story Points
+                  </label>
+                  <select
+                    id="task-story-points"
+                    name="storyPoints"
+                    data-testid="task-story-points-input"
+                    value={formData.storyPoints}
+                    onChange={handleFormChange}
+                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                  >
+                    <option value={1} className="bg-slate-900 text-slate-100">
+                      1 Point
+                    </option>
+                    <option value={2} className="bg-slate-900 text-slate-100">
+                      2 Points
+                    </option>
+                    <option value={3} className="bg-slate-900 text-slate-100">
+                      3 Points
+                    </option>
+                    <option value={5} className="bg-slate-900 text-slate-100">
+                      5 Points
+                    </option>
+                    <option value={8} className="bg-slate-900 text-slate-100">
+                      8 Points
+                    </option>
+                    <option value={13} className="bg-slate-900 text-slate-100">
+                      13 Points
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Milestone & Due Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Milestone */}
+                <div>
+                  <label
+                    htmlFor="task-milestone"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  >
+                    Milestone
+                  </label>
+                  <select
+                    id="task-milestone"
+                    name="milestone"
+                    data-testid="task-milestone-input"
+                    value={formData.milestone}
+                    onChange={handleFormChange}
+                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                  >
+                    <option value="Phase 1: Planning" className="bg-slate-900 text-slate-100">
+                      Phase 1: Planning
+                    </option>
+                    <option value="Phase 2: Execution" className="bg-slate-900 text-slate-100">
+                      Phase 2: Execution
+                    </option>
+                    <option value="Phase 3: Launch" className="bg-slate-900 text-slate-100">
+                      Phase 3: Launch
+                    </option>
+                  </select>
+                </div>
+
+                {/* Due Date */}
+                <div>
+                  <label
+                    htmlFor="task-due-date"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  >
+                    Due Date
+                  </label>
+                  <input
+                    id="task-due-date"
+                    name="dueDate"
+                    type="date"
+                    data-testid="task-due-date-input"
+                    value={formData.dueDate}
+                    onChange={handleFormChange}
+                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                  />
                 </div>
               </div>
 

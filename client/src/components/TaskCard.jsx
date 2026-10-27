@@ -1,16 +1,18 @@
 import { useState, useContext } from 'react';
-import { User, Calendar, Tag, Trash2, Loader2 } from 'lucide-react';
+import { User, Calendar, Tag, Trash2, Loader2, Zap, Target } from 'lucide-react';
 import AuthContext from '../AuthContext';
 import api from '../api/axios';
 
 /**
  * TaskCard Component
  * Reusable card displaying task title, description, color-coded priority badge, creator name,
+ * methodology badges (Story Points in Scrum mode, Due Date & Milestone in PM mode),
  * status change dropdown (PUT /api/tasks/:id), and role-based red Delete button (DELETE /api/tasks/:id).
  * Priority color codes: Low = Blue, Medium = Yellow, High = Red.
  */
 export default function TaskCard({
   task,
+  methodology = 'Kanban',
   title: propTitle,
   description: propDescription,
   priority: propPriority,
@@ -33,6 +35,10 @@ export default function TaskCard({
   const creator = propCreator || currentTask.creator;
   const creatorName = propCreatorName || currentTask.creatorName;
   const createdAt = propCreatedAt || currentTask.createdAt;
+  const sprint = currentTask.sprint || 'Backlog';
+  const storyPoints = currentTask.storyPoints ?? 1;
+  const milestone = currentTask.milestone || 'General';
+  const dueDate = currentTask.dueDate;
 
   // Resolve current user to determine role
   const auth = useContext(AuthContext);
@@ -196,6 +202,66 @@ export default function TaskCard({
           )}
         </div>
 
+        {/* Scrum Mode Badges: Story Points & Sprint */}
+        {methodology === 'Scrum' && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span
+              data-testid="story-points-badge"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30"
+              title={`Story Points: ${storyPoints}`}
+            >
+              <Zap className="w-3 h-3 text-purple-400" />
+              <span>{storyPoints} {Number(storyPoints) === 1 ? 'pt' : 'pts'}</span>
+            </span>
+            {sprint && (
+              <span
+                data-testid="sprint-badge"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20"
+                title={`Sprint: ${sprint}`}
+              >
+                <span>{sprint}</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Project Management Mode Badges: Milestone & Due Date */}
+        {methodology === 'Project Management' && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span
+              data-testid="milestone-badge"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 truncate max-w-[170px]"
+              title={`Milestone: ${milestone}`}
+            >
+              <Target className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+              <span className="truncate">{milestone}</span>
+            </span>
+            {dueDate ? (
+              <span
+                data-testid="due-date-badge"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                title={`Due Date: ${new Date(dueDate).toLocaleDateString()}`}
+              >
+                <Calendar className="w-3 h-3 text-emerald-400" />
+                <span>
+                  {new Date(dueDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              </span>
+            ) : (
+              <span
+                data-testid="due-date-badge"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-500 bg-slate-800/40 border border-slate-700/40"
+              >
+                <Calendar className="w-3 h-3 text-slate-500" />
+                <span>No deadline</span>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Task Title */}
         <h4 className="text-base font-semibold text-white tracking-tight leading-snug group-hover:text-indigo-200 transition-colors">
           {title}
@@ -230,6 +296,9 @@ export default function TaskCard({
               disabled={isUpdatingStatus}
               className="text-xs font-medium bg-slate-950/80 text-slate-200 border border-slate-700/80 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 hover:border-slate-600 transition-colors cursor-pointer disabled:opacity-50"
             >
+              <option value="Backlog" className="bg-slate-900 text-slate-100">
+                Backlog
+              </option>
               <option value="To-Do" className="bg-slate-900 text-slate-100">
                 To-Do
               </option>
