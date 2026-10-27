@@ -20,19 +20,48 @@ const getTasks = async (req, res) => {
 // @access  Private (requires token)
 const createTask = async (req, res) => {
   try {
-    const { title, description, status, priority, createdBy } = req.body || {};
+    const {
+      title,
+      description,
+      status,
+      priority,
+      createdBy,
+      sprint,
+      storyPoints,
+      milestone,
+      startDate,
+      dueDate,
+    } = req.body || {};
 
     if (!title || (typeof title === "string" && !title.trim())) {
       return res.status(400).json({ message: "Title is required" });
     }
 
-    const task = new Task({
+    const taskData = {
       title: typeof title === "string" ? title.trim() : title,
       description: typeof description === "string" ? description.trim() : description,
       status: status || "To-Do",
       priority: priority || "Medium",
       createdBy,
-    });
+    };
+
+    if (sprint !== undefined && sprint !== "") {
+      taskData.sprint = typeof sprint === "string" ? sprint.trim() : sprint;
+    }
+    if (storyPoints !== undefined && storyPoints !== "") {
+      taskData.storyPoints = storyPoints;
+    }
+    if (milestone !== undefined && milestone !== "") {
+      taskData.milestone = typeof milestone === "string" ? milestone.trim() : milestone;
+    }
+    if (startDate !== undefined) {
+      taskData.startDate = startDate === "" ? null : startDate;
+    }
+    if (dueDate !== undefined) {
+      taskData.dueDate = dueDate === "" ? null : dueDate;
+    }
+
+    const task = new Task(taskData);
 
     const savedTask = await task.save();
     await savedTask.populate("createdBy", "name email role");
@@ -46,7 +75,7 @@ const createTask = async (req, res) => {
   }
 };
 
-// @desc    Update a task's status, title, description, or priority
+// @desc    Update a task's status, title, description, priority, or management fields
 // @route   PUT /api/tasks/:id
 // @access  Private (requires token)
 const updateTask = async (req, res) => {
@@ -75,6 +104,18 @@ const updateTask = async (req, res) => {
     }
     if (typeof updates.description === "string") {
       updates.description = updates.description.trim();
+    }
+    if (typeof updates.sprint === "string") {
+      updates.sprint = updates.sprint.trim();
+    }
+    if (typeof updates.milestone === "string") {
+      updates.milestone = updates.milestone.trim();
+    }
+    if (updates.startDate === "") {
+      updates.startDate = null;
+    }
+    if (updates.dueDate === "") {
+      updates.dueDate = null;
     }
 
     const updatedTask = await Task.findByIdAndUpdate(

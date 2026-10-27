@@ -13,13 +13,33 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["To-Do", "In Progress", "Completed"],
+      enum: ["Backlog", "To-Do", "In Progress", "Completed"],
       default: "To-Do",
     },
     priority: {
       type: String,
       enum: ["Low", "Medium", "High"],
       default: "Medium",
+    },
+    sprint: {
+      type: String,
+      default: "Backlog",
+      trim: true,
+    },
+    storyPoints: {
+      type: Number,
+      default: 1,
+    },
+    milestone: {
+      type: String,
+      default: "General",
+      trim: true,
+    },
+    startDate: {
+      type: Date,
+    },
+    dueDate: {
+      type: Date,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
