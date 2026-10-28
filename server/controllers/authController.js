@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Invitation = require("../models/Invitation");
 
 // Helper function to generate JWT token
 const generateToken = (user) => {
@@ -76,10 +77,29 @@ const register = async (req, res) => {
       } else {
         userData.role = role;
       }
+    } else {
+      // If role not specified, check if there is a pending invitation for this email
+      const pendingInvite = await Invitation.findOne({
+        email: normalizedEmail,
+        status: "Pending",
+      });
+      if (pendingInvite?.role) {
+        userData.role = pendingInvite.role;
+      }
     }
 
     const user = new User(userData);
     const savedUser = await user.save();
+
+    // Automatically update any Pending invitation document for this email to 'Accepted'
+    try {
+      await Invitation.updateMany(
+        { email: normalizedEmail, status: "Pending" },
+        { status: "Accepted" }
+      );
+    } catch (inviteErr) {
+      console.error("Failed to update pending invitation:", inviteErr);
+    }
 
     // Generate signed JWT token
     const token = generateToken(savedUser);
