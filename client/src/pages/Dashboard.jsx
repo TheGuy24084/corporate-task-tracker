@@ -5,6 +5,7 @@ import api from '../api/axios';
 import TaskCard from '../components/TaskCard';
 import ScrumView from '../components/ScrumView';
 import ProjectManagementView from '../components/ProjectManagementView';
+import InviteMemberModal from '../components/InviteMemberModal';
 import {
   Kanban,
   ListTodo,
@@ -24,6 +25,8 @@ import {
   Zap,
   Calendar,
   Target,
+  UserPlus,
+  UserCheck,
 } from 'lucide-react';
 
 const METHODOLOGIES = [
@@ -99,6 +102,7 @@ const INITIAL_FORM_DATA = {
   description: '',
   status: 'To-Do',
   priority: 'Medium',
+  assignedTo: '',
   sprint: 'Backlog',
   storyPoints: 1,
   milestone: 'Phase 1: Planning',
@@ -116,6 +120,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Team members list & Invite Modal State
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
@@ -126,15 +134,22 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [assigneeFilter, setAssigneeFilter] = useState('All');
 
   // Check if any filter is active
-  const isFiltered = Boolean(searchQuery.trim() || priorityFilter !== 'All' || statusFilter !== 'All');
+  const isFiltered = Boolean(
+    searchQuery.trim() ||
+      priorityFilter !== 'All' ||
+      statusFilter !== 'All' ||
+      assigneeFilter !== 'All'
+  );
 
   // Reset all filters to default
   const handleClearFilters = () => {
     setSearchQuery('');
     setPriorityFilter('All');
     setStatusFilter('All');
+    setAssigneeFilter('All');
   };
 
   // Redirect unauthenticated users to /login
@@ -144,7 +159,21 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch tasks on initial mount when authenticated
+  // Fetch team members from GET /api/team/members
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await api.get('/api/team/members');
+      const data = response.data || {};
+      const userList = Array.isArray(data)
+        ? data
+        : data.users || data.members || [];
+      setTeamMembers(userList);
+    } catch (err) {
+      console.error('Failed to load team members:', err);
+    }
+  };
+
+  // Fetch tasks and team members on initial mount when authenticated
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -174,7 +203,25 @@ export default function Dashboard() {
       }
     }
 
+    async function loadTeam() {
+      try {
+        const response = await api.get('/api/team/members');
+        if (!ignore) {
+          const data = response.data || {};
+          const userList = Array.isArray(data)
+            ? data
+            : data.users || data.members || [];
+          setTeamMembers(userList);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error('Failed to load team members:', err);
+        }
+      }
+    }
+
     loadTasks();
+    loadTeam();
 
     return () => {
       ignore = true;
@@ -222,6 +269,7 @@ export default function Dashboard() {
   const handleRefresh = async () => {
     setLoading(true);
     setError('');
+    fetchTeamMembers();
     try {
       const response = await api.get('/tasks');
       const data = response.data;
@@ -265,6 +313,7 @@ export default function Dashboard() {
         description: formData.description.trim(),
         status: formData.status,
         priority: formData.priority,
+        assignedTo: formData.assignedTo || null,
         sprint: formData.sprint || 'Backlog',
         storyPoints: Number(formData.storyPoints) || 1,
         milestone: formData.milestone || 'Phase 1: Planning',
@@ -335,7 +384,29 @@ export default function Dashboard() {
       }
     }
 
-    return matchesSearch && matchesPriority && matchesStatus;
+    let matchesAssignee = true;
+    if (assigneeFilter !== 'All') {
+      const taskAssigneeId = t.assignedTo
+        ? typeof t.assignedTo === 'object'
+          ? t.assignedTo._id || t.assignedTo.id
+          : t.assignedTo
+        : null;
+      const currentUserId = user?._id || user?.id;
+
+      if (assigneeFilter === 'My Tasks') {
+        matchesAssignee = Boolean(
+          taskAssigneeId &&
+            currentUserId &&
+            String(taskAssigneeId) === String(currentUserId)
+        );
+      } else if (assigneeFilter === 'Unassigned') {
+        matchesAssignee = !taskAssigneeId;
+      } else {
+        matchesAssignee = String(taskAssigneeId) === String(assigneeFilter);
+      }
+    }
+
+    return matchesSearch && matchesPriority && matchesStatus && matchesAssignee;
   });
 
   // Calculate task counts per column from filtered tasks
@@ -438,7 +509,20 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Invite Member Button to trigger InviteMemberModal */}
+            <button
+              type="button"
+              onClick={() => setIsInviteModalOpen(true)}
+              data-testid="invite-member-button"
+              id="invite-member-button"
+              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-white hover:bg-indigo-50/70 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-indigo-200 dark:border-indigo-800 shadow-sm transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              title="Invite Team Member"
+            >
+              <UserPlus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span>Invite Member</span>
+            </button>
+
             {/* Create Task Button to trigger Modal */}
             <button
               onClick={() => openModal('To-Do')}
@@ -729,6 +813,60 @@ export default function Dashboard() {
               </select>
             </div>
 
+            {/* Assignee Filter */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="assignee-filter"
+                className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:inline"
+              >
+                Assignee:
+              </label>
+              <select
+                id="assignee-filter"
+                data-testid="assignee-filter"
+                aria-label="Filter tasks by assignee"
+                value={assigneeFilter}
+                onChange={(e) => setAssigneeFilter(e.target.value)}
+                className="px-3 py-2 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+              >
+                <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                  All Assignees
+                </option>
+                <option value="My Tasks" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold text-indigo-600 dark:text-indigo-400">
+                  My Tasks
+                </option>
+                <option value="Unassigned" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                  Unassigned
+                </option>
+                {teamMembers.map((member) => (
+                  <option
+                    key={member._id || member.id}
+                    value={member._id || member.id}
+                    className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                  >
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Quick "My Tasks" filter button */}
+              <button
+                type="button"
+                id="my-tasks-filter-btn"
+                data-testid="my-tasks-filter-btn"
+                onClick={() => setAssigneeFilter(assigneeFilter === 'My Tasks' ? 'All' : 'My Tasks')}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  assigneeFilter === 'My Tasks'
+                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/25'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
+                }`}
+                title="Quick filter: Tasks assigned to me"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>My Tasks</span>
+              </button>
+            </div>
+
             {/* Reset / Clear Filters Button */}
             {isFiltered && (
               <button
@@ -781,6 +919,7 @@ export default function Dashboard() {
           onDeleteTask={handleDeleteTask}
           openModal={openModal}
           loading={loading}
+          teamMembers={teamMembers}
         />
       ) : methodology === 'Project Management' ? (
         <ProjectManagementView
@@ -790,6 +929,7 @@ export default function Dashboard() {
           onDeleteTask={handleDeleteTask}
           openModal={openModal}
           loading={loading}
+          teamMembers={teamMembers}
         />
       ) : (
         /* Responsive 3-Column Kanban Board Layout */
@@ -862,6 +1002,7 @@ export default function Dashboard() {
                         onUpdateTask={handleUpdateTask}
                         onDeleteTask={handleDeleteTask}
                         onDelete={handleDeleteTask}
+                        teamMembers={teamMembers}
                       />
                     ))
                   ) : (
@@ -1172,6 +1313,37 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Assign To Dropdown */}
+              <div>
+                <label
+                  htmlFor="task-assigned-to"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
+                >
+                  Assign To
+                </label>
+                <select
+                  id="task-assigned-to"
+                  name="assignedTo"
+                  data-testid="task-assigned-to-input"
+                  value={formData.assignedTo}
+                  onChange={handleFormChange}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                >
+                  <option value="" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                    Unassigned
+                  </option>
+                  {teamMembers.map((member) => (
+                    <option
+                      key={member._id || member.id}
+                      value={member._id || member.id}
+                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    >
+                      {member.name} ({member.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Modal Actions */}
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
                 <button
@@ -1206,6 +1378,13 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Invite Member Modal */}
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onInviteSuccess={fetchTeamMembers}
+      />
     </div>
   );
 }

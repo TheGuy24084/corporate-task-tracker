@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import {
   UserPlus,
@@ -18,12 +18,17 @@ import {
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  const urlEmail = searchParams.get('email') || '';
+  const urlRole = searchParams.get('role');
+  const validRole = urlRole === 'Admin' ? 'Admin' : 'User';
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: urlEmail,
     password: '',
-    role: 'User',
+    role: urlRole ? validRole : 'User',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -90,6 +95,16 @@ export default function Register() {
               Join the corporate task workspace and collaborate with your team
             </p>
           </div>
+
+          {/* Invitation Notice */}
+          {(searchParams.get('inviteToken') || urlEmail) && (
+            <div className="mb-6 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs flex items-center gap-2.5 animate-fade-in">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-indigo-600 dark:text-indigo-400" />
+              <span>
+                Completing invitation for <strong>{formData.email}</strong> as <strong>{formData.role}</strong>
+              </span>
+            </div>
+          )}
 
           {/* Error Banner */}
           {error && (
