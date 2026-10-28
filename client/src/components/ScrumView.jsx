@@ -80,6 +80,7 @@ export default function ScrumView({
   onDeleteTask,
   openModal,
   loading = false,
+  teamMembers = [],
 }) {
   const [selectedSprint, setSelectedSprint] = useState('Sprint 1');
   const [isBacklogExpanded, setIsBacklogExpanded] = useState(true);
@@ -316,6 +317,71 @@ export default function ScrumView({
                         )}
                       </div>
 
+                      {/* Backlog Item Assignee */}
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                            {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+                          </div>
+                          <span
+                            data-testid={`backlog-assignee-${taskId}`}
+                            className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[100px]"
+                            title={task.assignedTo?.name || 'Unassigned'}
+                          >
+                            {task.assignedTo?.name || 'Unassigned'}
+                          </span>
+                        </div>
+
+                        <select
+                          data-testid={`backlog-assignee-select-${taskId}`}
+                          aria-label="Reassign backlog task"
+                          value={
+                            task.assignedTo
+                              ? typeof task.assignedTo === 'object'
+                                ? task.assignedTo._id || task.assignedTo.id || ''
+                                : task.assignedTo
+                              : ''
+                          }
+                          onChange={async (e) => {
+                            const newAssigneeId = e.target.value;
+                            try {
+                              const res = await api.put(`/tasks/${taskId}`, {
+                                assignedTo: newAssigneeId === '' ? '' : newAssigneeId,
+                              });
+                              if (typeof onUpdateTask === 'function') {
+                                onUpdateTask(
+                                  res.data || {
+                                    ...task,
+                                    assignedTo: newAssigneeId
+                                      ? teamMembers.find(
+                                          (m) => (m._id || m.id) === newAssigneeId
+                                        ) || newAssigneeId
+                                      : null,
+                                  }
+                                );
+                              }
+                            } catch (err) {
+                              alert(
+                                err.response?.data?.message ||
+                                  err.message ||
+                                  'Failed to reassign task'
+                              );
+                            }
+                          }}
+                          className="text-[11px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer"
+                        >
+                          <option value="">Unassigned</option>
+                          {teamMembers.map((member) => (
+                            <option
+                              key={member._id || member.id}
+                              value={member._id || member.id}
+                            >
+                              {member.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
                         <span className="text-[11px] text-slate-500 dark:text-slate-400">
                           {task.milestone || 'General'}
@@ -444,6 +510,7 @@ export default function ScrumView({
                         task={task}
                         methodology="Scrum"
                         user={user}
+                        teamMembers={teamMembers}
                         onUpdateTask={onUpdateTask}
                         onDeleteTask={onDeleteTask}
                         onDelete={onDeleteTask}

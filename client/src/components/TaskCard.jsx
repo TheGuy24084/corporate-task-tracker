@@ -21,6 +21,7 @@ export default function TaskCard({
   creatorName: propCreatorName,
   createdAt: propCreatedAt,
   user: propUser,
+  teamMembers = [],
   onUpdateTask,
   onStatusChange,
   onDeleteTask,
@@ -64,6 +65,44 @@ export default function TaskCard({
   const currentStatus = localStatus ?? (currentTask.status || 'To-Do');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReassigning, setIsReassigning] = useState(false);
+
+  const assignedTo = currentTask.assignedTo;
+  const currentAssigneeId = assignedTo
+    ? typeof assignedTo === 'object'
+      ? assignedTo._id || assignedTo.id || ''
+      : assignedTo
+    : '';
+
+  // Handle reassigning task via PUT /api/tasks/:id
+  const handleAssigneeChange = async (e) => {
+    const newAssigneeId = e.target.value;
+    if (!taskId) return;
+
+    setIsReassigning(true);
+    try {
+      const response = await api.put(`/tasks/${taskId}`, {
+        assignedTo: newAssigneeId === '' ? '' : newAssigneeId,
+      });
+      const updated = response?.data || {
+        ...currentTask,
+        assignedTo: newAssigneeId
+          ? teamMembers.find((m) => (m._id || m.id) === newAssigneeId) || newAssigneeId
+          : null,
+      };
+      if (typeof onUpdateTask === 'function') {
+        onUpdateTask(updated);
+      }
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to reassign task';
+      alert(message);
+    } finally {
+      setIsReassigning(false);
+    }
+  };
 
   // Handle changing status via PUT /api/tasks/:id
   const handleStatusChange = async (e) => {
@@ -337,6 +376,51 @@ export default function TaskCard({
             <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
           </button>
         )}
+      </div>
+
+      {/* Assignee Badge & Quick-Reassign Dropdown */}
+      <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span
+            data-testid="assignee-badge"
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 truncate"
+            title={`Assigned to: ${task.assignedTo?.name || 'Unassigned'}`}
+          >
+            <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+              {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+            </div>
+            <span className="truncate max-w-[120px]">
+              {task.assignedTo?.name || 'Unassigned'}
+            </span>
+          </span>
+        </div>
+
+        <div className="relative inline-flex items-center">
+          <select
+            data-testid="assignee-select"
+            aria-label="Reassign task"
+            value={currentAssigneeId}
+            onChange={handleAssigneeChange}
+            disabled={isReassigning}
+            className="text-[11px] font-medium bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <option value="" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              Unassigned
+            </option>
+            {teamMembers.map((member) => (
+              <option
+                key={member._id || member.id}
+                value={member._id || member.id}
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+              >
+                {member.name}
+              </option>
+            ))}
+          </select>
+          {isReassigning && (
+            <Loader2 className="w-3 h-3 ml-1 text-indigo-600 dark:text-indigo-400 animate-spin" />
+          )}
+        </div>
       </div>
 
       {/* Task Footer: Creator's Name */}

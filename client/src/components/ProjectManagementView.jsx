@@ -35,6 +35,7 @@ export default function ProjectManagementView({
   onDeleteTask,
   openModal,
   loading = false,
+  teamMembers = [],
 }) {
   const auth = useContext(AuthContext);
   const currentUser = propUser || auth?.user;
@@ -46,6 +47,7 @@ export default function ProjectManagementView({
   // Track status update & delete pending states per task
   const [updatingTaskId, setUpdatingTaskId] = useState(null);
   const [deletingTaskId, setDeletingTaskId] = useState(null);
+  const [reassigningTaskId, setReassigningTaskId] = useState(null);
 
   // Collapsible state per milestone group
   const [collapsedMilestones, setCollapsedMilestones] = useState({});
@@ -103,6 +105,37 @@ export default function ProjectManagementView({
       );
     } finally {
       setUpdatingTaskId(null);
+    }
+  };
+
+  // Reassign Task Handler (PUT /api/tasks/:id)
+  const handleAssigneeChange = async (task, newAssigneeId) => {
+    const taskId = task._id || task.id;
+    if (!taskId) return;
+
+    setReassigningTaskId(taskId);
+    try {
+      const response = await api.put(`/tasks/${taskId}`, {
+        assignedTo: newAssigneeId === '' ? '' : newAssigneeId,
+      });
+      const updated = response?.data || {
+        ...task,
+        assignedTo: newAssigneeId
+          ? teamMembers.find((m) => (m._id || m.id) === newAssigneeId) || newAssigneeId
+          : null,
+      };
+      if (typeof onUpdateTask === 'function') {
+        onUpdateTask(updated);
+      }
+    } catch (err) {
+      console.error('Failed to reassign task:', err);
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to reassign task'
+      );
+    } finally {
+      setReassigningTaskId(null);
     }
   };
 
@@ -389,6 +422,7 @@ export default function ProjectManagementView({
                           <th className="py-3 px-4 sm:px-6">Task Title</th>
                           <th className="py-3 px-3">Priority</th>
                           <th className="py-3 px-3">Status</th>
+                          <th className="py-3 px-3">Assignee</th>
                           <th className="py-3 px-3">Points</th>
                           <th className="py-3 px-3">Due Date</th>
                           <th className="py-3 px-4">Progress</th>
@@ -494,6 +528,61 @@ export default function ProjectManagementView({
                                   </select>
                                   {isUpdating && (
                                     <Loader2 className="w-3.5 h-3.5 ml-1.5 text-cyan-600 dark:text-cyan-400 animate-spin" />
+                                  )}
+                                </div>
+                              </td>
+
+                              {/* Assignee */}
+                              <td className="py-3.5 px-3 whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0 shadow-xs">
+                                      {task.assignedTo?.name
+                                        ? task.assignedTo.name[0].toUpperCase()
+                                        : '?'}
+                                    </div>
+                                    <span
+                                      data-testid="pm-task-assignee"
+                                      className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[100px]"
+                                      title={task.assignedTo?.name || 'Unassigned'}
+                                    >
+                                      {task.assignedTo?.name || 'Unassigned'}
+                                    </span>
+                                  </div>
+                                  <select
+                                    data-testid="pm-assignee-select"
+                                    aria-label="Reassign task"
+                                    value={
+                                      task.assignedTo
+                                        ? typeof task.assignedTo === 'object'
+                                          ? task.assignedTo._id || task.assignedTo.id || ''
+                                          : task.assignedTo
+                                        : ''
+                                    }
+                                    disabled={reassigningTaskId === taskId}
+                                    onChange={(e) =>
+                                      handleAssigneeChange(task, e.target.value)
+                                    }
+                                    className="text-[11px] font-medium bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500 hover:border-slate-400 dark:hover:border-slate-600 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    <option
+                                      value=""
+                                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                                    >
+                                      Unassigned
+                                    </option>
+                                    {teamMembers.map((member) => (
+                                      <option
+                                        key={member._id || member.id}
+                                        value={member._id || member.id}
+                                        className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                                      >
+                                        {member.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {reassigningTaskId === taskId && (
+                                    <Loader2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 animate-spin" />
                                   )}
                                 </div>
                               </td>
