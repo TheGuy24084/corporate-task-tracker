@@ -47,24 +47,24 @@ export default function Login() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Card */}
-        <div className="bg-slate-900/90 border border-slate-800 shadow-2xl rounded-2xl p-8 backdrop-blur-xl transition-all duration-200">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl p-8 backdrop-blur-xl transition-all duration-200">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-indigo-500/25 mb-4">
               <LogIn className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Sign in to your account
             </h1>
-            <p className="text-sm text-slate-400 mt-2">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
               Access your corporate task tracker and team workspace
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-start gap-3 animate-fade-in">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
+            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-300 text-sm flex items-start gap-3 animate-fade-in">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
               <span>{error}</span>
             </div>
           )}
@@ -75,7 +75,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
               >
                 Work Email
               </label>
@@ -92,7 +92,7 @@ export default function Login() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="alex.smith@company.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function Login() {
               <div className="flex items-center justify-between mb-2">
                 <label
                   htmlFor="password"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                 >
                   Password
                 </label>
@@ -120,12 +120,12 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-11 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -134,9 +134,9 @@ export default function Login() {
             </div>
 
             {/* Demo Credentials Helper */}
-            <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 text-xs text-slate-400 space-y-2">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-300">Demo Admin Credentials:</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Demo Admin Credentials:</span>
                 <button
                   type="button"
                   onClick={() =>
@@ -145,12 +145,12 @@ export default function Login() {
                       password: 'Admin123!',
                     })
                   }
-                  className="px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30 transition-all"
+                  className="px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/25 border border-indigo-500/30 transition-all cursor-pointer"
                 >
                   Auto-fill Admin
                 </button>
               </div>
-              <p className="font-mono text-[11px] text-slate-400">
+              <p className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
                 admin@company.com / Admin123!
               </p>
             </div>
@@ -176,12 +176,12 @@ export default function Login() {
           </form>
 
           {/* Footer Navigation */}
-          <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
-            <p className="text-sm text-slate-400">
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800/80 text-center">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <Link
                 to="/register"
-                className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1"
+                className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors inline-flex items-center gap-1"
               >
                 Register here
               </Link>

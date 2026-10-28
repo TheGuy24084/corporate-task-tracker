@@ -81,14 +81,23 @@ The user interface is engineered using **React 19**:
 - **React Hooks**:
   - `useState`: Manages local component state (tasks array, active methodology switcher, filter terms, modal visibility, form inputs, loading indicators).
   - `useEffect`: Handles lifecycle events, initial API data synchronization, document title updates, and global keyboard shortcuts (e.g., closing modal on `Escape`).
-  - `useContext`: Consumes the global authentication context (`AuthContext`) through the custom `useAuth()` hook.
+  - `useContext`: Consumes global application state, including authentication (`AuthContext`) and theme preferences (`ThemeContext`).
 - **React Router DOM (v7)**: Provides declarative routing (`/`, `/login`, `/register`, `/dashboard`), client-side redirection for unauthenticated visitors, and navigation guards.
+- **Context API & Theme Management (`ThemeContext`)**:
+  - Implements a global `ThemeContext` and `ThemeProvider` that provides `{ theme, toggleTheme }` through the custom `useTheme()` hook.
+  - Automatically loads and persists theme preferences in browser `localStorage`.
+  - Toggles the `'dark'` class directly on `document.documentElement`, ensuring full client-side synchronization and zero layout shift.
 
 #### D. Tailwind CSS
 The styling layer utilizes **Tailwind CSS (v3.4)**:
 - **Utility-First Paradigm**: Composable, maintainable class names that eliminate bulky, disconnected stylesheets.
 - **Responsive Layout**: Fluid breakpoints (`sm:`, `md:`, `lg:`) enabling views to shift effortlessly from a stacked mobile layout to a multi-column desktop workflow.
-- **Modern Corporate Dark Theme**: Curated palette utilizing `slate-950` as the canvas, `slate-900` card surfaces, and dynamic accent gradients (`indigo-500`, `purple-500`, `cyan-400`).
+- **Persistent Dark/Light Theme System**:
+  - Configured with `darkMode: 'class'` in `tailwind.config.js`.
+  - Comprehensive `dark:` utility variants applied across all application pages and components (`index.css`, `App.jsx`, `Login.jsx`, `Register.jsx`, `Dashboard.jsx`, `TaskCard.jsx`, `ScrumView.jsx`, `ProjectManagementView.jsx`).
+  - Root elements transition smoothly between dark slate surfaces (`dark:bg-slate-950 dark:text-slate-100`) and bright neutral tones (`bg-gray-50 text-gray-900`) using `transition-colors duration-200`.
+  - Kanban columns, Scrum Sprints/Backlog, and Project Management milestone tables seamlessly adapt with `dark:bg-slate-900`, `dark:border-slate-800`, and `dark:hover:bg-slate-800/60`.
+- **Modern Corporate Aesthetic**: Curated palettes utilizing clean slate tones (`slate-50`/`slate-950`), refined card surfaces (`white`/`slate-900`), and dynamic accent gradients (`indigo-500`, `purple-500`, `cyan-400`).
 - **State Styling & Micro-Interactions**: Hover transitions, active press effects (`active:scale-95`), focus rings for accessibility, and animated spin loaders (`animate-spin`).
 
 ---

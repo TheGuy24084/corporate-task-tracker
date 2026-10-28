@@ -76,7 +76,7 @@ export default function App() {
     <ThemeProvider>
       <Router>
         <AuthProvider>
-          <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+          <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
             <Navbar />
             <main className="flex-1">
               <Routes>

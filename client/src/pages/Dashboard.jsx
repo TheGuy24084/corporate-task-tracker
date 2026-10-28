@@ -348,7 +348,7 @@ export default function Dashboard() {
       {/* Methodology Switcher Segmented Control */}
       <div
         data-testid="methodology-switcher"
-        className="p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md grid grid-cols-1 md:grid-cols-3 gap-2"
+        className="p-1.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md grid grid-cols-1 md:grid-cols-3 gap-2"
       >
         {METHODOLOGIES.map((item) => {
           const isActive = methodology === item.id;
@@ -366,14 +366,14 @@ export default function Dashboard() {
               className={`relative flex items-center gap-3 p-3 sm:py-3.5 sm:px-4 rounded-xl text-left transition-all duration-200 cursor-pointer ${
                 isActive
                   ? 'bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25 border border-indigo-400/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent'
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                   isActive
                     ? 'bg-white/20 text-white'
-                    : 'bg-slate-800 text-slate-400'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}
               >
                 <ItemIcon className="w-5 h-5" />
@@ -381,14 +381,14 @@ export default function Dashboard() {
               <div className="flex flex-col min-w-0">
                 <span
                   className={`text-sm font-bold tracking-tight truncate ${
-                    isActive ? 'text-white' : 'text-slate-200'
+                    isActive ? 'text-white' : 'text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {item.title}
                 </span>
                 <span
                   className={`text-xs truncate ${
-                    isActive ? 'text-indigo-100' : 'text-slate-400'
+                    isActive ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {item.subtitle}
@@ -400,10 +400,10 @@ export default function Dashboard() {
       </div>
 
       {/* Header Banner */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-indigo-950/30 border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-white via-indigo-50/40 to-purple-50/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-indigo-950/30 border border-slate-200 dark:border-slate-800 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider">
               {methodology === 'Scrum' ? (
                 <>
                   <Zap className="w-3.5 h-3.5" />
@@ -421,20 +421,20 @@ export default function Dashboard() {
                 </>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {methodology === 'Scrum'
                 ? 'Sprint & Velocity Management'
                 : methodology === 'Project Management'
                 ? 'Milestones & Project Roadmaps'
                 : 'Corporate Task Workflow'}
             </h1>
-            <p className="text-sm text-slate-400 max-w-xl">
+            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl">
               {methodology === 'Scrum'
                 ? 'Manage sprint iterations, estimate effort with story points, and commit backlog deliverables.'
                 : methodology === 'Project Management'
                 ? 'Monitor cross-phase milestones, track project schedules, and enforce critical path deadlines.'
                 : 'Track, organize, and monitor corporate continuous flow across team deliverables.'}{' '}
-              Logged in as <span className="text-slate-200 font-medium">{user?.name || user?.email}</span>.
+              Logged in as <span className="text-slate-900 dark:text-slate-200 font-medium">{user?.name || user?.email}</span>.
             </p>
           </div>
 
@@ -455,10 +455,10 @@ export default function Dashboard() {
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 shadow-sm transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 shadow-sm transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               title="Refresh Tasks"
             >
-              <RefreshCw className={`w-4 h-4 text-indigo-400 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-indigo-500 dark:text-indigo-400 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh Board</span>
             </button>
           </div>
@@ -468,181 +468,181 @@ export default function Dashboard() {
       {/* Metric Summary Cards based on Methodology */}
       {methodology === 'Scrum' ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
                 Total Story Points
               </span>
-              <Zap className="w-4 h-4 text-purple-400" />
+              <Zap className="w-4 h-4 text-purple-500 dark:text-purple-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {tasks.reduce((sum, t) => sum + (Number(t.storyPoints) || 1), 0)} pts
             </p>
-            <span className="text-[11px] text-slate-500">Estimated effort across tasks</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Estimated effort across tasks</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                 Backlog Items
               </span>
-              <ListTodo className="w-4 h-4 text-indigo-400" />
+              <ListTodo className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {tasks.filter((t) => t.sprint === 'Backlog' || t.status === 'Backlog').length}
             </p>
-            <span className="text-[11px] text-slate-500">Uncommitted queue</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Uncommitted queue</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                 In Sprint Dev
               </span>
-              <Clock className="w-4 h-4 text-amber-400" />
+              <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {inProgressTasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Active sprint velocity</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Active sprint velocity</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                 Delivered Velocity
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {completedTasks.reduce((sum, t) => sum + (Number(t.storyPoints) || 1), 0)} pts
             </p>
-            <span className="text-[11px] text-slate-500">Completed story points</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Completed story points</span>
           </div>
         </div>
       ) : methodology === 'Project Management' ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
                 Deliverables
               </span>
-              <Target className="w-4 h-4 text-cyan-400" />
+              <Target className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {tasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Project scope items</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Project scope items</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                 Active Milestones
               </span>
-              <Layers className="w-4 h-4 text-indigo-400" />
+              <Layers className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {new Set(tasks.map((t) => t.milestone || 'Phase 1: Planning')).size}
             </p>
-            <span className="text-[11px] text-slate-500">Project phase tracks</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Project phase tracks</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                 Deadlines Scheduled
               </span>
-              <Calendar className="w-4 h-4 text-amber-400" />
+              <Calendar className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {tasks.filter((t) => Boolean(t.dueDate)).length}
             </p>
-            <span className="text-[11px] text-slate-500">Target milestones with due dates</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Target milestones with due dates</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                 Delivered
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {completedTasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Milestones verified</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Milestones verified</span>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 Total Tasks
               </span>
-              <Layers className="w-4 h-4 text-slate-400" />
+              <Layers className="w-4 h-4 text-slate-500 dark:text-slate-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {tasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">All registered items</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">All registered items</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                 To-Do
               </span>
-              <ListTodo className="w-4 h-4 text-indigo-400" />
+              <ListTodo className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {todoTasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Backlog queue</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Backlog queue</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                 In Progress
               </span>
-              <Clock className="w-4 h-4 text-amber-400" />
+              <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {inProgressTasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Active development</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Active development</span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                 Completed
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-2">
               {completedTasks.length}
             </p>
-            <span className="text-[11px] text-slate-500">Delivered & verified</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">Delivered & verified</span>
           </div>
         </div>
       )}
 
       {/* Error Notice */}
       {error && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm flex items-start justify-between gap-3 animate-fade-in">
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-sm flex items-start justify-between gap-3 animate-fade-in">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-400" />
+            <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500 dark:text-amber-400" />
             <div>
               <p className="font-semibold">Notice from Backend API</p>
-              <p className="text-xs mt-0.5 text-amber-300/90">{error}</p>
+              <p className="text-xs mt-0.5 text-amber-700/90 dark:text-amber-300/90">{error}</p>
             </div>
           </div>
           <button
             onClick={handleRefresh}
-            className="text-xs font-semibold underline text-amber-300 hover:text-white"
+            className="text-xs font-semibold underline text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-white"
           >
             Retry
           </button>
@@ -650,7 +650,7 @@ export default function Dashboard() {
       )}
 
       {/* Task Filter & Search Toolbar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-md backdrop-blur-sm space-y-3">
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-md backdrop-blur-sm space-y-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Input Field */}
           <div className="relative flex-1">
@@ -665,13 +665,13 @@ export default function Dashboard() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search or filter tasks by title..."
-              className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
                 title="Clear search query"
                 aria-label="Clear search input"
               >
@@ -686,7 +686,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="status-filter"
-                className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline"
+                className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:inline"
               >
                 Status:
               </label>
@@ -696,13 +696,13 @@ export default function Dashboard() {
                 aria-label="Filter tasks by status"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+                className="px-3 py-2 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
               >
-                <option value="All" className="bg-slate-900 text-slate-100">All Statuses</option>
-                <option value="Backlog" className="bg-slate-900 text-slate-100">Backlog</option>
-                <option value="To-Do" className="bg-slate-900 text-slate-100">To-Do</option>
-                <option value="In Progress" className="bg-slate-900 text-slate-100">In Progress</option>
-                <option value="Completed" className="bg-slate-900 text-slate-100">Completed</option>
+                <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Statuses</option>
+                <option value="Backlog" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Backlog</option>
+                <option value="To-Do" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">To-Do</option>
+                <option value="In Progress" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">In Progress</option>
+                <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Completed</option>
               </select>
             </div>
 
@@ -710,7 +710,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <label
                 htmlFor="priority-filter"
-                className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline"
+                className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider hidden sm:inline"
               >
                 Priority:
               </label>
@@ -720,12 +720,12 @@ export default function Dashboard() {
                 aria-label="Filter tasks by priority"
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+                className="px-3 py-2 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
               >
-                <option value="All" className="bg-slate-900 text-slate-100">All Priorities</option>
-                <option value="High" className="bg-slate-900 text-slate-100">High (Red)</option>
-                <option value="Medium" className="bg-slate-900 text-slate-100">Medium (Yellow)</option>
-                <option value="Low" className="bg-slate-900 text-slate-100">Low (Blue)</option>
+                <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Priorities</option>
+                <option value="High" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">High (Red)</option>
+                <option value="Medium" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Medium (Yellow)</option>
+                <option value="Low" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Low (Blue)</option>
               </select>
             </div>
 
@@ -736,7 +736,7 @@ export default function Dashboard() {
                 id="clear-filters"
                 data-testid="clear-filters"
                 onClick={handleClearFilters}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-all cursor-pointer"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -747,25 +747,25 @@ export default function Dashboard() {
         </div>
 
         {/* Active Filters Summary & Results Count */}
-        <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800/60">
           <div className="flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-indigo-400" />
+            <Filter className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
             <span>
               {isFiltered ? (
                 <>
-                  Showing <strong className="text-white">{filteredTasks.length}</strong> of{' '}
-                  <strong className="text-white">{tasks.length}</strong> tasks matching criteria
+                  Showing <strong className="text-slate-900 dark:text-white">{filteredTasks.length}</strong> of{' '}
+                  <strong className="text-slate-900 dark:text-white">{tasks.length}</strong> tasks matching criteria
                 </>
               ) : (
                 <>
-                  Showing all <strong className="text-white">{tasks.length}</strong> tasks across sprints
+                  Showing all <strong className="text-slate-900 dark:text-white">{tasks.length}</strong> tasks across sprints
                 </>
               )}
             </span>
           </div>
 
           {isFiltered && (
-            <span className="text-[11px] text-indigo-400 font-medium">
+            <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
               Filters Active
             </span>
           )}
@@ -806,19 +806,19 @@ export default function Dashboard() {
               <div
                 key={column.id}
                 data-testid={`kanban-column-${column.id.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`flex flex-col rounded-2xl bg-slate-900/70 border border-slate-800 border-t-4 ${column.accentBorder} p-4 sm:p-5 shadow-lg backdrop-blur-sm min-h-[460px]`}
+                className={`flex flex-col rounded-2xl bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 border-t-4 ${column.accentBorder} p-4 sm:p-5 shadow-lg backdrop-blur-sm min-h-[460px]`}
               >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-800/80">
+                <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-200 dark:border-slate-800/80">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/60 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center">
                       <ColumnIcon className={`w-4 h-4 ${column.iconColor}`} />
                     </div>
                     <div>
-                      <h2 className="font-bold text-white text-base tracking-tight">
+                      <h2 className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
                         {column.title}
                       </h2>
-                      <p className="text-[11px] text-slate-500 hidden sm:block">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
                         {column.description}
                       </p>
                     </div>
@@ -828,7 +828,7 @@ export default function Dashboard() {
                     {/* Quick Add Button per Column */}
                     <button
                       onClick={() => openModal(column.id)}
-                      className="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-800/80 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
                       title={`Add task to ${column.title}`}
                       aria-label={`Add task to ${column.title}`}
                     >
@@ -849,8 +849,8 @@ export default function Dashboard() {
                 <div className="flex-1 space-y-3.5">
                   {loading ? (
                     <div className="space-y-3 animate-pulse">
-                      <div className="h-28 rounded-xl bg-slate-800/40 border border-slate-800/60" />
-                      <div className="h-28 rounded-xl bg-slate-800/20 border border-slate-800/40" />
+                      <div className="h-28 rounded-xl bg-slate-200/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800/60" />
+                      <div className="h-28 rounded-xl bg-slate-200/40 dark:bg-slate-800/20 border border-slate-200 dark:border-slate-800/40" />
                     </div>
                   ) : columnTasks.length > 0 ? (
                     columnTasks.map((task) => (
@@ -865,18 +865,18 @@ export default function Dashboard() {
                       />
                     ))
                   ) : (
-                    <div className="h-44 rounded-xl border border-dashed border-slate-800/80 bg-slate-950/40 flex flex-col items-center justify-center text-center p-4">
-                      <div className="w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center text-slate-600 mb-2">
-                        <Sparkles className="w-4 h-4 text-slate-500" />
+                    <div className="h-44 rounded-xl border border-dashed border-slate-300 dark:border-slate-800/80 bg-white/50 dark:bg-slate-950/40 flex flex-col items-center justify-center text-center p-4">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-2">
+                        <Sparkles className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       </div>
-                      <p className="text-xs font-medium text-slate-400">
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
                         {isFiltered ? `No ${column.title} tasks match filter` : `No tasks in ${column.title}`}
                       </p>
                       {isFiltered ? (
                         <button
                           type="button"
                           onClick={handleClearFilters}
-                          className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                          className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
                           <RotateCcw className="w-3 h-3" />
                           <span>Clear filters</span>
@@ -884,9 +884,9 @@ export default function Dashboard() {
                       ) : (
                         <button
                           onClick={() => openModal(column.id)}
-                          className="mt-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                          className="mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors inline-flex items-center gap-1 cursor-pointer"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5" />
                           <span>Create a task</span>
                         </button>
                       )}
@@ -905,26 +905,26 @@ export default function Dashboard() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm animate-fade-in"
           onClick={(e) => {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 animate-scale-in max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 animate-scale-in max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/10 dark:from-indigo-500/20 to-purple-500/10 dark:to-purple-500/20 border border-indigo-500/20 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
                   <h3
                     id="modal-title"
-                    className="text-lg font-bold text-white tracking-tight"
+                    className="text-lg font-bold text-slate-900 dark:text-white tracking-tight"
                   >
                     Create New Task
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Add a work deliverable to your corporate board
                   </p>
                 </div>
@@ -933,7 +933,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
@@ -942,8 +942,8 @@ export default function Dashboard() {
 
             {/* Form Error Banner */}
             {formError && (
-              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-400" />
+              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
                 <span>{formError}</span>
               </div>
             )}
@@ -954,9 +954,9 @@ export default function Dashboard() {
               <div>
                 <label
                   htmlFor="task-title"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                 >
-                  Task Title <span className="text-rose-400">*</span>
+                  Task Title <span className="text-rose-500 dark:text-rose-400">*</span>
                 </label>
                 <input
                   id="task-title"
@@ -968,7 +968,7 @@ export default function Dashboard() {
                   value={formData.title}
                   onChange={handleFormChange}
                   placeholder="e.g. Implement user authentication flow"
-                  className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
               </div>
 
@@ -976,7 +976,7 @@ export default function Dashboard() {
               <div>
                 <label
                   htmlFor="task-description"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                 >
                   Description
                 </label>
@@ -988,7 +988,7 @@ export default function Dashboard() {
                   value={formData.description}
                   onChange={handleFormChange}
                   placeholder="Outline key requirements, acceptance criteria, or technical details..."
-                  className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
                 />
               </div>
 
@@ -998,7 +998,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-status"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Status
                   </label>
@@ -1008,18 +1008,18 @@ export default function Dashboard() {
                     data-testid="task-status-input"
                     value={formData.status}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
-                    <option value="Backlog" className="bg-slate-900 text-slate-100">
+                    <option value="Backlog" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Backlog
                     </option>
-                    <option value="To-Do" className="bg-slate-900 text-slate-100">
+                    <option value="To-Do" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       To-Do
                     </option>
-                    <option value="In Progress" className="bg-slate-900 text-slate-100">
+                    <option value="In Progress" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       In Progress
                     </option>
-                    <option value="Completed" className="bg-slate-900 text-slate-100">
+                    <option value="Completed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Completed
                     </option>
                   </select>
@@ -1029,7 +1029,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-priority"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Priority
                   </label>
@@ -1039,15 +1039,15 @@ export default function Dashboard() {
                     data-testid="task-priority-input"
                     value={formData.priority}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
-                    <option value="Low" className="bg-slate-900 text-slate-100">
+                    <option value="Low" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Low (Blue)
                     </option>
-                    <option value="Medium" className="bg-slate-900 text-slate-100">
+                    <option value="Medium" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Medium (Yellow)
                     </option>
-                    <option value="High" className="bg-slate-900 text-slate-100">
+                    <option value="High" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       High (Red)
                     </option>
                   </select>
@@ -1060,7 +1060,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-sprint"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Sprint
                   </label>
@@ -1070,15 +1070,15 @@ export default function Dashboard() {
                     data-testid="task-sprint-input"
                     value={formData.sprint}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
-                    <option value="Backlog" className="bg-slate-900 text-slate-100">
+                    <option value="Backlog" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Backlog
                     </option>
-                    <option value="Sprint 1" className="bg-slate-900 text-slate-100">
+                    <option value="Sprint 1" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Sprint 1
                     </option>
-                    <option value="Sprint 2" className="bg-slate-900 text-slate-100">
+                    <option value="Sprint 2" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Sprint 2
                     </option>
                   </select>
@@ -1088,7 +1088,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-story-points"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Story Points
                   </label>
@@ -1098,24 +1098,24 @@ export default function Dashboard() {
                     data-testid="task-story-points-input"
                     value={formData.storyPoints}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
-                    <option value={1} className="bg-slate-900 text-slate-100">
+                    <option value={1} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       1 Point
                     </option>
-                    <option value={2} className="bg-slate-900 text-slate-100">
+                    <option value={2} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       2 Points
                     </option>
-                    <option value={3} className="bg-slate-900 text-slate-100">
+                    <option value={3} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       3 Points
                     </option>
-                    <option value={5} className="bg-slate-900 text-slate-100">
+                    <option value={5} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       5 Points
                     </option>
-                    <option value={8} className="bg-slate-900 text-slate-100">
+                    <option value={8} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       8 Points
                     </option>
-                    <option value={13} className="bg-slate-900 text-slate-100">
+                    <option value={13} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       13 Points
                     </option>
                   </select>
@@ -1128,7 +1128,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-milestone"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Milestone
                   </label>
@@ -1138,15 +1138,15 @@ export default function Dashboard() {
                     data-testid="task-milestone-input"
                     value={formData.milestone}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   >
-                    <option value="Phase 1: Planning" className="bg-slate-900 text-slate-100">
+                    <option value="Phase 1: Planning" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Phase 1: Planning
                     </option>
-                    <option value="Phase 2: Execution" className="bg-slate-900 text-slate-100">
+                    <option value="Phase 2: Execution" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Phase 2: Execution
                     </option>
-                    <option value="Phase 3: Launch" className="bg-slate-900 text-slate-100">
+                    <option value="Phase 3: Launch" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       Phase 3: Launch
                     </option>
                   </select>
@@ -1156,7 +1156,7 @@ export default function Dashboard() {
                 <div>
                   <label
                     htmlFor="task-due-date"
-                    className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
                   >
                     Due Date
                   </label>
@@ -1167,18 +1167,18 @@ export default function Dashboard() {
                     data-testid="task-due-date-input"
                     value={formData.dueDate}
                     onChange={handleFormChange}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer"
                   />
                 </div>
               </div>
 
               {/* Modal Actions */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>

@@ -77,24 +77,24 @@ export default function Register() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Card */}
-        <div className="bg-slate-900/90 border border-slate-800 shadow-2xl rounded-2xl p-8 backdrop-blur-xl transition-all duration-200">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl p-8 backdrop-blur-xl transition-all duration-200">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-purple-500/25 mb-4">
               <UserPlus className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Create an account
             </h1>
-            <p className="text-sm text-slate-400 mt-2">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
               Join the corporate task workspace and collaborate with your team
             </p>
           </div>
 
           {/* Error Banner */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-start gap-3 animate-fade-in">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
+            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-300 text-sm flex items-start gap-3 animate-fade-in">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
               <span>{error}</span>
             </div>
           )}
@@ -105,7 +105,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
               >
                 Full Name
               </label>
@@ -122,7 +122,7 @@ export default function Register() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Alex Morgan"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
               >
                 Work Email
               </label>
@@ -148,7 +148,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="alex.morgan@company.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
               >
                 Password
               </label>
@@ -174,12 +174,12 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-11 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -192,11 +192,11 @@ export default function Register() {
               <div className="flex items-center justify-between mb-2">
                 <label
                   htmlFor="role"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300"
                 >
                   Role Selection
                 </label>
-                <span className="text-[11px] font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
                   Demo Purpose
                 </span>
               </div>
@@ -209,12 +209,12 @@ export default function Register() {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-10 py-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+                  className="w-full pl-10 pr-10 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer"
                 >
-                  <option value="User" className="bg-slate-900 text-slate-100">
+                  <option value="User" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                     User
                   </option>
-                  <option value="Admin" className="bg-slate-900 text-slate-100">
+                  <option value="Admin" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                     Admin
                   </option>
                 </select>
@@ -222,9 +222,9 @@ export default function Register() {
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
-              <p className="mt-1.5 text-xs text-slate-500">
-                Pick either <strong className="text-slate-400">User</strong> or{' '}
-                <strong className="text-slate-400">Admin</strong> role to test role-based capabilities.
+              <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                Pick either <strong className="text-slate-700 dark:text-slate-300">User</strong> or{' '}
+                <strong className="text-slate-700 dark:text-slate-300">Admin</strong> role to test role-based capabilities.
               </p>
             </div>
 
@@ -249,12 +249,12 @@ export default function Register() {
           </form>
 
           {/* Footer Navigation */}
-          <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
-            <p className="text-sm text-slate-400">
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800/80 text-center">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1"
+                className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors inline-flex items-center gap-1"
               >
                 Sign in here
               </Link>
