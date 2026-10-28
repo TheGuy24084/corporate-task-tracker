@@ -7,7 +7,8 @@ const Task = require("../models/Task");
 const getTasks = async (req, res) => {
   try {
     const tasks = await Task.find()
-      .populate("createdBy", "name email role")
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email role")
       .sort({ createdAt: -1 });
     res.status(200).json(tasks);
   } catch (error) {
@@ -26,6 +27,7 @@ const createTask = async (req, res) => {
       status,
       priority,
       createdBy,
+      assignedTo,
       sprint,
       storyPoints,
       milestone,
@@ -45,6 +47,12 @@ const createTask = async (req, res) => {
       createdBy,
     };
 
+    if (assignedTo !== undefined) {
+      taskData.assignedTo =
+        assignedTo === "" || (typeof assignedTo === "string" && !assignedTo.trim())
+          ? null
+          : assignedTo;
+    }
     if (sprint !== undefined && sprint !== "") {
       taskData.sprint = typeof sprint === "string" ? sprint.trim() : sprint;
     }
@@ -65,6 +73,7 @@ const createTask = async (req, res) => {
 
     const savedTask = await task.save();
     await savedTask.populate("createdBy", "name email role");
+    await savedTask.populate("assignedTo", "name email role");
 
     res.status(201).json(savedTask);
   } catch (error) {
@@ -117,12 +126,20 @@ const updateTask = async (req, res) => {
     if (updates.dueDate === "") {
       updates.dueDate = null;
     }
+    if (
+      updates.assignedTo === "" ||
+      (typeof updates.assignedTo === "string" && !updates.assignedTo.trim())
+    ) {
+      updates.assignedTo = null;
+    }
 
     const updatedTask = await Task.findByIdAndUpdate(
       id,
       updates,
       { new: true, runValidators: true }
-    ).populate("createdBy", "name email role");
+    )
+      .populate("createdBy", "name email role")
+      .populate("assignedTo", "name email role");
 
     if (!updatedTask) {
       return res.status(404).json({ message: "Task not found" });
