@@ -25,7 +25,12 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [Kanban Mode (Visual 3-Column Continuous Flow)](#kanban-mode-continuous-flow)
    - [Scrum Mode (Sprints, Backlog & Velocity Tracking)](#scrum-mode-sprints-backlog--velocity-tracking)
    - [Project Management Mode (Milestones, Timelines & Deadlines)](#project-management-mode-milestones-timelines--deadlines)
-6. [Outcome 5: Setup Instructions to Run Client and Server Locally](#6-setup-instructions-to-run-both-client-and-server-locally)
+6. [Team Collaboration, Email Invitations & Assignee Management](#6-team-collaboration-email-invitations--assignee-management)
+   - [Email Invitation Service Architecture (Nodemailer & Ethereal)](#email-invitation-service-architecture-nodemailer--ethereal)
+   - [Token-Based Invite Links & Onboarding Flow](#token-based-invite-links--onboarding-flow)
+   - [Team Member Management UI (InviteMemberModal)](#team-member-management-ui-invitemembermodal)
+   - [Task Assignee Controls Across Kanban, Scrum & PM Views](#task-assignee-controls-across-kanban-scrum--pm-views)
+7. [Outcome 5: Setup Instructions to Run Client and Server Locally](#7-setup-instructions-to-run-both-client-and-server-locally)
    - [Testing Application Features](#4-testing-the-application-features)
    - [Directory Structure](#directory-structure)
 
@@ -112,80 +117,84 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 ===================================================================================
 
   [ CLIENT TIER : PRESENTATION LAYER ]
-  +-------------------------------------------------------------------------------+
-  |  React.js (v19) SPA with Vite Build Tool                                      |
-  |                                                                               |
-  |  +-------------------+  +--------------------------------------------------+  |
-  |  |   Pages           |  |   Components                                     |  |
-  |  |   - Dashboard.jsx |  |   - Navbar.jsx                                   |  |
-  |  |   - Login.jsx     |  |   - TaskCard.jsx                                 |  |
-  |  |   - Register.jsx  |  |   - ScrumView.jsx (Sprints, Backlog, Velocity)   |  |
-  |  |                   |  |   - ProjectManagementView.jsx (Milestone Table)  |  |
-  |  +-------------------+  +--------------------------------------------------+  |
-  |                                                                               |
-  |  +-------------------------------------------------------------------------+  |
-  |  |   Axios HTTP Client (`/api/axios.js`)                                   |  |
-  |  |   - Request Interceptor: Injects `Authorization: Bearer <token>`        |  |
-  |  |   - Methodology Segmented Control ('Kanban', 'Scrum', 'Project Mgmt')   |  |
-  |  |   - Dynamic Search & Filter Bar (Title, Priority, Status)               |  |
-  |  +-------------------------------------------------------------------------+  |
-  +-------------------------------------------------------------------------------+
+  +---------------------------------------------------------------------------------+
+  |  React.js (v19) SPA with Vite Build Tool                                        |
+  |                                                                                 |
+  |  +-------------------+  +----------------------------------------------------+  |
+  |  |   Pages           |  |   Components                                       |  |
+  |  |   - Dashboard.jsx |  |   - Navbar.jsx                                     |  |
+  |  |   - Login.jsx     |  |   - TaskCard.jsx (Assignee Badge & Reassign)       |  |
+  |  |   - Register.jsx  |  |   - ScrumView.jsx (Sprints, Backlog, Velocity)     |  |
+  |  |                   |  |   - ProjectManagementView.jsx (Milestone Table)    |  |
+  |  |                   |  |   - InviteMemberModal.jsx (Email & Roster UI)      |  |
+  |  +-------------------+  +----------------------------------------------------+  |
+  |                                                                                 |
+  |  +---------------------------------------------------------------------------+  |
+  |  |   Axios HTTP Client (`/api/axios.js`)                                     |  |
+  |  |   - Request Interceptor: Injects `Authorization: Bearer <token>`          |  |
+  |  |   - Methodology Segmented Control ('Kanban', 'Scrum', 'Project Mgmt')     |  |
+  |  |   - Dynamic Filter Bar (Search, Priority, Status, Assignee, 'My Tasks')   |  |
+  |  +---------------------------------------------------------------------------+  |
+  +---------------------------------------------------------------------------------+
                                          |
                                          | REST / JSON over HTTP
                                          v
   [ SERVER TIER : APPLICATION & API LAYER ]
-  +-------------------------------------------------------------------------------+
-  |  Node.js Runtime & Express.js (v5) Web Framework                              |
-  |                                                                               |
-  |  +-------------------------------------------------------------------------+  |
-  |  |  Global Middleware: CORS, express.json(), 404 & Central Error Handlers  |  |
-  |  +-------------------------------------------------------------------------+  |
-  |                                                                               |
-  |  +------------------------------------+  +---------------------------------+  |
-  |  |  Authentication Routing            |  |  Task Routing                   |  |
-  |  |  `/api/auth`                       |  |  `/api/tasks`                   |  |
-  |  |  - POST /register                  |  |  - GET / (verifyToken)          |  |
-  |  |  - POST /login                     |  |  - POST / (verifyToken)         |  |
-  |  |                                    |  |  - PUT /:id (verifyToken)       |  |
-  |  |                                    |  |  - DELETE /:id (authorizeAdmin) |  |
-  |  +------------------------------------+  +---------------------------------+  |
-  |                   |                                       |                   |
-  |                   v                                       v                   |
-  |  +------------------------------------+  +---------------------------------+  |
-  |  |  authController.js                 |  |  taskController.js              |  |
-  |  |  - bcrypt password hashing         |  |  - CRUD business logic          |  |
-  |  |  - jwt.sign token generator        |  |  - Scrum/PM field sanitization  |  |
-  |  |                                    |  |  - Mongoose query populator     |  |
-  |  +------------------------------------+  +---------------------------------+  |
-  |                                                                               |
-  |  +-------------------------------------------------------------------------+  |
-  |  |  Security Middleware: `authMiddleware.js`                               |  |
-  |  |  - `verifyToken`: Decodes & validates JWT bearer tokens                  |  |
-  |  |  - `authorizeAdmin`: Restricts deletion to users with `role: 'Admin'`   |  |
-  |  +-------------------------------------------------------------------------+  |
-  +-------------------------------------------------------------------------------+
+  +---------------------------------------------------------------------------------+
+  |  Node.js Runtime & Express.js (v5) Web Framework                                |
+  |                                                                                 |
+  |  +---------------------------------------------------------------------------+  |
+  |  |  Global Middleware: CORS, express.json(), 404 & Central Error Handlers    |  |
+  |  +---------------------------------------------------------------------------+  |
+  |                                                                                 |
+  |  +---------------------+  +---------------------+  +-------------------------+  |
+  |  | Authentication API  |  | Task Management API |  | Team Collaboration API  |  |
+  |  | `/api/auth`         |  | `/api/tasks`        |  | `/api/team`             |  |
+  |  | - POST /register    |  | - GET /             |  | - GET /members          |  |
+  |  | - POST /login       |  | - POST /            |  | - POST /invite          |  |
+  |  |                     |  | - PUT /:id          |  | - POST /accept-invite   |  |
+  |  |                     |  | - DELETE /:id (Adm) |  |                         |  |
+  |  +---------------------+  +---------------------+  +-------------------------+  |
+  |             |                        |                          |               |
+  |             v                        v                          v               |
+  |  +---------------------+  +---------------------+  +-------------------------+  |
+  |  | authController.js   |  | taskController.js   |  | teamController.js       |  |
+  |  | - bcrypt hashing    |  | - CRUD operations   |  | - Team roster fetching  |  |
+  |  | - JWT signing       |  | - Scrum & PM logic  |  | - Token generation      |  |
+  |  |                     |  | - Assignee populator|  | - Invitation lifecycle  |  |
+  |  +---------------------+  +---------------------+  +-------------------------+  |
+  |                                                                 |               |
+  |                                                                 v               |
+  |                                                    +-------------------------+  |
+  |                                                    | emailService.js         |  |
+  |                                                    | - Nodemailer SMTP       |  |
+  |                                                    | - Ethereal test account |  |
+  |                                                    +-------------------------+  |
+  |  +---------------------------------------------------------------------------+  |
+  |  |  Security Middleware: `authMiddleware.js`                                 |  |
+  |  |  - `verifyToken`: Decodes & validates JWT bearer tokens                    |  |
+  |  |  - `authorizeAdmin`: Restricts deletion to users with `role: 'Admin'`     |  |
+  |  +---------------------------------------------------------------------------+  |
+  +---------------------------------------------------------------------------------+
                                          |
                                          | Mongoose Object Data Modeling (ODM)
                                          v
   [ DATABASE TIER : PERSISTENCE LAYER ]
-  +-------------------------------------------------------------------------------+
-  |  MongoDB Database Engine (Port 27017 or Atlas URI)                            |
-  |                                                                               |
-  |  +------------------------------------+  +---------------------------------+  |
-  |  |  User Collection                   |  |  Task Collection                |  |
-  |  |  - _id: ObjectId                   |  |  - _id: ObjectId                |  |
-  |  |  - name: String                    |  |  - title: String (Required)     |  |
-  |  |  - email: String (Unique, Indexed) |  |  - description: String          |  |
-  |  |  - password: String (Hashed)       |  |  - status: Enum (Backlog, etc.) |  |
-  |  |  - role: Enum ('User', 'Admin')    |  |  - priority: Enum (Low, etc.)   |  |
-  |  |  - timestamps: createdAt, etc.     |  |  - sprint: String               |  |
-  |  |                                    |  |  - storyPoints: Number (1-13)   |  |
-  |  |                                    |  |  - milestone: String            |  |
-  |  |                                    |  |  - startDate: Date              |  |
-  |  |                                    |  |  - dueDate: Date                |  |
-  |  |                                    |  |  - createdBy: Ref -> User       |  |
-  |  +------------------------------------+  +---------------------------------+  |
-  +-------------------------------------------------------------------------------+
+  +---------------------------------------------------------------------------------+
+  |  MongoDB Database Engine (Port 27017 or Atlas URI)                              |
+  |                                                                                 |
+  |  +--------------------+  +----------------------+  +-------------------------+  |
+  |  | User Collection    |  | Task Collection      |  | Invitation Collection   |  |
+  |  | - _id: ObjectId    |  | - _id: ObjectId      |  | - _id: ObjectId         |  |
+  |  | - name: String     |  | - title: String (Req)|  | - email: String (Req)   |  |
+  |  | - email: String    |  | - description: String|  | - role: 'User' | 'Admin'|  |
+  |  | - password: String |  | - status, priority   |  | - token: String (Unique)|  |
+  |  | - role: User/Admin |  | - sprint, storyPoints|  | - status: Pending/etc.  |  |
+  |  | - timestamps       |  | - milestone, dueDate |  | - invitedBy: Ref -> User|  |
+  |  |                    |  | - createdBy: Ref User|  | - createdAt: Date       |  |
+  |  |                    |  | - assignedTo: RefUser|  |                         |  |
+  |  +--------------------+  +----------------------+  +-------------------------+  |
+  +---------------------------------------------------------------------------------+
 ===================================================================================
 ```
 
@@ -202,6 +211,7 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 - `startDate`: Date, optional.
 - `dueDate`: Date, optional.
 - `createdBy`: ObjectId reference to `User` model, indexed.
+- `assignedTo`: ObjectId reference to `User` model, optional (populated with `name`, `email`, `role`).
 - `timestamps`: Automatic `createdAt` and `updatedAt`.
 
 ##### User Schema (`server/models/User.js`)
@@ -210,6 +220,14 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 - `password`: String, required, hashed with bcrypt (salt rounds = 10).
 - `role`: String enum `['User', 'Admin']`, default `'User'`.
 - `timestamps`: Automatic `createdAt` and `updatedAt`.
+
+##### Invitation Schema (`server/models/Invitation.js`)
+- `email`: String, required, lowercase, trimmed.
+- `role`: String enum `['User', 'Admin']`, default `'User'`.
+- `token`: String, required, unique hex string generated via `crypto.randomBytes(32)`.
+- `status`: String enum `['Pending', 'Accepted', 'Expired']`, default `'Pending'`.
+- `invitedBy`: ObjectId reference to `User` model, required.
+- `createdAt`: Date, default `Date.now`.
 
 ---
 
@@ -224,10 +242,13 @@ The application exposes a clean, stateless REST API adhering to resource-oriente
 | **`GET`** | `/api/health` | Service health status check | _None_ | Public | `200 OK`, `500 Server Error` |
 | **`POST`** | `/api/auth/register` | Register a new user account | `{ "name": "...", "email": "...", "password": "...", "role": "User" \| "Admin" }` | Public | `201 Created`, `400 Bad Request`, `500 Server Error` |
 | **`POST`** | `/api/auth/login` | Authenticate credentials & return JWT | `{ "email": "...", "password": "..." }` | Public | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
-| **`GET`** | `/api/tasks` | Fetch all tasks (populates creator details, sorted newest first) | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
-| **`POST`** | `/api/tasks` | Create a new task (supports sprint, story points, milestone, due date) | `{ "title": "...", "description": "...", "status": "To-Do", "priority": "Medium", "sprint": "Backlog", "storyPoints": 1, "milestone": "Phase 1: Planning", "dueDate": "2026-11-01" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
-| **`PUT`** | `/api/tasks/:id` | Update an existing task's status, sprint, points, milestone, due date, or priority | `{ "status": "In Progress" \| "Completed" \| "To-Do" \| "Backlog", "sprint": "Sprint 1", "storyPoints": 3, "milestone": "Phase 2: Execution", "dueDate": "2026-11-15", ... }` | `Bearer <JWT>` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Server Error` |
+| **`GET`** | `/api/tasks` | Fetch all tasks (populates `createdBy` and `assignedTo` user details, sorted newest first) | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
+| **`POST`** | `/api/tasks` | Create a new task (supports sprint, story points, milestone, due date, and assigned team member) | `{ "title": "...", "description": "...", "status": "To-Do", "priority": "Medium", "sprint": "Backlog", "storyPoints": 1, "milestone": "Phase 1: Planning", "dueDate": "2026-11-01", "assignedTo": "<userId>" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
+| **`PUT`** | `/api/tasks/:id` | Update an existing task's status, sprint, points, milestone, due date, priority, or assignee | `{ "status": "In Progress" \| "Completed" \| "To-Do" \| "Backlog", "sprint": "Sprint 1", "storyPoints": 3, "milestone": "Phase 2: Execution", "dueDate": "2026-11-15", "assignedTo": "<userId>" \| "", ... }` | `Bearer <JWT>` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Server Error` |
 | **`DELETE`** | `/api/tasks/:id` | Permanently delete a task (Admins only) | _None_ | `Bearer <JWT>` (Admin role) | `200 OK`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `500 Server Error` |
+| **`GET`** | `/api/team/members` | Fetch all registered team members and pending invitations | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
+| **`POST`** | `/api/team/invite` | Dispatch an invitation email to a prospective member with tokenized registration URL | `{ "email": "engineer@company.com", "role": "User" \| "Admin" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
+| **`POST`** | `/api/team/accept-invite` | Accept a team invitation via unique cryptographic token | `{ "token": "a1b2c3d4..." }` | Public | `200 OK`, `400 Bad Request`, `404 Not Found`, `500 Server Error` |
 
 ---
 
@@ -329,6 +350,7 @@ Users switch between methodologies instantaneously using the interactive segment
   - **Task Title & Description**: Deliverable name and scope details.
   - **Priority Badge**: Color-coded pill (`High`, `Medium`, `Low`).
   - **Status Dropdown**: Interactive status selector (Backlog, To-Do, In Progress, Completed) triggering `PUT /api/tasks/:id` directly from the table row.
+  - **Assignee Column**: Displays member initials avatar circle, display name, and an inline reassign dropdown to update task ownership directly from the table.
   - **Story Points**: Estimated deliverable effort points.
   - **Due Date & Overdue Highlight**: Due date displayed with calendar icon; if past due, highlighted in red with an overdue warning triangle (`data-testid="overdue-badge"`).
   - **Visual Stage Progress Bar**: Progress indicator reflecting deliverable status (10% Backlog, 25% To-Do, 60% In Progress, 100% Completed).
@@ -336,7 +358,75 @@ Users switch between methodologies instantaneously using the interactive segment
 
 ---
 
-### 6. Setup Instructions to Run Both Client and Server Locally
+### 6. Team Collaboration, Email Invitations & Assignee Management
+
+To support distributed, cross-functional engineering teams, the application integrates an automated email invitation service and a unified task assignment architecture across all project methodologies.
+
+#### Email Invitation Service Architecture (Nodemailer & Ethereal)
+- **Hybrid SMTP Transporter (`server/utils/emailService.js`)**:
+  - **Production SMTP**: When `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` are defined in `server/.env`, Nodemailer creates a secure production SMTP connection with automatic TLS/SSL support (`SMTP_SECURE`).
+  - **Ephemeral Ethereal Test Accounts (Zero-Config Development)**: When SMTP credentials are not configured, the service dynamically provisions a disposable Nodemailer Ethereal test account via `nodemailer.createTestAccount()`. It dispatches the invitation to `smtp.ethereal.email:587` and captures a live, clickable preview URL via `nodemailer.getTestMessageUrl(info)`.
+  - **Clickable Preview URL in API Response**: The Ethereal preview URL is returned directly in the `POST /api/team/invite` response payload (`previewUrl`) and displayed as an interactive "Preview Sent Email" link in the frontend modal for instantaneous local verification without real email credentials.
+- **Branded Responsive HTML Template**:
+  - Generates responsive HTML email messages styled with modern corporate aesthetics: dark gradient headers, personalized inviter attribution ("Invited by John Doe"), role designation pills (`Admin` or `User`), clear expiration guidance, and an action button linking directly to the registration page.
+
+#### Token-Based Invite Links & Onboarding Flow
+1. **Cryptographic Token Generation**:
+   - When an invitation is dispatched, the server generates a cryptographically secure 32-byte pseudo-random hexadecimal string using Node.js's native `crypto` module:
+     ```javascript
+     const token = crypto.randomBytes(32).toString('hex');
+     ```
+2. **Persistent Invitation Model (`server/models/Invitation.js`)**:
+   - The token, normalized recipient email, designated role (`User` or `Admin`), status (`'Pending'`), and inviter reference (`invitedBy`) are recorded in MongoDB.
+3. **Onboarding URL Formulation**:
+   - The invite URL is formulated with explicit onboarding parameters:
+     ```
+     http://localhost:5173/register?inviteToken=<token>&email=<encodedEmail>&role=<role>
+     ```
+4. **Seamless Client-Side Pre-filling (`Register.jsx`)**:
+   - Using React Router's `useSearchParams`, the registration page parses query parameters on initial render.
+   - Automatically populates the Email and Role input fields and locks them into a disabled state to prevent unauthorized role escalation or tampering.
+   - Displays an invitation banner (`data-testid="invite-banner"`) notifying the user they are completing registration through an official team invite.
+5. **Invitation Acceptance**:
+   - Upon completion, the system transitions the invitation status from `Pending` to `Accepted` via `POST /api/team/accept-invite`.
+
+#### Team Member Management UI (`InviteMemberModal.jsx`)
+- **Interactive Modal Trigger**:
+  - Opened via the **"Invite Member"** button (`data-testid="invite-member-btn"`) positioned prominently in the Dashboard header action bar next to "Create Task".
+- **Invite Dispatch Form**:
+  - Features an Email input with format validation and a Role selector (`User` vs. `Admin`).
+  - Dispatches a `POST /api/team/invite` request with animated loading states and error handling for invalid or duplicate emails.
+  - Displays a success alert containing the clickable **"Preview Sent Email"** link when running in Ethereal test mode.
+- **Live Team Roster & Pending Invitations**:
+  - Queries `GET /api/team/members` to list all currently registered team members (displaying avatar circle, name, email, and role badge).
+  - Displays a secondary roster of all pending invites with status badges (`Pending`) and creation timestamps.
+
+#### Task Assignee Controls Across Kanban, Scrum & PM Views
+- **Task Creation Assignment (`Dashboard.jsx`)**:
+  - The Create Task modal incorporates an **"Assign To"** dropdown menu populated dynamically from `GET /api/team/members`.
+  - Tasks can be assigned immediately upon creation or left `Unassigned` (stored as `null` in MongoDB).
+- **Dashboard Assignee Filter & "My Tasks" Quick Filter**:
+  - The Dashboard filter bar features an **Assignee** dropdown to filter cards by any team member.
+  - Includes a dedicated **"My Tasks"** button that instantly filters the board down to tasks assigned to the currently authenticated user (`currentUser._id`).
+- **Kanban Board (`TaskCard.jsx`)**:
+  - **Assignee Badge**: Visual pill displaying an initial avatar circle and assignee name (`task.assignedTo?.name || 'Unassigned'`).
+  - **Quick-Reassign Dropdown**: Compact inline selector enabling users to reassign the task on the fly, dispatching `PUT /api/tasks/:id` with `{ assignedTo }` and immediately updating the UI.
+- **Scrum View (`ScrumView.jsx`)**:
+  - Propagates team members and task update handlers across both active sprint cards and backlog items.
+  - Backlog cards feature compact inline assignee selectors so backlog work can be assigned prior to sprint planning.
+- **Project Management View (`ProjectManagementView.jsx`)**:
+  - Milestone table includes an **Assignee** column featuring the member's avatar circle, display name, and inline quick-reassign dropdown.
+- **Backend Populator Consistency (`taskController.js`)**:
+  - Every task fetch (`GET /api/tasks`), creation (`POST /api/tasks`), and update (`PUT /api/tasks/:id`) chains:
+    ```javascript
+    .populate('createdBy', 'name email')
+    .populate('assignedTo', 'name email role')
+    ```
+  - Guarantees immediate UI updates across all views without requiring hard page refreshes.
+
+---
+
+### 7. Setup Instructions to Run Both Client and Server Locally
 
 #### Prerequisites
 - **Node.js** (v18.0.0 or higher recommended)
@@ -366,6 +456,14 @@ Ensure a `.env` file exists in `server/` with the following environment variable
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/corporate-task-tracker
 JWT_SECRET=supersecretjwtkey123
+CLIENT_URL=http://localhost:5173
+
+# Optional: Custom SMTP server credentials (falls back to auto-generated Ethereal test accounts if omitted)
+# SMTP_HOST=smtp.example.com
+# SMTP_PORT=587
+# SMTP_USER=user@example.com
+# SMTP_PASS=password
+# SMTP_SECURE=false
 ```
 
 Start the backend server:
@@ -410,19 +508,31 @@ npm run dev
      - **Kanban Board**: Experience 3-column continuous delivery with live task status updates.
      - **Scrum Mode**: Inspect active sprint velocity, expand the Product Backlog, and click "Move to Sprint 1" to commit items.
      - **Project Management**: Review project milestone completion, overdue task alerts, and stage progress bars.
-4. **Task Creation Modal (Scrum & PM Inputs)**:
+4. **Task Creation Modal (Scrum & PM Inputs + Assignee)**:
    - Click **Create Task** to open the modal.
    - Set Title, Description, Priority, and Status.
+   - Select an assigned team member from the **Assign To** dropdown (or leave as "Unassigned").
    - Configure Scrum & PM fields: **Sprint** (`Backlog`, `Sprint 1`, `Sprint 2`), **Story Points** (1, 2, 3, 5, 8, 13), **Milestone** (`Phase 1: Planning`, `Phase 2: Execution`, `Phase 3: Launch`), and **Due Date**.
    - Submitting immediately inserts the task into the active view without page reload.
 5. **Dynamic Search & Filtering Bar**:
    - **Search Input**: Type in any title or keyword into the search bar at the top of the Dashboard to filter tasks in real-time.
    - **Priority Filter**: Select `High (Red)`, `Medium (Yellow)`, or `Low (Blue)` to isolate tasks by priority.
    - **Status Filter**: Choose a status (`Backlog`, `To-Do`, `In Progress`, `Completed`) to filter tasks.
+   - **Assignee Filter**: Filter tasks assigned to a specific team member, or click **"My Tasks"** to isolate tasks assigned to your own user account.
    - **Reset Button**: Click `Reset` to quickly restore the unfiltered view.
 6. **Role-Based Access Control (RBAC) Verification**:
    - Log in as an **Admin**: Notice the purple role badge and the red **Delete** button on cards and milestone rows.
    - Log in as a standard **User**: The Delete button is hidden from the UI, and direct API calls to `DELETE /api/tasks/:id` return `403 Forbidden`.
+7. **Team Invitations & Email Dispatch (Ethereal Demo)**:
+   - Click the **"Invite Member"** button in the Dashboard top action bar.
+   - Enter an email address and designate the role (`User` or `Admin`).
+   - Click **"Send Invitation"**: the system provisions an Ethereal test account and returns a clickable **"Preview Sent Email"** link.
+   - Click the preview link to view the rendered HTML email in Ethereal's web viewer.
+   - Click the invitation link inside the email (or copy the registration URL) to open `/register` with pre-filled email, locked role, and active invite welcome banner.
+8. **Real-Time Task Reassignment Across Views**:
+   - In **Kanban Mode**: Change the assignee on any `TaskCard` via the inline dropdown next to the avatar badge.
+   - In **Scrum Mode**: Reassign backlog deliverables directly from backlog cards or active sprint cards.
+   - In **Project Management Mode**: Use the **Assignee** table column to reassign milestone tasks on the fly.
 
 ---
 
@@ -438,15 +548,20 @@ corporate-task-tracker/
 │   ├── package.json               # Server dependencies & scripts
 │   ├── controllers/
 │   │   ├── authController.js      # Registration, login, and JWT generation logic
-│   │   └── taskController.js      # Task CRUD, Scrum, and PM business logic
+│   │   ├── taskController.js      # Task CRUD, Scrum, and PM business logic
+│   │   └── teamController.js      # Team membership, invites, and acceptance logic
 │   ├── middleware/
 │   │   └── authMiddleware.js      # verifyToken and authorizeAdmin RBAC middleware
 │   ├── models/
-│   │   ├── Task.js                # Mongoose schema (status, sprint, storyPoints, milestone, dates)
+│   │   ├── Invitation.js          # Mongoose schema for pending team invitations
+│   │   ├── Task.js                # Mongoose schema (status, sprint, storyPoints, milestone, dates, assignedTo)
 │   │   └── User.js                # Mongoose schema for users & roles
-│   └── routes/
-│       ├── authRoutes.js          # Routes for authentication endpoints
-│       └── taskRoutes.js          # Routes for task management endpoints
+│   ├── routes/
+│   │   ├── authRoutes.js          # Routes for authentication endpoints
+│   │   ├── taskRoutes.js          # Routes for task management endpoints
+│   │   └── teamRoutes.js          # Routes for team invitation and roster endpoints
+│   └── utils/
+│       └── emailService.js        # Nodemailer SMTP and Ethereal test transporter service
 └── client/                        # React 19 Frontend SPA (Vite)
     ├── index.html                 # HTML5 document entry
     ├── package.json               # Client dependencies & scripts
@@ -461,13 +576,14 @@ corporate-task-tracker/
         │   └── axios.js           # Axios instance with JWT request interceptor
         ├── components/
         │   ├── Navbar.jsx         # Responsive header with auth status & role badges
-        │   ├── TaskCard.jsx       # Interactive task card with methodology-aware badges
+        │   ├── TaskCard.jsx       # Interactive task card with assignee badge & quick-reassign
         │   ├── ScrumView.jsx      # Agile Scrum view with Sprint selector, Backlog & Velocity
-        │   └── ProjectManagementView.jsx # PM view with Milestone grouping, deadlines & progress
+        │   ├── ProjectManagementView.jsx # PM view with Milestone table, Assignee column & deadlines
+        │   └── InviteMemberModal.jsx # Team invitation modal with Ethereal preview link
         └── pages/
-            ├── Dashboard.jsx      # Unified dashboard with methodology switcher & filters
+            ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
             ├── Login.jsx          # Login page with demo auto-fill
-            └── Register.jsx       # Registration page with role selector
+            └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```
 
 ---
