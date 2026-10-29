@@ -250,11 +250,11 @@ export default function Navbar() {
                     <img
                       src={user.avatar}
                       alt={user.name || 'User'}
-                      className="w-5 h-5 rounded-full object-cover border border-indigo-400"
+                      className="w-6 h-6 rounded-full object-cover border border-indigo-400 shadow-xs flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0">
-                      {user?.name ? user.name[0].toUpperCase() : <User className="w-3 h-3" />}
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[11px] flex items-center justify-center flex-shrink-0 shadow-xs">
+                      {user?.name ? user.name[0].toUpperCase() : <User className="w-3.5 h-3.5" />}
                     </div>
                   )}
                   <span className="font-semibold text-slate-800 dark:text-slate-200 max-w-[120px] truncate">

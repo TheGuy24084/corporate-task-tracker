@@ -108,6 +108,7 @@ const register = async (req, res) => {
       token,
       user: {
         id: savedUser._id,
+        _id: savedUser._id,
         name: savedUser.name,
         email: savedUser.email,
         role: savedUser.role,
@@ -158,6 +159,7 @@ const login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -183,6 +185,7 @@ const getProfile = async (req, res) => {
     res.status(200).json({
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -265,6 +268,7 @@ const updateProfile = async (req, res) => {
       message: "Profile updated successfully",
       user: {
         id: updatedUser._id,
+        _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
         role: updatedUser.role,
