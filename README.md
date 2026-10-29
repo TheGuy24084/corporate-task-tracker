@@ -13,6 +13,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [HTTP Status Codes Used](#b-http-status-codes-used)
    - [React.js Frontend Architecture](#c-reactjs)
    - [Tailwind CSS Design System](#d-tailwind-css)
+   - [UI/UX Architecture: Glassmorphism & Framer Motion](#e-uiux-architecture-glassmorphism--framer-motion-animations)
 2. [Outcome 2: Full Stack Web Frameworks](#2-full-stack-web-frameworks)
    - [MERN Stack Architecture Diagram](#mern-stack-architecture-diagram-text)
    - [Data Modeling & Schemas](#persisted-data-schemas)
@@ -105,6 +106,22 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
   - Kanban columns, Scrum Sprints/Backlog, and Project Management milestone tables seamlessly adapt with `dark:bg-slate-900`, `dark:border-slate-800`, and `dark:hover:bg-slate-800/60`.
 - **Modern Corporate Aesthetic**: Curated palettes utilizing clean slate tones (`slate-50`/`slate-950`), refined card surfaces (`white`/`slate-900`), and dynamic accent gradients (`indigo-500`, `purple-500`, `cyan-400`).
 - **State Styling & Micro-Interactions**: Hover transitions, active press effects (`active:scale-95`), focus rings for accessibility, and animated spin loaders (`animate-spin`).
+
+#### E. UI/UX Architecture: Glassmorphism & Framer Motion Animations
+The platform incorporates modern SaaS visual aesthetics, combining **Tailwind CSS Glassmorphism** and **Framer Motion spring physics**:
+- **Tailwind Glassmorphic Surfaces**:
+  - Reusable glass utilities (`.glass`, `.glass-card`, `.glass-surface`) utilizing multi-stop backdrop filters (`backdrop-blur-xl`, `backdrop-blur-md`), semi-transparent frosted panels (`bg-white/75 dark:bg-slate-900/70`), and delicate borders (`border-white/20 dark:border-slate-800/80`).
+  - Ambient radial gradient mesh backgrounds on `body::before` with indigo, purple, and cyan light blooms that shift between light and dark modes.
+  - Custom branded scrollbar styling across WebKit and Firefox browsers.
+- **Framer Motion Layout & Physics-Driven Animations**:
+  - **Fluid Page Transitions**: Routes wrapped in `<AnimatePresence mode="wait">` with smooth slide/fade animations between pages.
+  - **Shared Layout Methodology Pill Switcher**: Uses Framer Motion's `layoutId="activeMethodologyPill"` with spring physics (`stiffness: 380, damping: 30`) to glide the active background highlight seamlessly between Kanban, Scrum, and Project Management tabs.
+  - **Crossfade Methodology Views**: Smooth view switching container powered by `<AnimatePresence mode="wait">` and `<motion.div key={methodology}>`.
+  - **Tactile Task Cards**: Built as `<motion.div layout>` components with spring physics (`stiffness: 400, damping: 28`), automatic layout reflow when tasks change column/status, hover micro-interactions (`whileHover={{ y: -4, scale: 1.01 }}`), priority-coded left accent bars, and top ambient gradient glows.
+  - **Progress Bar Easing**: Sprint velocity and project milestone completion bars animate from 0 to target width with smooth ease-out curves.
+  - **Collapsible Backlog Drawer**: Product backlog accordion expands and collapses using `<AnimatePresence>` height/opacity transitions.
+  - **Slide-Over Comment Drawer**: `TaskCommentsModal` renders as a right-side slide-over drawer with spring physics (`initial={{ x: "100%" }} animate={{ x: 0 }}`) and staggered entry for each message.
+  - **Spring Scale-Up Modals**: Task Creation and Invite Member modals appear with spring scale and elevation transitions (`initial={{ opacity: 0, scale: 0.94, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}`) over blurred backdrop overlays (`bg-slate-950/50 backdrop-blur-sm`).
 
 ---
 

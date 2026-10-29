@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Send,
@@ -64,9 +65,7 @@ export default function TaskCommentsModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen || !task) return null;
-
-  const taskId = task._id || task.id;
+  const taskId = task?._id || task?.id;
 
   // Insert @MemberName into textarea and add member._id to mention IDs
   const handleSelectMention = (member) => {
@@ -240,21 +239,31 @@ export default function TaskCommentsModal({
     return 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/30';
   };
 
-  const assigneeName = task.assignedTo?.name || 'Unassigned';
-  const assigneeInitial = task.assignedTo?.name
+  const assigneeName = task?.assignedTo?.name || 'Unassigned';
+  const assigneeInitial = task?.assignedTo?.name
     ? task.assignedTo.name[0].toUpperCase()
     : '?';
 
   return (
-    <div
-      data-testid="task-comments-modal"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fade-in"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 dark:text-white"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && task && (
+        <motion.div
+          data-testid="task-comments-modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm flex justify-end"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-xl h-full flex flex-col text-slate-900 dark:text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header: Task Details Summary */}
         <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40">
           <div className="flex items-start justify-between gap-3">
@@ -355,10 +364,13 @@ export default function TaskCommentsModal({
                 : 'Just now';
 
               return (
-                <div
+                <motion.div
                   key={commentId || index}
                   data-testid="comment-item"
-                  className="flex items-start gap-3 group animate-fade-in"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  className="flex items-start gap-3 group"
                 >
                   {/* Author Avatar Circle */}
                   {comment.author?.avatar ? (
@@ -419,7 +431,7 @@ export default function TaskCommentsModal({
                       {renderCommentContent(comment.text)}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })
           )}
@@ -528,7 +540,9 @@ export default function TaskCommentsModal({
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 }
