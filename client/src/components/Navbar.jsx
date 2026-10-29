@@ -1,14 +1,88 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckSquare, LayoutDashboard, LogIn, UserPlus, LogOut, Menu, X, User, Sun, Moon } from 'lucide-react';
+import {
+  CheckSquare,
+  LayoutDashboard,
+  LogIn,
+  UserPlus,
+  LogOut,
+  Menu,
+  X,
+  User,
+  Sun,
+  Moon,
+  Bell,
+  Check,
+  CheckCheck,
+} from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import api from '../api/axios';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  const fetchNotifications = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const res = await api.get('/notifications');
+      setNotifications(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, fetchNotifications]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setIsNotifOpen(false);
+      }
+    };
+    if (isNotifOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNotifOpen]);
+
+  const handleMarkAsRead = async (id, e) => {
+    e?.stopPropagation();
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -17,6 +91,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
+    setIsNotifOpen(false);
     navigate('/login');
   };
 
@@ -49,6 +124,119 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <div className="flex items-center gap-3 pl-2 border-l border-slate-200 dark:border-slate-800">
+                {/* Notification Bell Dropdown */}
+                <div className="relative" ref={notifRef}>
+                  <button
+                    type="button"
+                    data-testid="notification-bell-btn"
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    aria-label="Toggle notifications"
+                    title="Notifications"
+                    className="relative p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
+                  >
+                    <Bell className="w-5 h-5" />
+                    {unreadCount > 0 && (
+                      <span
+                        data-testid="notification-badge"
+                        className="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-rose-500 rounded-full shadow-sm ring-2 ring-white dark:ring-slate-900 animate-pulse"
+                      >
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isNotifOpen && (
+                    <div
+                      data-testid="notification-dropdown"
+                      className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fade-in"
+                    >
+                      <div className="p-3.5 px-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/40">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            Notifications
+                          </span>
+                          {unreadCount > 0 && (
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+                              {unreadCount} new
+                            </span>
+                          )}
+                        </div>
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleMarkAllAsRead}
+                            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <CheckCheck className="w-3.5 h-3.5" />
+                            <span>Mark all read</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                        {notifications.length === 0 ? (
+                          <div className="p-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                            <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                            <p>No notifications yet</p>
+                          </div>
+                        ) : (
+                          notifications.map((notif) => {
+                            const isUnread = !notif.isRead;
+                            const senderInitial = notif.sender?.name
+                              ? notif.sender.name[0].toUpperCase()
+                              : '?';
+                            const timeAgo = notif.createdAt
+                              ? new Date(notif.createdAt).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })
+                              : '';
+
+                            return (
+                              <div
+                                key={notif._id}
+                                className={`p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-start gap-3 ${
+                                  isUnread
+                                    ? 'bg-indigo-50/50 dark:bg-indigo-950/20'
+                                    : ''
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5">
+                                  {senderInitial}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-slate-800 dark:text-slate-200 leading-snug">
+                                    {notif.message}
+                                  </p>
+                                  {notif.task?.title && (
+                                    <p className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 truncate mt-0.5">
+                                      Task: {notif.task.title}
+                                    </p>
+                                  )}
+                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">
+                                    {timeAgo}
+                                  </span>
+                                </div>
+                                {isUnread && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleMarkAsRead(notif._id, e)}
+                                    title="Mark as read"
+                                    className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs">
                   <User className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                   <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>
@@ -107,6 +295,21 @@ export default function Navbar() {
 
           {/* Mobile Menu & Theme Toggle */}
           <div className="flex items-center gap-2 md:hidden">
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                aria-label="Toggle notifications"
+                className="relative p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition-all duration-200"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold text-white bg-rose-500 rounded-full animate-pulse">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleTheme}

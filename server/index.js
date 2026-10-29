@@ -5,6 +5,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const teamRoutes = require("./routes/teamRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/team", teamRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
