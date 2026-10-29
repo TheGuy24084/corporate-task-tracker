@@ -239,8 +239,171 @@ async function sendInviteEmail(toEmail, inviteLink, inviterName, role) {
   return info;
 }
 
+/**
+ * Generates an HTML email template for @mention alerts.
+ */
+function generateMentionHtml({ toEmail, senderName, taskTitle, commentText }) {
+  const safeSender = senderName || "A team member";
+  const safeTitle = taskTitle || "a task";
+  const safeComment = commentText || "";
+  const clientBaseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You were mentioned in Corporate Task Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #f1f5f9;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #0f172a;
+      padding: 40px 16px;
+    }
+    .container {
+      max-width: 580px;
+      margin: 0 auto;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .header {
+      background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .content {
+      padding: 32px 28px;
+      background-color: #1e293b;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background-color: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      margin-bottom: 16px;
+    }
+    .comment-card {
+      background-color: #0f172a;
+      border-left: 4px solid #6366f1;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .footer {
+      padding: 20px 32px;
+      background-color: #0f172a;
+      border-top: 1px solid #334155;
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <h1>New Mention in Task</h1>
+      </div>
+      <div class="content">
+        <span class="badge">Task Discussion</span>
+        <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #ffffff;">
+          ${safeSender} mentioned you on "<strong>${safeTitle}</strong>"
+        </h2>
+        <div class="comment-card">
+          ${safeComment}
+        </div>
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="${clientBaseUrl}/dashboard" class="btn">View Task in Dashboard</a>
+        </div>
+      </div>
+      <div class="footer">
+        <p style="margin: 0;">This notification was sent to ${toEmail}.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Sends an email notification when a user is @mentioned in a task comment.
+ *
+ * @param {string} toEmail - Recipient email address
+ * @param {string} senderName - Name of the user posting the comment
+ * @param {string} taskTitle - Title of the task
+ * @param {string} commentText - Text content of the comment
+ * @returns {Promise<Object>} Nodemailer sendMail result info object
+ */
+async function sendMentionEmail(toEmail, senderName, taskTitle, commentText) {
+  const { transporter, isTestAccount, fromAddress } = await createTransporter();
+
+  const safeSender = senderName || "A team member";
+  const safeTitle = taskTitle || "Task";
+  const clientBaseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
+  const mailOptions = {
+    from: `"Corporate Task Tracker" <${fromAddress}>`,
+    to: toEmail,
+    subject: `${safeSender} mentioned you on task: "${safeTitle}"`,
+    text: `Hello,\n\n${safeSender} mentioned you in a comment on task "${safeTitle}":\n\n"${commentText}"\n\nView it on the dashboard:\n${clientBaseUrl}/dashboard\n\nBest regards,\nCorporate Task Tracker Team`,
+    html: generateMentionHtml({ toEmail, senderName, taskTitle, commentText }),
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+
+  if (isTestAccount) {
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      console.log(`[Nodemailer Ethereal] Mention email preview URL: ${previewUrl}`);
+      info.previewUrl = previewUrl;
+    }
+  }
+
+  return info;
+}
+
 module.exports = {
   sendInviteEmail,
+  sendMentionEmail,
 };
 module.exports.sendInviteEmail = sendInviteEmail;
+module.exports.sendMentionEmail = sendMentionEmail;
 module.exports.default = sendInviteEmail;
