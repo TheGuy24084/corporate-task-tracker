@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import { motion } from 'framer-motion';
 import { User, Calendar, Trash2, Loader2, Zap, Target, MessageSquare } from 'lucide-react';
 import AuthContext from '../AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -199,6 +200,8 @@ export default function TaskCard({
         badgeClass:
           'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30',
         dotClass: 'bg-blue-600 dark:bg-blue-400',
+        accentBar: 'bg-gradient-to-b from-blue-500 to-cyan-500',
+        topGlow: 'from-blue-500/15',
       };
     }
     if (normalized === 'high') {
@@ -207,6 +210,8 @@ export default function TaskCard({
         badgeClass:
           'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/30',
         dotClass: 'bg-red-600 dark:bg-red-400',
+        accentBar: 'bg-gradient-to-b from-rose-500 to-red-500',
+        topGlow: 'from-rose-500/15',
       };
     }
     // Default to Medium (Yellow)
@@ -215,6 +220,8 @@ export default function TaskCard({
       badgeClass:
         'bg-amber-50 text-amber-700 border-amber-200 dark:bg-yellow-500/15 dark:text-yellow-300 dark:border-yellow-500/30',
       dotClass: 'bg-amber-600 dark:bg-yellow-400',
+      accentBar: 'bg-gradient-to-b from-amber-500 to-yellow-500',
+      topGlow: 'from-amber-500/15',
     };
   };
 
@@ -229,10 +236,19 @@ export default function TaskCard({
     : null;
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       data-testid="task-card"
-      className="group relative flex flex-col justify-between rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-slate-600 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200"
+      className="group relative flex flex-col justify-between rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 hover:border-indigo-400/60 dark:hover:border-indigo-500/50 p-4 sm:p-5 shadow-sm hover:shadow-xl transition-shadow duration-200 overflow-hidden"
     >
+      {/* Sleek left-border accent bar & subtle top gradient glow */}
+      <div className={`absolute top-0 bottom-0 left-0 w-1 ${priorityConfig.accentBar} rounded-l-xl`} />
+      <div className={`absolute top-0 left-0 right-0 h-16 bg-gradient-to-b ${priorityConfig.topGlow} to-transparent pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity`} />
       <div className="space-y-3">
         {/* Priority Badge & Meta Header */}
         <div className="flex items-center justify-between gap-2">
@@ -390,17 +406,17 @@ export default function TaskCard({
         <div className="flex items-center gap-1.5 min-w-0">
           <span
             data-testid="assignee-badge"
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 truncate"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700/60 border border-slate-200/80 dark:border-slate-600/80 text-slate-700 dark:text-slate-200 truncate shadow-2xs hover:ring-2 hover:ring-indigo-500/30 transition-all duration-200"
             title={`Assigned to: ${task.assignedTo?.name || 'Unassigned'}`}
           >
             {task.assignedTo?.avatar ? (
               <img
                 src={task.assignedTo.avatar}
                 alt={task.assignedTo?.name || 'Assignee'}
-                className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400"
+                className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400 shadow-xs"
               />
             ) : (
-              <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+              <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0 shadow-xs">
                 {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
               </div>
             )}
@@ -479,6 +495,6 @@ export default function TaskCard({
         onConfirm={handleDelete}
         onClose={() => setIsConfirmOpen(false)}
       />
-    </div>
+    </motion.div>
   );
 }

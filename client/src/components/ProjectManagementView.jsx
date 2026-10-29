@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
   Clock,
@@ -262,9 +263,11 @@ export default function ProjectManagementView({
             </span>
           </div>
           <div className="w-full h-3 bg-slate-200 dark:bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-300 dark:border-slate-800">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${completionPercentage}%` }}
+            <motion.div
+              className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${completionPercentage}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             />
           </div>
         </div>
@@ -362,11 +365,11 @@ export default function ProjectManagementView({
             <div
               key={milestoneKey}
               data-testid={`milestone-group-${milestoneKey.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-              className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-md backdrop-blur-sm overflow-hidden"
+              className="rounded-2xl glass-card border border-slate-200/80 dark:border-slate-800/80 shadow-lg backdrop-blur-xl overflow-hidden"
             >
               {/* Milestone Group Header */}
               <div
-                className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors border-b border-slate-200 dark:border-slate-800/80"
+                className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors border-b border-slate-200/80 dark:border-slate-800/80"
                 onClick={() => toggleMilestone(milestoneKey)}
               >
                 <div className="flex items-center gap-3">
@@ -392,9 +395,11 @@ export default function ProjectManagementView({
                   {/* Mini Progress Bar for Milestone */}
                   <div className="w-32 hidden md:block">
                     <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-cyan-500 rounded-full transition-all duration-300"
-                        style={{ width: `${mPercent}%` }}
+                      <motion.div
+                        className="h-full bg-cyan-500 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${mPercent}%` }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
                       />
                     </div>
                   </div>
@@ -418,58 +423,68 @@ export default function ProjectManagementView({
               </div>
 
               {/* Milestone Task List / Table */}
-              {!isCollapsed && (
-                <div className="overflow-x-auto">
-                  {loading ? (
-                    <div className="p-6 space-y-3 animate-pulse">
-                      <div className="h-10 bg-slate-200/60 dark:bg-slate-800/40 rounded-xl" />
-                      <div className="h-10 bg-slate-200/40 dark:bg-slate-800/20 rounded-xl" />
-                    </div>
-                  ) : milestoneTasks.length > 0 ? (
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          <th className="py-3 px-4 sm:px-6">Task Title</th>
-                          <th className="py-3 px-3">Priority</th>
-                          <th className="py-3 px-3">Status</th>
-                          <th className="py-3 px-3">Assignee</th>
-                          <th className="py-3 px-3">Points</th>
-                          <th className="py-3 px-3">Due Date</th>
-                          <th className="py-3 px-4">Progress</th>
-                          <th className="py-3 px-3 text-center">Comments</th>
-                          {isAdmin && (
-                            <th className="py-3 px-4 text-right">Actions</th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                        {milestoneTasks.map((task) => {
-                          const taskId = task._id || task.id;
-                          const priorityCfg = getPriorityConfig(task.priority);
-                          const progress = getTaskProgress(task.status);
-                          const isUpdating = updatingTaskId === taskId;
-                          const isDeleting = deletingTaskId === taskId;
+              <AnimatePresence>
+                {!isCollapsed && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-x-auto"
+                  >
+                    {loading ? (
+                      <div className="p-6 space-y-3 animate-pulse">
+                        <div className="h-10 bg-slate-200/60 dark:bg-slate-800/40 rounded-xl" />
+                        <div className="h-10 bg-slate-200/40 dark:bg-slate-800/20 rounded-xl" />
+                      </div>
+                    ) : milestoneTasks.length > 0 ? (
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            <th className="py-3 px-4 sm:px-6">Task Title</th>
+                            <th className="py-3 px-3">Priority</th>
+                            <th className="py-3 px-3">Status</th>
+                            <th className="py-3 px-3">Assignee</th>
+                            <th className="py-3 px-3">Points</th>
+                            <th className="py-3 px-3">Due Date</th>
+                            <th className="py-3 px-4">Progress</th>
+                            <th className="py-3 px-3 text-center">Comments</th>
+                            {isAdmin && (
+                              <th className="py-3 px-4 text-right">Actions</th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
+                          {milestoneTasks.map((task, index) => {
+                            const taskId = task._id || task.id;
+                            const priorityCfg = getPriorityConfig(task.priority);
+                            const progress = getTaskProgress(task.status);
+                            const isUpdating = updatingTaskId === taskId;
+                            const isDeleting = deletingTaskId === taskId;
 
-                          // Check if overdue: has due date, is in the past, and not completed
-                          const isOverdue =
-                            task.dueDate &&
-                            new Date(task.dueDate).getTime() < currentTime &&
-                            String(task.status || '').toLowerCase() !== 'completed';
+                            // Check if overdue: has due date, is in the past, and not completed
+                            const isOverdue =
+                              task.dueDate &&
+                              new Date(task.dueDate).getTime() < currentTime &&
+                              String(task.status || '').toLowerCase() !== 'completed';
 
-                          const formattedDueDate = task.dueDate
-                            ? new Date(task.dueDate).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })
-                            : null;
+                            const formattedDueDate = task.dueDate
+                              ? new Date(task.dueDate).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })
+                              : null;
 
-                          return (
-                            <tr
-                              key={taskId || task.title}
-                              data-testid="pm-task-row"
-                              className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
-                            >
+                            return (
+                              <motion.tr
+                                key={taskId || task.title}
+                                data-testid="pm-task-row"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25, delay: index * 0.03 }}
+                                className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                              >
                               {/* Task Title */}
                               <td className="py-3.5 px-4 sm:px-6">
                                 <div className="space-y-0.5">
@@ -662,9 +677,11 @@ export default function ProjectManagementView({
                                     <span>{progress.text}</span>
                                   </div>
                                   <div className="w-full h-2 bg-slate-200 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-300 dark:border-slate-800/80">
-                                    <div
-                                      className={`h-full ${progress.barColor} rounded-full transition-all duration-300`}
-                                      style={{ width: `${progress.percentage}%` }}
+                                    <motion.div
+                                      className={`h-full ${progress.barColor} rounded-full`}
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${progress.percentage}%` }}
+                                      transition={{ duration: 0.6, ease: "easeOut" }}
                                     />
                                   </div>
                                 </div>
@@ -704,7 +721,7 @@ export default function ProjectManagementView({
                                   </button>
                                 </td>
                               )}
-                            </tr>
+                            </motion.tr>
                           );
                         })}
                       </tbody>
@@ -726,8 +743,9 @@ export default function ProjectManagementView({
                       )}
                     </div>
                   )}
-                </div>
+                </motion.div>
               )}
+            </AnimatePresence>
             </div>
           );
         })}

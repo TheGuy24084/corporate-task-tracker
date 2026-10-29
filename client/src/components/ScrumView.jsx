@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Zap,
   Layers,
@@ -210,9 +211,11 @@ export default function ScrumView({
 
           {/* Velocity Progress Bar */}
           <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
-            <div
-              className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-500"
-              style={{ width: `${velocityPercentage}%` }}
+            <motion.div
+              className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${velocityPercentage}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             />
           </div>
 
@@ -276,177 +279,187 @@ export default function ScrumView({
         </div>
 
         {/* Backlog Item List */}
-        {isBacklogExpanded && (
-          <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800/80 space-y-3">
-            {backlogTasks.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {backlogTasks.map((task) => {
-                  const taskId = task._id || task.id;
-                  const isMoving = movingTaskId === taskId;
+        <AnimatePresence>
+          {isBacklogExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800/80 space-y-3">
+                {backlogTasks.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {backlogTasks.map((task) => {
+                      const taskId = task._id || task.id;
+                      const isMoving = movingTaskId === taskId;
 
-                  return (
-                    <div
-                      key={taskId || task.title}
-                      data-testid={`backlog-item-${taskId}`}
-                      className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 hover:bg-white dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between gap-3 shadow-sm transition-all"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getPriorityBadge(
-                              task.priority
-                            )}`}
-                          >
-                            {task.priority || 'Medium'}
-                          </span>
-                          <span
-                            data-testid="story-points-badge"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30"
-                          >
-                            <Zap className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                            <span>{task.storyPoints ?? 1} SP</span>
-                          </span>
-                        </div>
-
-                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight leading-snug">
-                          {task.title}
-                        </h4>
-
-                        {task.description && (
-                          <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
-                            {task.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Backlog Item Assignee */}
-                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {task.assignedTo?.avatar ? (
-                            <img
-                              src={task.assignedTo.avatar}
-                              alt={task.assignedTo.name || 'Assignee'}
-                              className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400"
-                            />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
-                              {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+                      return (
+                        <div
+                          key={taskId || task.title}
+                          data-testid={`backlog-item-${taskId}`}
+                          className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 hover:bg-white dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between gap-3 shadow-sm transition-all"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${getPriorityBadge(
+                                  task.priority
+                                )}`}
+                              >
+                                {task.priority || 'Medium'}
+                              </span>
+                              <span
+                                data-testid="story-points-badge"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30"
+                              >
+                                <Zap className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                                <span>{task.storyPoints ?? 1} SP</span>
+                              </span>
                             </div>
-                          )}
-                          <span
-                            data-testid={`backlog-assignee-${taskId}`}
-                            className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[100px]"
-                            title={task.assignedTo?.name || 'Unassigned'}
-                          >
-                            {task.assignedTo?.name || 'Unassigned'}
-                          </span>
-                        </div>
 
-                        <select
-                          data-testid={`backlog-assignee-select-${taskId}`}
-                          aria-label="Reassign backlog task"
-                          value={
-                            task.assignedTo
-                              ? typeof task.assignedTo === 'object'
-                                ? task.assignedTo._id || task.assignedTo.id || ''
-                                : task.assignedTo
-                              : ''
-                          }
-                          onChange={async (e) => {
-                            const newAssigneeId = e.target.value;
-                            try {
-                              const res = await api.put(`/tasks/${taskId}`, {
-                                assignedTo: newAssigneeId === '' ? '' : newAssigneeId,
-                              });
-                              if (typeof onUpdateTask === 'function') {
-                                onUpdateTask(
-                                  res.data || {
-                                    ...task,
-                                    assignedTo: newAssigneeId
-                                      ? teamMembers.find(
-                                          (m) => (m._id || m.id) === newAssigneeId
-                                        ) || newAssigneeId
-                                      : null,
-                                  }
-                                );
+                            <h4 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight leading-snug">
+                              {task.title}
+                            </h4>
+
+                            {task.description && (
+                              <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                                {task.description}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Backlog Item Assignee */}
+                          <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {task.assignedTo?.avatar ? (
+                                <img
+                                  src={task.assignedTo.avatar}
+                                  alt={task.assignedTo.name || 'Assignee'}
+                                  className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400"
+                                />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                                  {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+                                </div>
+                              )}
+                              <span
+                                data-testid={`backlog-assignee-${taskId}`}
+                                className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[100px]"
+                                title={task.assignedTo?.name || 'Unassigned'}
+                              >
+                                {task.assignedTo?.name || 'Unassigned'}
+                              </span>
+                            </div>
+
+                            <select
+                              data-testid={`backlog-assignee-select-${taskId}`}
+                              aria-label="Reassign backlog task"
+                              value={
+                                task.assignedTo
+                                  ? typeof task.assignedTo === 'object'
+                                    ? task.assignedTo._id || task.assignedTo.id || ''
+                                    : task.assignedTo
+                                  : ''
                               }
-                            } catch (err) {
-                              alert(
-                                err.response?.data?.message ||
-                                  err.message ||
-                                  'Failed to reassign task'
-                              );
-                            }
-                          }}
-                          className="text-[11px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer"
-                        >
-                          <option value="">Unassigned</option>
-                          {teamMembers.map((member) => (
-                            <option
-                              key={member._id || member.id}
-                              value={member._id || member.id}
+                              onChange={async (e) => {
+                                const newAssigneeId = e.target.value;
+                                try {
+                                  const res = await api.put(`/tasks/${taskId}`, {
+                                    assignedTo: newAssigneeId === '' ? '' : newAssigneeId,
+                                  });
+                                  if (typeof onUpdateTask === 'function') {
+                                    onUpdateTask(
+                                      res.data || {
+                                        ...task,
+                                        assignedTo: newAssigneeId
+                                          ? teamMembers.find(
+                                              (m) => (m._id || m.id) === newAssigneeId
+                                            ) || newAssigneeId
+                                          : null,
+                                      }
+                                    );
+                                  }
+                                } catch (err) {
+                                  alert(
+                                    err.response?.data?.message ||
+                                      err.message ||
+                                      'Failed to reassign task'
+                                  );
+                                }
+                              }}
+                              className="text-[11px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer"
                             >
-                              {member.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                              <option value="">Unassigned</option>
+                              {teamMembers.map((member) => (
+                                <option
+                                  key={member._id || member.id}
+                                  value={member._id || member.id}
+                                >
+                                  {member.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
 
-                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                            {task.milestone || 'General'}
-                          </span>
-                          <button
-                            type="button"
-                            data-testid={`backlog-comments-${taskId}`}
-                            onClick={() => onOpenComments?.(task)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                            title="Comments"
-                          >
-                            <MessageSquare className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
-                            <span>{task.comments?.length || 0}</span>
-                          </button>
+                          <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                {task.milestone || 'General'}
+                              </span>
+                              <button
+                                type="button"
+                                data-testid={`backlog-comments-${taskId}`}
+                                onClick={() => onOpenComments?.(task)}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                                title="Comments"
+                              >
+                                <MessageSquare className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
+                                <span>{task.comments?.length || 0}</span>
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              data-testid={`move-to-sprint-${taskId}`}
+                              disabled={isMoving}
+                              onClick={() => handleMoveToSprint(task)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 active:bg-purple-700 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                              title={`Move task into ${selectedSprint}`}
+                            >
+                              {isMoving ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  <span>Moving...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Move to {selectedSprint}</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
-
-                        <button
-                          type="button"
-                          data-testid={`move-to-sprint-${taskId}`}
-                          disabled={isMoving}
-                          onClick={() => handleMoveToSprint(task)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 active:bg-purple-700 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-                          title={`Move task into ${selectedSprint}`}
-                        >
-                          {isMoving ? (
-                            <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              <span>Moving...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Move to {selectedSprint}</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                    <Sparkles className="w-5 h-5 mx-auto text-slate-400 dark:text-slate-500 mb-2" />
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Product Backlog is clear!
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      All current tasks are committed to active sprints.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="p-8 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
-                <Sparkles className="w-5 h-5 mx-auto text-slate-400 dark:text-slate-500 mb-2" />
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Product Backlog is clear!
-                </p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  All current tasks are committed to active sprints.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 3-Column Active Sprint Board ('To-Do', 'In Progress', 'Completed') */}
