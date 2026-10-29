@@ -50,6 +50,29 @@ const taskSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    comments: [
+      {
+        text: {
+          type: String,
+          required: true,
+        },
+        author: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        mentions: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
