@@ -7,7 +7,7 @@ import api from '../api/axios';
  * TaskCard Component
  * Reusable card displaying task title, description, color-coded priority badge, creator name,
  * methodology badges (Story Points in Scrum mode, Due Date & Milestone in PM mode),
- * status change dropdown (PUT /api/tasks/:id), and role-based red Delete button (DELETE /api/tasks/:id).
+ * status change dropdown (PUT /api/tasks/:id), and role-based Delete button (DELETE /api/tasks/:id).
  * Priority color codes: Low = Blue, Medium = Yellow, High = Red.
  */
 export default function TaskCard({
@@ -138,6 +138,10 @@ export default function TaskCard({
   const handleDelete = async () => {
     if (!taskId) return;
 
+    if (!window.confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
+
     setIsDeleting(true);
     try {
       await api.delete(`/tasks/${taskId}`);
@@ -147,6 +151,7 @@ export default function TaskCard({
       if (typeof onDelete === 'function') {
         onDelete(taskId);
       }
+      alert('Deleted successfully');
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -359,14 +364,14 @@ export default function TaskCard({
           </div>
         </div>
 
-        {/* Conditionally render red Delete button ONLY for Admin users */}
+        {/* Conditionally render Delete button ONLY for Admin users */}
         {isAdmin && (
           <button
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
             data-testid="delete-task-button"
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-red-600 hover:bg-red-500 active:bg-red-700 rounded-lg shadow-sm border border-red-500/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 active:bg-red-700 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             title="Delete Task (Admin Only)"
           >
             {isDeleting ? (

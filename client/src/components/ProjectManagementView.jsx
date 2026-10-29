@@ -145,12 +145,17 @@ export default function ProjectManagementView({
   const handleDeleteTask = async (taskId) => {
     if (!taskId) return;
 
+    if (!window.confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
+
     setDeletingTaskId(taskId);
     try {
       await api.delete(`/tasks/${taskId}`);
       if (typeof onDeleteTask === 'function') {
         onDeleteTask(taskId);
       }
+      alert('Deleted successfully');
     } catch (err) {
       console.error('Failed to delete task:', err);
       alert(
@@ -676,7 +681,7 @@ export default function ProjectManagementView({
                                     data-testid="pm-delete-task-button"
                                     disabled={isDeleting}
                                     onClick={() => handleDeleteTask(taskId)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-red-600 hover:bg-red-500 active:bg-red-700 rounded-lg shadow-sm border border-red-500/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 active:bg-red-700 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                                     title="Delete deliverable (Admin Only)"
                                   >
                                     {isDeleting ? (
