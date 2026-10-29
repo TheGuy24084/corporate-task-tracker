@@ -6,6 +6,7 @@ import TaskCard from '../components/TaskCard';
 import ScrumView from '../components/ScrumView';
 import ProjectManagementView from '../components/ProjectManagementView';
 import InviteMemberModal from '../components/InviteMemberModal';
+import TaskCommentsModal from '../components/TaskCommentsModal';
 import {
   Kanban,
   ListTodo,
@@ -123,6 +124,7 @@ export default function Dashboard() {
   // Team members list & Invite Modal State
   const [teamMembers, setTeamMembers] = useState([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [activeCommentTask, setActiveCommentTask] = useState(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -920,6 +922,7 @@ export default function Dashboard() {
           openModal={openModal}
           loading={loading}
           teamMembers={teamMembers}
+          onOpenComments={(task) => setActiveCommentTask(task)}
         />
       ) : methodology === 'Project Management' ? (
         <ProjectManagementView
@@ -930,6 +933,7 @@ export default function Dashboard() {
           openModal={openModal}
           loading={loading}
           teamMembers={teamMembers}
+          onOpenComments={(task) => setActiveCommentTask(task)}
         />
       ) : (
         /* Responsive 3-Column Kanban Board Layout */
@@ -1003,6 +1007,7 @@ export default function Dashboard() {
                         onDeleteTask={handleDeleteTask}
                         onDelete={handleDeleteTask}
                         teamMembers={teamMembers}
+                        onOpenComments={(task) => setActiveCommentTask(task)}
                       />
                     ))
                   ) : (
@@ -1384,6 +1389,18 @@ export default function Dashboard() {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         onInviteSuccess={fetchTeamMembers}
+      />
+
+      {/* Task Comments & Mentions Modal */}
+      <TaskCommentsModal
+        isOpen={Boolean(activeCommentTask)}
+        task={activeCommentTask}
+        teamMembers={teamMembers}
+        onClose={() => setActiveCommentTask(null)}
+        onUpdateTask={(updatedTask) => {
+          handleUpdateTask(updatedTask);
+          setActiveCommentTask(updatedTask);
+        }}
       />
     </div>
   );

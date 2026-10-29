@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { User, Calendar, Tag, Trash2, Loader2, Zap, Target } from 'lucide-react';
+import { User, Calendar, Trash2, Loader2, Zap, Target, MessageSquare } from 'lucide-react';
 import AuthContext from '../AuthContext';
 import api from '../api/axios';
 
@@ -26,6 +26,7 @@ export default function TaskCard({
   onStatusChange,
   onDeleteTask,
   onDelete,
+  onOpenComments,
 }) {
   const currentTask = task || {};
   const taskId = currentTask._id || currentTask.id;
@@ -442,9 +443,17 @@ export default function TaskCard({
           </div>
         </div>
 
-        <div className="text-slate-400 dark:text-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
-          <Tag className="w-3.5 h-3.5" />
-        </div>
+        {/* Comments Button */}
+        <button
+          type="button"
+          data-testid="task-comments-btn"
+          onClick={() => onOpenComments?.(currentTask)}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all cursor-pointer"
+          title="View & add comments"
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+          <span>{currentTask.comments?.length || 0}</span>
+        </button>
       </div>
     </div>
   );

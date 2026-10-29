@@ -30,6 +30,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [Token-Based Invite Links & Onboarding Flow](#token-based-invite-links--onboarding-flow)
    - [Team Member Management UI (InviteMemberModal)](#team-member-management-ui-invitemembermodal)
    - [Task Assignee Controls Across Kanban, Scrum & PM Views](#task-assignee-controls-across-kanban-scrum--pm-views)
+   - [Task Comments, @Mentions & Notification System](#task-comments-mentions--notification-system)
 7. [Outcome 5: Setup Instructions to Run Client and Server Locally](#7-setup-instructions-to-run-both-client-and-server-locally)
    - [Testing Application Features](#4-testing-the-application-features)
    - [Directory Structure](#directory-structure)
@@ -212,6 +213,11 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 - `dueDate`: Date, optional.
 - `createdBy`: ObjectId reference to `User` model, indexed.
 - `assignedTo`: ObjectId reference to `User` model, optional (populated with `name`, `email`, `role`).
+- `comments`: Array of subdocuments containing:
+  - `text`: String, required.
+  - `author`: ObjectId reference to `User` model, required (populated with `name`, `email`, `role`).
+  - `mentions`: Array of ObjectId references to `User` model (populated with `name`, `email`).
+  - `createdAt`: Date, default `Date.now`.
 - `timestamps`: Automatic `createdAt` and `updatedAt`.
 
 ##### User Schema (`server/models/User.js`)
@@ -227,6 +233,14 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 - `token`: String, required, unique hex string generated via `crypto.randomBytes(32)`.
 - `status`: String enum `['Pending', 'Accepted', 'Expired']`, default `'Pending'`.
 - `invitedBy`: ObjectId reference to `User` model, required.
+- `createdAt`: Date, default `Date.now`.
+
+##### Notification Schema (`server/models/Notification.js`)
+- `recipient`: ObjectId reference to `User` model, required.
+- `sender`: ObjectId reference to `User` model, required.
+- `task`: ObjectId reference to `Task` model, required.
+- `message`: String, required notification text.
+- `isRead`: Boolean, default `false`.
 - `createdAt`: Date, default `Date.now`.
 
 ---
@@ -246,9 +260,14 @@ The application exposes a clean, stateless REST API adhering to resource-oriente
 | **`POST`** | `/api/tasks` | Create a new task (supports sprint, story points, milestone, due date, and assigned team member) | `{ "title": "...", "description": "...", "status": "To-Do", "priority": "Medium", "sprint": "Backlog", "storyPoints": 1, "milestone": "Phase 1: Planning", "dueDate": "2026-11-01", "assignedTo": "<userId>" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
 | **`PUT`** | `/api/tasks/:id` | Update an existing task's status, sprint, points, milestone, due date, priority, or assignee | `{ "status": "In Progress" \| "Completed" \| "To-Do" \| "Backlog", "sprint": "Sprint 1", "storyPoints": 3, "milestone": "Phase 2: Execution", "dueDate": "2026-11-15", "assignedTo": "<userId>" \| "", ... }` | `Bearer <JWT>` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Server Error` |
 | **`DELETE`** | `/api/tasks/:id` | Permanently delete a task (Admins only) | _None_ | `Bearer <JWT>` (Admin role) | `200 OK`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `500 Server Error` |
+| **`POST`** | `/api/tasks/:id/comments` | Add a comment to a task with optional `@mentions`; generates in-app notifications and dispatches mention email | `{ "text": "...", "mentions": ["<userId>"] }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Server Error` |
+| **`DELETE`** | `/api/tasks/:id/comments/:commentId` | Delete a comment from a task (comment Author or Admin) | _None_ | `Bearer <JWT>` | `200 OK`, `403 Forbidden`, `404 Not Found`, `500 Server Error` |
 | **`GET`** | `/api/team/members` | Fetch all registered team members and pending invitations | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
 | **`POST`** | `/api/team/invite` | Dispatch an invitation email to a prospective member with tokenized registration URL | `{ "email": "engineer@company.com", "role": "User" \| "Admin" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
 | **`POST`** | `/api/team/accept-invite` | Accept a team invitation via unique cryptographic token | `{ "token": "a1b2c3d4..." }` | Public | `200 OK`, `400 Bad Request`, `404 Not Found`, `500 Server Error` |
+| **`GET`** | `/api/notifications` | Fetch recent in-app notifications for the logged-in user | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
+| **`PUT`** | `/api/notifications/:id/read` | Mark a specific notification as read | _None_ | `Bearer <JWT>` | `200 OK`, `404 Not Found`, `500 Server Error` |
+| **`PUT`** | `/api/notifications/read-all` | Mark all notifications for the logged-in user as read | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
 
 ---
 
@@ -421,8 +440,28 @@ To support distributed, cross-functional engineering teams, the application inte
     ```javascript
     .populate('createdBy', 'name email')
     .populate('assignedTo', 'name email role')
+    .populate('comments.author', 'name email role')
+    .populate('comments.mentions', 'name email')
     ```
   - Guarantees immediate UI updates across all views without requiring hard page refreshes.
+
+#### Task Comments, @Mentions & Notification System
+- **Interactive Comment Activity Feed (`TaskCommentsModal.jsx`)**:
+  - Reusable modal presenting the task scope (title, status, priority, and assignee).
+  - Scrollable chronological discussion feed displaying author avatar initials, names, role badges (`Admin` / `User`), relative timestamps, and comment bodies.
+  - Role-based moderation: Authors and Administrators can delete comments (`DELETE /api/tasks/:id/comments/:commentId`).
+- **Real-Time @Mention Autocomplete & Quick Chips**:
+  - Typing `@` triggers an instant autocomplete dropdown filtering teammates by name or email.
+  - A quick "@ Mention Member" chip bar enables one-click teammate tagging above the message input.
+  - Automatically wraps `@Name` mentions in styled pills (`AtSign` badge) and tracks referenced User IDs.
+- **Dual-Channel Notification System**:
+  - **In-App Notifications**: Creates persistent `Notification` documents in MongoDB with read-status tracking (`GET /api/notifications`, `PUT /api/notifications/:id/read`, `PUT /api/notifications/read-all`).
+  - **Navbar Notification Bell Dropdown**: The header bell icon displays an unread count badge and opens a popover feed listing recent mention alerts with single-click "Mark all read" capabilities.
+  - **Email Alerts (`sendMentionEmail`)**: Sends immediate email notifications detailing the mentioned task and comment text via production SMTP or ephemeral Ethereal test inboxes with clickable preview URLs.
+- **Unified Comment Triggers Across All Views**:
+  - **Kanban Board (`TaskCard.jsx`)**: Card footer includes a `MessageSquare` comment button with real-time comment count badge (`task.comments?.length || 0`).
+  - **Scrum Mode (`ScrumView.jsx`)**: Both active sprint cards and Product Backlog cards feature comment trigger buttons.
+  - **Project Management View (`ProjectManagementView.jsx`)**: Milestone deliverables table features a dedicated **Comments** column with interactive modal triggers.
 
 ---
 
@@ -530,6 +569,11 @@ npm run dev
    - In **Kanban Mode**: Change the assignee on any `TaskCard` via the inline dropdown next to the avatar badge.
    - In **Scrum Mode**: Reassign backlog deliverables directly from backlog cards or active sprint cards.
    - In **Project Management Mode**: Use the **Assignee** table column to reassign milestone tasks on the fly.
+9. **Task Comments, @Mentions & Notifications**:
+   - Click the **Comments** button (`MessageSquare` icon) on any task across Kanban, Scrum, or PM views to open `<TaskCommentsModal />`.
+   - Type a comment and use `@` autocomplete or the quick member chips to mention teammates.
+   - Submitting records the comment, triggers an immediate mention email, and generates an in-app `Notification`.
+   - The recipient sees an unread notification counter on the Navbar Bell icon with mark-as-read options.
 
 ---
 
@@ -545,17 +589,20 @@ corporate-task-tracker/
 │   ├── package.json               # Server dependencies & scripts
 │   ├── controllers/
 │   │   ├── authController.js      # Registration, login, and JWT generation logic
-│   │   ├── taskController.js      # Task CRUD, Scrum, and PM business logic
+│   │   ├── notificationController.js # In-app notification retrieval & read status logic
+│   │   ├── taskController.js      # Task CRUD, Scrum, PM, and comments business logic
 │   │   └── teamController.js      # Team membership, invites, and acceptance logic
 │   ├── middleware/
 │   │   └── authMiddleware.js      # verifyToken and authorizeAdmin RBAC middleware
 │   ├── models/
 │   │   ├── Invitation.js          # Mongoose schema for pending team invitations
-│   │   ├── Task.js                # Mongoose schema (status, sprint, storyPoints, milestone, dates, assignedTo)
+│   │   ├── Notification.js        # Mongoose schema for user in-app notifications
+│   │   ├── Task.js                # Mongoose schema (status, sprint, storyPoints, milestone, dates, assignedTo, comments)
 │   │   └── User.js                # Mongoose schema for users & roles
 │   ├── routes/
 │   │   ├── authRoutes.js          # Routes for authentication endpoints
-│   │   ├── taskRoutes.js          # Routes for task management endpoints
+│   │   ├── notificationRoutes.js  # Routes for notification endpoints
+│   │   ├── taskRoutes.js          # Routes for task & comment management endpoints
 │   │   └── teamRoutes.js          # Routes for team invitation and roster endpoints
 │   └── utils/
 │       └── emailService.js        # Nodemailer SMTP and Ethereal test transporter service
@@ -572,11 +619,12 @@ corporate-task-tracker/
         ├── api/
         │   └── axios.js           # Axios instance with JWT request interceptor
         ├── components/
-        │   ├── Navbar.jsx         # Responsive header with auth status & role badges
-        │   ├── TaskCard.jsx       # Interactive task card with assignee badge & quick-reassign
+        │   ├── Navbar.jsx         # Header with auth status, role badges, and notification bell dropdown
+        │   ├── TaskCard.jsx       # Interactive task card with assignee badge, reassign, and comments trigger
         │   ├── ScrumView.jsx      # Agile Scrum view with Sprint selector, Backlog & Velocity
-        │   ├── ProjectManagementView.jsx # PM view with Milestone table, Assignee column & deadlines
-        │   └── InviteMemberModal.jsx # Team invitation modal with Ethereal preview link
+        │   ├── ProjectManagementView.jsx # PM view with Milestone table, Assignee column & comments
+        │   ├── InviteMemberModal.jsx # Team invitation modal with Ethereal preview link
+        │   └── TaskCommentsModal.jsx # Task comments feed, @mention autocomplete, and delete controls
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
             ├── Login.jsx          # Login page with secure authentication

@@ -10,6 +10,7 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  MessageSquare,
 } from 'lucide-react';
 import AuthContext from '../AuthContext';
 import api from '../api/axios';
@@ -36,6 +37,7 @@ export default function ProjectManagementView({
   openModal,
   loading = false,
   teamMembers = [],
+  onOpenComments,
 }) {
   const auth = useContext(AuthContext);
   const currentUser = propUser || auth?.user;
@@ -426,6 +428,7 @@ export default function ProjectManagementView({
                           <th className="py-3 px-3">Points</th>
                           <th className="py-3 px-3">Due Date</th>
                           <th className="py-3 px-4">Progress</th>
+                          <th className="py-3 px-3 text-center">Comments</th>
                           {isAdmin && (
                             <th className="py-3 px-4 text-right">Actions</th>
                           )}
@@ -649,6 +652,20 @@ export default function ProjectManagementView({
                                     />
                                   </div>
                                 </div>
+                              </td>
+
+                              {/* Comments Button */}
+                              <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                                <button
+                                  type="button"
+                                  data-testid="pm-task-comments-btn"
+                                  onClick={() => onOpenComments?.(task)}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all cursor-pointer"
+                                  title="View & add comments"
+                                >
+                                  <MessageSquare className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                                  <span>{task.comments?.length || 0}</span>
+                                </button>
                               </td>
 
                               {/* Admin-only Delete Button */}

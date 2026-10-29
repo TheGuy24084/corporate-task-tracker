@@ -11,6 +11,7 @@ import {
   ListTodo,
   Sparkles,
   Loader2,
+  MessageSquare,
 } from 'lucide-react';
 import TaskCard from './TaskCard';
 import api from '../api/axios';
@@ -81,6 +82,7 @@ export default function ScrumView({
   openModal,
   loading = false,
   teamMembers = [],
+  onOpenComments,
 }) {
   const [selectedSprint, setSelectedSprint] = useState('Sprint 1');
   const [isBacklogExpanded, setIsBacklogExpanded] = useState(true);
@@ -383,9 +385,21 @@ export default function ScrumView({
                       </div>
 
                       <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                          {task.milestone || 'General'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                            {task.milestone || 'General'}
+                          </span>
+                          <button
+                            type="button"
+                            data-testid={`backlog-comments-${taskId}`}
+                            onClick={() => onOpenComments?.(task)}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                            title="Comments"
+                          >
+                            <MessageSquare className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
+                            <span>{task.comments?.length || 0}</span>
+                          </button>
+                        </div>
 
                         <button
                           type="button"
@@ -514,6 +528,7 @@ export default function ScrumView({
                         onUpdateTask={onUpdateTask}
                         onDeleteTask={onDeleteTask}
                         onDelete={onDeleteTask}
+                        onOpenComments={onOpenComments}
                       />
                     ))
                   ) : (
