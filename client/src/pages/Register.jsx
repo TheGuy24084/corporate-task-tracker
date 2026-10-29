@@ -204,17 +204,12 @@ export default function Register() {
 
             {/* Role Dropdown */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label
-                  htmlFor="role"
-                  className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300"
-                >
-                  Role Selection
-                </label>
-                <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
-                  Demo Purpose
-                </span>
-              </div>
+              <label
+                htmlFor="role"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Role Selection
+              </label>
               <div className="relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <ShieldCheck className="w-4 h-4" />
@@ -238,8 +233,8 @@ export default function Register() {
                 </div>
               </div>
               <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
-                Pick either <strong className="text-slate-700 dark:text-slate-300">User</strong> or{' '}
-                <strong className="text-slate-700 dark:text-slate-300">Admin</strong> role to test role-based capabilities.
+                Select <strong className="text-slate-700 dark:text-slate-300">User</strong> or{' '}
+                <strong className="text-slate-700 dark:text-slate-300">Admin</strong> role.
               </p>
             </div>
 

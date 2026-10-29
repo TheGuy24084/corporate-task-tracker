@@ -133,28 +133,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Demo Credentials Helper */}
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Demo Admin Credentials:</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData({
-                      email: 'admin@company.com',
-                      password: 'Admin123!',
-                    })
-                  }
-                  className="px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/25 border border-indigo-500/30 transition-all cursor-pointer"
-                >
-                  Auto-fill Admin
-                </button>
-              </div>
-              <p className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                admin@company.com / Admin123!
-              </p>
-            </div>
-
             {/* Submit Button */}
             <button
               type="submit"

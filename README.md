@@ -496,13 +496,10 @@ npm run dev
 
 #### 4. Testing the Application Features
 
-1. **Pre-configured Demo Credentials**:
-   - The login page includes a quick **Auto-fill Admin** button with pre-configured demo credentials:
-     - **Email**: `admin@company.com`
-     - **Password**: `Admin123!`
-2. **Custom Account Registration**:
-   - Visit the `/register` page to create your own account.
-   - Choose either the **User** or **Admin** role from the demo dropdown to test role-based behavior.
+1. **User Account Registration**:
+   - Visit the `/register` page to create an account with a designated **User** or **Admin** role.
+2. **Account Sign In**:
+   - Sign in on `/login` using your registered work email and password to access the dashboard workspace.
 3. **Switching Methodologies**:
    - Click the segmented control tabs at the top of the Dashboard:
      - **Kanban Board**: Experience 3-column continuous delivery with live task status updates.
@@ -582,7 +579,7 @@ corporate-task-tracker/
         │   └── InviteMemberModal.jsx # Team invitation modal with Ethereal preview link
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
-            ├── Login.jsx          # Login page with demo auto-fill
+            ├── Login.jsx          # Login page with secure authentication
             └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```
 
