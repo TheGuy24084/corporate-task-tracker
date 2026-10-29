@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import { AuthProvider } from './AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -8,9 +9,27 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import { ListTodo, Shield, Users, ArrowRight } from 'lucide-react';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+};
+
+const pageTransition = {
+  duration: 0.3,
+  ease: 'easeInOut',
+};
+
 function Home() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={pageTransition}
+      className="max-w-4xl mx-auto px-4 py-16 text-center"
+    >
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-6">
         Enterprise Task Management
       </div>
@@ -46,21 +65,21 @@ function Home() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-left">
-        <div className="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 backdrop-blur-sm shadow-sm">
+        <div className="p-6 rounded-2xl glass-card hover:shadow-xl transition-shadow duration-300">
           <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 dark:text-indigo-400 mb-4">
             <ListTodo className="w-5 h-5" />
           </div>
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Task Organization</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400">Organize and prioritize sprints, deliverables, and team deadlines with clarity.</p>
         </div>
-        <div className="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 backdrop-blur-sm shadow-sm">
+        <div className="p-6 rounded-2xl glass-card hover:shadow-xl transition-shadow duration-300">
           <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 dark:text-purple-400 mb-4">
             <Users className="w-5 h-5" />
           </div>
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Team Collaboration</h3>
           <p className="text-sm text-slate-600 dark:text-slate-400">Keep team members aligned with role-based access, assignments, and updates.</p>
         </div>
-        <div className="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 backdrop-blur-sm shadow-sm">
+        <div className="p-6 rounded-2xl glass-card hover:shadow-xl transition-shadow duration-300">
           <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400 mb-4">
             <Shield className="w-5 h-5" />
           </div>
@@ -68,7 +87,22 @@ function Home() {
           <p className="text-sm text-slate-600 dark:text-slate-400">Enterprise-ready authentication and persistent data tracking built for scale.</p>
         </div>
       </div>
-    </div>
+    </motion.div>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
   );
 }
 
@@ -78,16 +112,10 @@ export default function App() {
       <Router>
         <AuthProvider>
           <ToastProvider>
-            <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+            <div className="min-h-screen bg-slate-50 text-gray-900 dark:bg-[#0B0F19] dark:text-slate-100 flex flex-col font-['Plus_Jakarta_Sans','Inter',sans-serif] transition-colors duration-200">
               <Navbar />
               <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                <AnimatedRoutes />
               </main>
             </div>
           </ToastProvider>
