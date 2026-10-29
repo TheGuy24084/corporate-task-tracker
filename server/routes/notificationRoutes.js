@@ -20,3 +20,4 @@ router.put("/read-all", markAllNotificationsAsRead);
 router.put("/:id/read", markNotificationAsRead);
 
 module.exports = router;
+
