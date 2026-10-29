@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   User,
@@ -21,7 +22,10 @@ import api from '../api/axios';
 
 export default function ProfileModal({ isOpen, onClose }) {
   if (!isOpen) return null;
-  return <ProfileModalContent onClose={onClose} />;
+  return createPortal(
+    <ProfileModalContent onClose={onClose} />,
+    document.body
+  );
 }
 
 function ProfileModalContent({ onClose }) {
@@ -44,6 +48,22 @@ function ProfileModalContent({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
+
+  // Close on Escape key press & prevent background scrolling
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
 
   // Process image file and generate optimized data URL
   const processImageFile = (file) => {
@@ -146,6 +166,9 @@ function ProfileModalContent({ onClose }) {
   const handleRemoveAvatar = () => {
     setAvatar('');
     setImageUrlInput('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -214,17 +237,17 @@ function ProfileModalContent({ onClose }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-modal-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fade-in"
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-slate-900/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[88vh] overflow-hidden my-auto animate-scale-up text-slate-900 dark:text-white"
+        className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto animate-scale-up text-slate-900 dark:text-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Fixed Header */}
-        <div className="flex-shrink-0 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-950/50">
+        <div className="flex-shrink-0 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-950/60">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <User className="w-5 h-5" />
@@ -296,7 +319,7 @@ function ProfileModalContent({ onClose }) {
                   )}
 
                   {/* Camera Overlay Badge */}
-                  <div className="absolute inset-0 rounded-full bg-slate-900/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity text-[10px] font-semibold">
+                  <div className="absolute inset-0 rounded-full bg-slate-900/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity text-[10px] font-semibold">
                     <Camera className="w-5 h-5 mb-0.5" />
                     <span>Change</span>
                   </div>
@@ -324,6 +347,7 @@ function ProfileModalContent({ onClose }) {
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
                     <input
+                      id="avatar-file-input"
                       type="file"
                       ref={fileInputRef}
                       accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
@@ -333,6 +357,7 @@ function ProfileModalContent({ onClose }) {
                     />
                     <button
                       type="button"
+                      data-testid="upload-avatar-btn"
                       onClick={() => fileInputRef.current?.click()}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-all cursor-pointer"
                     >
@@ -537,7 +562,7 @@ function ProfileModalContent({ onClose }) {
           </div>
 
           {/* Fixed Footer */}
-          <div className="flex-shrink-0 p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 bg-slate-50/70 dark:bg-slate-950/50">
+          <div className="flex-shrink-0 p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 bg-slate-50/80 dark:bg-slate-950/60">
             <button
               type="button"
               onClick={onClose}
