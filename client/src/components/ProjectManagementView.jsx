@@ -13,6 +13,8 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import AuthContext from '../AuthContext';
+import { useToast } from '../context/ToastContext';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import api from '../api/axios';
 
 const DEFAULT_MILESTONES = [
@@ -50,6 +52,8 @@ export default function ProjectManagementView({
   const [updatingTaskId, setUpdatingTaskId] = useState(null);
   const [deletingTaskId, setDeletingTaskId] = useState(null);
   const [reassigningTaskId, setReassigningTaskId] = useState(null);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const { showToast } = useToast();
 
   // Collapsible state per milestone group
   const [collapsedMilestones, setCollapsedMilestones] = useState({});
@@ -142,26 +146,25 @@ export default function ProjectManagementView({
   };
 
   // Delete Task Handler (DELETE /api/tasks/:id)
-  const handleDeleteTask = async (taskId) => {
-    if (!taskId) return;
-
-    if (!window.confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
+  const confirmDeleteTask = async () => {
+    if (!taskToDelete) return;
+    const taskId = taskToDelete._id || taskToDelete.id;
 
     setDeletingTaskId(taskId);
     try {
       await api.delete(`/tasks/${taskId}`);
+      setTaskToDelete(null);
       if (typeof onDeleteTask === 'function') {
         onDeleteTask(taskId);
       }
-      alert('Deleted successfully');
+      showToast('Deleted successfully', 'success');
     } catch (err) {
       console.error('Failed to delete task:', err);
-      alert(
+      showToast(
         err.response?.data?.message ||
           err.message ||
-          'Failed to delete task'
+          'Failed to delete task',
+        'error'
       );
     } finally {
       setDeletingTaskId(null);
@@ -544,11 +547,19 @@ export default function ProjectManagementView({
                               <td className="py-3.5 px-3 whitespace-nowrap">
                                 <div className="flex items-center gap-2">
                                   <div className="flex items-center gap-1.5 min-w-0">
-                                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0 shadow-xs">
-                                      {task.assignedTo?.name
-                                        ? task.assignedTo.name[0].toUpperCase()
-                                        : '?'}
-                                    </div>
+                                    {task.assignedTo?.avatar ? (
+                                      <img
+                                        src={task.assignedTo.avatar}
+                                        alt={task.assignedTo.name || 'Assignee'}
+                                        className="w-6 h-6 rounded-full object-cover flex-shrink-0 border border-indigo-400 shadow-xs"
+                                      />
+                                    ) : (
+                                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0 shadow-xs">
+                                        {task.assignedTo?.name
+                                          ? task.assignedTo.name[0].toUpperCase()
+                                          : '?'}
+                                      </div>
+                                    )}
                                     <span
                                       data-testid="pm-task-assignee"
                                       className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[100px]"
@@ -679,8 +690,8 @@ export default function ProjectManagementView({
                                   <button
                                     type="button"
                                     data-testid="pm-delete-task-button"
-                                    disabled={isDeleting}
-                                    onClick={() => handleDeleteTask(taskId)}
+                                    disabled={deletingTaskId === taskId}
+                                    onClick={() => setTaskToDelete(task)}
                                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 active:bg-red-700 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                                     title="Delete deliverable (Admin Only)"
                                   >
@@ -721,6 +732,16 @@ export default function ProjectManagementView({
           );
         })}
       </div>
+
+      {/* Fluid Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(taskToDelete)}
+        title="Delete Deliverable"
+        message={`Are you sure you want to delete "${taskToDelete?.title || 'this deliverable'}"? This action cannot be undone.`}
+        isDeleting={Boolean(deletingTaskId)}
+        onConfirm={confirmDeleteTask}
+        onClose={() => setTaskToDelete(null)}
+      />
     </div>
   );
 }

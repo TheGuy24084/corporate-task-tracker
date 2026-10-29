@@ -225,6 +225,7 @@ The styling layer utilizes **Tailwind CSS (v3.4)**:
 - `email`: String, required, unique, lowercase, trimmed.
 - `password`: String, required, hashed with bcrypt (salt rounds = 10).
 - `role`: String enum `['User', 'Admin']`, default `'User'`.
+- `avatar`: String (base64 Data URI or image URL), default `""`.
 - `timestamps`: Automatic `createdAt` and `updatedAt`.
 
 ##### Invitation Schema (`server/models/Invitation.js`)
@@ -256,6 +257,8 @@ The application exposes a clean, stateless REST API adhering to resource-oriente
 | **`GET`** | `/api/health` | Service health status check | _None_ | Public | `200 OK`, `500 Server Error` |
 | **`POST`** | `/api/auth/register` | Register a new user account | `{ "name": "...", "email": "...", "password": "...", "role": "User" \| "Admin" }` | Public | `201 Created`, `400 Bad Request`, `500 Server Error` |
 | **`POST`** | `/api/auth/login` | Authenticate credentials & return JWT | `{ "email": "...", "password": "..." }` | Public | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
+| **`GET`** | `/api/auth/profile` | Retrieve logged-in user profile & credentials | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `404 Not Found`, `500 Server Error` |
+| **`PUT`** | `/api/auth/profile` | Update user credentials, password, or profile picture | `{ "name": "...", "email": "...", "avatar": "data:image/...", "currentPassword": "...", "newPassword": "..." }` | `Bearer <JWT>` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
 | **`GET`** | `/api/tasks` | Fetch all tasks (populates `createdBy` and `assignedTo` user details, sorted newest first) | _None_ | `Bearer <JWT>` | `200 OK`, `401 Unauthorized`, `500 Server Error` |
 | **`POST`** | `/api/tasks` | Create a new task (supports sprint, story points, milestone, due date, and assigned team member) | `{ "title": "...", "description": "...", "status": "To-Do", "priority": "Medium", "sprint": "Backlog", "storyPoints": 1, "milestone": "Phase 1: Planning", "dueDate": "2026-11-01", "assignedTo": "<userId>" }` | `Bearer <JWT>` | `201 Created`, `400 Bad Request`, `401 Unauthorized`, `500 Server Error` |
 | **`PUT`** | `/api/tasks/:id` | Update an existing task's status, sprint, points, milestone, due date, priority, or assignee | `{ "status": "In Progress" \| "Completed" \| "To-Do" \| "Backlog", "sprint": "Sprint 1", "storyPoints": 3, "milestone": "Phase 2: Execution", "dueDate": "2026-11-15", "assignedTo": "<userId>" \| "", ... }` | `Bearer <JWT>` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `500 Server Error` |
@@ -462,6 +465,25 @@ To support distributed, cross-functional engineering teams, the application inte
   - **Kanban Board (`TaskCard.jsx`)**: Card footer includes a `MessageSquare` comment button with real-time comment count badge (`task.comments?.length || 0`).
   - **Scrum Mode (`ScrumView.jsx`)**: Both active sprint cards and Product Backlog cards feature comment trigger buttons.
   - **Project Management View (`ProjectManagementView.jsx`)**: Milestone deliverables table features a dedicated **Comments** column with interactive modal triggers.
+
+#### User Profile, Credentials & Profile Picture Management (`ProfileModal.jsx`)
+- **Clickable Profile Avatar in Navbar**:
+  - Clicking the user profile button in the Navbar (`data-testid="user-profile-btn"`) opens the **User Profile & Credentials Modal**.
+  - Displays the user's custom profile picture or initials with full support for light and dark themes.
+- **Credential & Password Updates**:
+  - Users can view and update their full name and email address.
+  - Optional password update section with confirmation checks and bcrypt hashing on the backend (`PUT /api/auth/profile`).
+- **Profile Picture Upload & Canvas Optimization**:
+  - Built-in photo uploader supports PNG, JPG, and WebP image formats.
+  - Automatically crops and optimizes images using HTML5 Canvas to maintain fast base64 storage in MongoDB.
+  - Seamlessly propagates updated avatars to Navbar, task assignee badges, and comment activity feeds.
+
+#### Fluid UI Notifications & Delete Confirmation Modals
+- **Fluid Toast Notification System (`ToastContext.jsx`)**:
+  - Replaces native browser alert popups with fluid, animated glassmorphic toasts displaying emerald checkmarks, message details, and auto-dismiss capabilities.
+- **Fluid Delete Confirmation Modal (`ConfirmDeleteModal.jsx`)**:
+  - Replaces browser `window.confirm` dialogs with a styled Tailwind modal asking "Are you sure you want to delete this task? This action cannot be undone."
+  - Displays animated loading indicators during asynchronous deletion and triggers a fluid "Deleted successfully" toast upon completion.
 
 ---
 

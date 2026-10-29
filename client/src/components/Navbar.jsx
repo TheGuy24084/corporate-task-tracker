@@ -17,12 +17,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import ProfileModal from './ProfileModal';
 import api from '../api/axios';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notifRef = useRef(null);
 
   const { user, isAuthenticated, logout } = useAuth();
@@ -237,9 +239,27 @@ export default function Navbar() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs">
-                  <User className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-                  <span className="font-medium text-slate-700 dark:text-slate-200">{user?.name}</span>
+                <button
+                  type="button"
+                  data-testid="user-profile-btn"
+                  onClick={() => setIsProfileOpen(true)}
+                  title="View and edit profile"
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-xs transition-all hover:scale-[1.02] cursor-pointer"
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name || 'User'}
+                      className="w-5 h-5 rounded-full object-cover border border-indigo-400"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0">
+                      {user?.name ? user.name[0].toUpperCase() : <User className="w-3 h-3" />}
+                    </div>
+                  )}
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 max-w-[120px] truncate">
+                    {user?.name}
+                  </span>
                   <span
                     className={`px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
                       user?.role === 'Admin'
@@ -249,7 +269,7 @@ export default function Navbar() {
                   >
                     {user?.role || 'User'}
                   </span>
-                </div>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 transition-all duration-150"
@@ -349,12 +369,39 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-              <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 flex items-center justify-between text-sm">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsProfileOpen(true);
+                }}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm transition-colors text-left cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-7 h-7 rounded-full object-cover border border-indigo-400"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-xs flex items-center justify-center">
+                      {user?.name ? user.name[0].toUpperCase() : <User className="w-4 h-4" />}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold block">
+                      {user?.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Tap to view and edit profile
+                    </span>
+                  </div>
+                </div>
                 <span className="text-xs px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-semibold uppercase">
                   {user?.role || 'User'}
                 </span>
-              </div>
+              </button>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-base font-medium bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-500/20 transition-colors"
@@ -385,6 +432,12 @@ export default function Navbar() {
           )}
         </div>
       )}
+
+      {/* User Profile & Credentials Modal */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
     </nav>
   );
 }

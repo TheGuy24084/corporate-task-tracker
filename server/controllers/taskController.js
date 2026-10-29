@@ -10,9 +10,9 @@ const { sendMentionEmail } = require("../utils/emailService");
 const getTasks = async (req, res) => {
   try {
     const tasks = await Task.find()
-      .populate("createdBy", "name email")
-      .populate("assignedTo", "name email role")
-      .populate("comments.author", "name email role")
+      .populate("createdBy", "name email role avatar")
+      .populate("assignedTo", "name email role avatar")
+      .populate("comments.author", "name email role avatar")
       .populate("comments.mentions", "name email")
       .sort({ createdAt: -1 });
     res.status(200).json(tasks);
@@ -77,9 +77,9 @@ const createTask = async (req, res) => {
     const task = new Task(taskData);
 
     const savedTask = await task.save();
-    await savedTask.populate("createdBy", "name email role");
-    await savedTask.populate("assignedTo", "name email role");
-    await savedTask.populate("comments.author", "name email role");
+    await savedTask.populate("createdBy", "name email role avatar");
+    await savedTask.populate("assignedTo", "name email role avatar");
+    await savedTask.populate("comments.author", "name email role avatar");
     await savedTask.populate("comments.mentions", "name email");
 
     res.status(201).json(savedTask);
@@ -145,9 +145,9 @@ const updateTask = async (req, res) => {
       updates,
       { new: true, runValidators: true }
     )
-      .populate("createdBy", "name email role")
-      .populate("assignedTo", "name email role")
-      .populate("comments.author", "name email role")
+      .populate("createdBy", "name email role avatar")
+      .populate("assignedTo", "name email role avatar")
+      .populate("comments.author", "name email role avatar")
       .populate("comments.mentions", "name email");
 
     if (!updatedTask) {
@@ -271,9 +271,9 @@ const addTaskComment = async (req, res) => {
       }
     }
 
-    await task.populate("createdBy", "name email role");
-    await task.populate("assignedTo", "name email role");
-    await task.populate("comments.author", "name email role");
+    await task.populate("createdBy", "name email role avatar");
+    await task.populate("assignedTo", "name email role avatar");
+    await task.populate("comments.author", "name email role avatar");
     await task.populate("comments.mentions", "name email");
 
     res.status(201).json(task);
@@ -318,9 +318,9 @@ const deleteTaskComment = async (req, res) => {
     task.comments.pull(commentId);
     await task.save();
 
-    await task.populate("createdBy", "name email role");
-    await task.populate("assignedTo", "name email role");
-    await task.populate("comments.author", "name email role");
+    await task.populate("createdBy", "name email role avatar");
+    await task.populate("assignedTo", "name email role avatar");
+    await task.populate("comments.author", "name email role avatar");
     await task.populate("comments.mentions", "name email");
 
     res.status(200).json(task);

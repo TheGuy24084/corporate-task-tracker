@@ -1,6 +1,8 @@
 import { useState, useContext } from 'react';
 import { User, Calendar, Trash2, Loader2, Zap, Target, MessageSquare } from 'lucide-react';
 import AuthContext from '../AuthContext';
+import { useToast } from '../context/ToastContext';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import api from '../api/axios';
 
 /**
@@ -66,7 +68,9 @@ export default function TaskCard({
   const currentStatus = localStatus ?? (currentTask.status || 'To-Do');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isReassigning, setIsReassigning] = useState(false);
+  const { showToast } = useToast();
 
   const assignedTo = currentTask.assignedTo;
   const currentAssigneeId = assignedTo
@@ -138,26 +142,23 @@ export default function TaskCard({
   const handleDelete = async () => {
     if (!taskId) return;
 
-    if (!window.confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-
     setIsDeleting(true);
     try {
       await api.delete(`/tasks/${taskId}`);
+      setIsConfirmOpen(false);
       if (typeof onDeleteTask === 'function') {
         onDeleteTask(taskId);
       }
       if (typeof onDelete === 'function') {
         onDelete(taskId);
       }
-      alert('Deleted successfully');
+      showToast('Deleted successfully', 'success');
     } catch (err) {
       const message =
         err.response?.data?.message ||
         err.message ||
         'Failed to delete task';
-      alert(message);
+      showToast(message, 'error');
     } finally {
       setIsDeleting(false);
     }
@@ -368,7 +369,7 @@ export default function TaskCard({
         {isAdmin && (
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={() => setIsConfirmOpen(true)}
             disabled={isDeleting}
             data-testid="delete-task-button"
             className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 active:bg-red-700 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
@@ -392,9 +393,17 @@ export default function TaskCard({
             className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 truncate"
             title={`Assigned to: ${task.assignedTo?.name || 'Unassigned'}`}
           >
-            <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
-              {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
-            </div>
+            {task.assignedTo?.avatar ? (
+              <img
+                src={task.assignedTo.avatar}
+                alt={task.assignedTo?.name || 'Assignee'}
+                className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400"
+              />
+            ) : (
+              <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+              </div>
+            )}
             <span className="truncate max-w-[120px]">
               {task.assignedTo?.name || 'Unassigned'}
             </span>
@@ -460,6 +469,16 @@ export default function TaskCard({
           <span>{currentTask.comments?.length || 0}</span>
         </button>
       </div>
+
+      {/* Fluid Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={isConfirmOpen}
+        title="Delete Task"
+        message={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+        isDeleting={isDeleting}
+        onConfirm={handleDelete}
+        onClose={() => setIsConfirmOpen(false)}
+      />
     </div>
   );
 }

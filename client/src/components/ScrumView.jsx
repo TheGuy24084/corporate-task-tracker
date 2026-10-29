@@ -322,9 +322,17 @@ export default function ScrumView({
                       {/* Backlog Item Assignee */}
                       <div className="pt-2 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
-                            {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
-                          </div>
+                          {task.assignedTo?.avatar ? (
+                            <img
+                              src={task.assignedTo.avatar}
+                              alt={task.assignedTo.name || 'Assignee'}
+                              className="w-4 h-4 rounded-full object-cover flex-shrink-0 border border-indigo-400"
+                            />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                              {task.assignedTo?.name ? task.assignedTo.name[0].toUpperCase() : '?'}
+                            </div>
+                          )}
                           <span
                             data-testid={`backlog-assignee-${taskId}`}
                             className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[100px]"

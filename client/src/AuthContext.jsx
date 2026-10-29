@@ -97,6 +97,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  /**
+   * Update current user credentials and avatar in state and localStorage
+   */
+  const updateUser = (updatedData) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedData };
+      try {
+        localStorage.setItem('user', JSON.stringify(merged));
+      } catch (err) {
+        console.error('Failed to save user in localStorage:', err);
+      }
+      return merged;
+    });
+  };
+
   const value = {
     user,
     token,
@@ -105,6 +120,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

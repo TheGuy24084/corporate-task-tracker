@@ -111,6 +111,7 @@ const register = async (req, res) => {
         name: savedUser.name,
         email: savedUser.email,
         role: savedUser.role,
+        avatar: savedUser.avatar || "",
       },
     });
   } catch (error) {
@@ -160,6 +161,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar || "",
       },
     });
   } catch (error) {
@@ -167,9 +169,121 @@ const login = async (req, res) => {
   }
 };
 
+// @desc    Get logged in user profile
+// @route   GET /api/auth/profile
+// @access  Private
+const getProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar || "",
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// @desc    Update user profile & credentials
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { name, email, avatar, currentPassword, newPassword, password } = req.body || {};
+
+    // Update name
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({ message: "Name cannot be empty" });
+      }
+      user.name = name.trim();
+    }
+
+    // Update email
+    if (email !== undefined) {
+      const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+      if (!normalizedEmail) {
+        return res.status(400).json({ message: "Email cannot be empty" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalizedEmail)) {
+        return res.status(400).json({ message: "Please provide a valid email address" });
+      }
+
+      if (normalizedEmail !== user.email) {
+        const existing = await User.findOne({ email: normalizedEmail, _id: { $ne: user._id } });
+        if (existing) {
+          return res.status(400).json({ message: "Email is already taken by another user" });
+        }
+        user.email = normalizedEmail;
+      }
+    }
+
+    // Update avatar
+    if (avatar !== undefined) {
+      user.avatar = typeof avatar === "string" ? avatar : "";
+    }
+
+    // Update password if provided
+    const targetPassword = newPassword || password;
+    if (targetPassword) {
+      if (typeof targetPassword !== "string" || targetPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters long" });
+      }
+
+      if (currentPassword) {
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+          return res.status(400).json({ message: "Current password is incorrect" });
+        }
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(targetPassword, salt);
+    }
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        avatar: updatedUser.avatar || "",
+      },
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
+  getProfile,
+  updateProfile,
   registerUser: register,
   loginUser: login,
 };

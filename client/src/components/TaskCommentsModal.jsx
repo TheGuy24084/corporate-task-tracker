@@ -361,9 +361,17 @@ export default function TaskCommentsModal({
                   className="flex items-start gap-3 group animate-fade-in"
                 >
                   {/* Author Avatar Circle */}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-400 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                    {authorInitial}
-                  </div>
+                  {comment.author?.avatar ? (
+                    <img
+                      src={comment.author.avatar}
+                      alt={authorName}
+                      className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-indigo-400 shadow-sm mt-0.5"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-400 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                      {authorInitial}
+                    </div>
+                  )}
 
                   {/* Comment Bubble */}
                   <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl p-3.5 sm:p-4 text-xs transition-colors">
