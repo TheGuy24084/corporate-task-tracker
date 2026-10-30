@@ -1,11 +1,31 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckSquare, Sparkles, Sun, Moon } from 'lucide-react';
+import { ArrowRight, CheckSquare, Sparkles, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 // Continuous convoy of 3D Task & Sprint modules along the central workflow spine
 const WORKFLOW_MODULES = [
+  {
+    code: 'TSK-101',
+    title: 'Sprint Backlog Init',
+    status: 'READY',
+    statusColor: '#3b82f6',
+    pts: '3 SP',
+    progress: 0.3,
+    avatarBg: '#3b82f6',
+    avatarText: 'SB'
+  },
+  {
+    code: 'TSK-102',
+    title: 'Database Pipeline',
+    status: 'IN PROGRESS',
+    statusColor: '#06b6d4',
+    pts: '5 SP',
+    progress: 0.65,
+    avatarBg: '#06b6d4',
+    avatarText: 'DP'
+  },
   {
     code: 'SPRINT 01',
     title: 'Core Architecture',
@@ -161,6 +181,7 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
 export default function LandingPage() {
   const canvasRef = useRef(null);
   const trackRef = useRef(null);
+  const scrollIndicatorRef = useRef(null);
   const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -264,7 +285,10 @@ export default function LandingPage() {
     const modHeight = Math.round(modWidth * 0.52);
     const numModules = WORKFLOW_MODULES.length;
     const moduleSpacing = Math.round(modHeight * 2.3);
-    const totalClimb = (numModules - 1) * moduleSpacing;
+    const startCenterY = height * 0.92;
+    const targetApexY = height * 0.46;
+    const apexWorldY = (numModules - 1) * moduleSpacing;
+    const totalClimb = apexWorldY - (startCenterY - targetApexY);
 
     // Camera climb computation: Phase 1 (0.00 to 0.46)
     let climbProgress;
@@ -275,7 +299,6 @@ export default function LandingPage() {
       climbProgress = 1.0 + ((cur - 0.46) / 0.54) * 0.85;
     }
 
-    const startCenterY = height * 0.68;
     const currentCameraY = climbProgress * totalClimb;
 
     // Render each Task/Sprint Module in sequence
@@ -550,6 +573,12 @@ export default function LandingPage() {
 
           cur += (mappedP - cur) * 0.22;
 
+          if (scrollIndicatorRef.current) {
+            const op = Math.max(0, 1 - cur * 14);
+            scrollIndicatorRef.current.style.opacity = op;
+            scrollIndicatorRef.current.style.pointerEvents = op <= 0.05 ? 'none' : 'auto';
+          }
+
           // Render 3D Workflow Spine onto Canvas
           const ctx = canvas.getContext('2d');
           if (ctx) {
@@ -656,10 +685,10 @@ export default function LandingPage() {
             Scrolling Axis Content Blocks (.content)
            ==================================================================== */}
         <div className="content absolute inset-0 pointer-events-none w-full">
-          {/* Intro Block: top calc(940 / 8 * 1vh) */}
+          {/* Intro Block: top calc(260 / 8 * 1vh) */}
           <div
-            className="absolute left-1/2 -translate-x-1/2 w-[90vw] max-w-4xl text-center z-20 pointer-events-auto"
-            style={{ top: 'calc(940 / 8 * 1vh)' }}
+            className="intro-block absolute left-1/2 -translate-x-1/2 w-[90vw] max-w-4xl text-center z-20 pointer-events-auto"
+            style={{ top: 'calc(260 / 8 * 1vh)' }}
           >
             <div className="landing-eyebrow mb-4 inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
               WHY CORPORATE TASK TRACKER
@@ -670,6 +699,20 @@ export default function LandingPage() {
               AS HARD AS <br />
               YOUR TEAM.
             </h1>
+          </div>
+
+          {/* Animated Scroll Indicator: top calc(680 / 8 * 1vh) */}
+          <div
+            ref={scrollIndicatorRef}
+            className="intro-scroll-indicator absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-auto z-20 transition-opacity duration-200"
+            style={{ top: 'calc(680 / 8 * 1vh)' }}
+          >
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/70 backdrop-blur-md border border-cyan-500/20 shadow-lg shadow-cyan-500/10 text-slate-300">
+              <span className="font-['Public_Sans',sans-serif] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
+                Scroll to explore pipeline
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-cyan-400 animate-bounce" />
+            </div>
           </div>
 
           {/* 5 Mirrored Feature Blocks Straddling the Central Workflow Axis */}

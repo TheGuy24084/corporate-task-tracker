@@ -161,31 +161,31 @@ body::before {
 }
 
 .feature-block-r1-left {
-  top: calc(1500 / 8 * 1vh);
+  top: calc(880 / 8 * 1vh);
   right: calc(50% + (78 * var(--u)));
   text-align: right;
 }
 
 .feature-block-r1-right {
-  top: calc(1500 / 8 * 1vh);
+  top: calc(880 / 8 * 1vh);
   left: calc(50% + (78 * var(--u)));
   text-align: left;
 }
 
 .feature-block-r2-left {
-  top: calc(1759 / 8 * 1vh);
+  top: calc(1160 / 8 * 1vh);
   right: calc(50% + (88 * var(--u)));
   text-align: right;
 }
 
 .feature-block-r2-right {
-  top: calc(1759 / 8 * 1vh);
+  top: calc(1160 / 8 * 1vh);
   left: calc(50% + (88 * var(--u)));
   text-align: left;
 }
 
 .feature-block-r3-center {
-  top: calc(2063 / 8 * 1vh);
+  top: calc(1440 / 8 * 1vh);
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
