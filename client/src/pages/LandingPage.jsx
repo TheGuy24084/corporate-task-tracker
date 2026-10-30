@@ -159,6 +159,83 @@ const WORKFLOW_MODULES = [
   }
 ];
 
+// 45 Multi-depth ambient glowing dust / node particles for sideline depth
+const AMBIENT_PARTICLES = Array.from({ length: 45 }, (_, i) => {
+  const seedX = ((i * 137.508) % 100) / 100;
+  const seedY = ((i * 223.719) % 100) / 100;
+  const depth = 0.4 + (((i * 59.3) % 100) / 100) * 1.1; // 0.4 to 1.5
+  const radius = 0.8 + (((i * 31.7) % 100) / 100) * 1.5; // 0.8 to 2.3
+  const isCyan = i % 2 === 0;
+  return { seedX, seedY, depth, radius, isCyan };
+});
+
+// Floating Sideline Micro-Telemetry HUD Cards (Parallax Layer)
+const TELEMETRY_HUD_ITEMS = [
+  {
+    side: 'left',
+    xNorm: 0.14,
+    worldYNorm: 0.14,
+    speed: 0.6,
+    label: 'REST API • 12ms',
+    tag: 'LATENCY',
+    statusColor: '#10b981',
+    sparkline: [3, 7, 4, 8, 5, 9, 7],
+    hasSparkline: true
+  },
+  {
+    side: 'right',
+    xNorm: 0.82,
+    worldYNorm: 0.25,
+    speed: 1.4,
+    label: 'JWT VERIFIED • 200 OK',
+    tag: 'AUTH GUARD',
+    statusColor: '#06b6d4',
+    hasRing: true
+  },
+  {
+    side: 'left',
+    xNorm: 0.18,
+    worldYNorm: 0.45,
+    speed: 1.4,
+    label: 'SPRINT VELOCITY: 94%',
+    tag: 'BURNDOWN',
+    statusColor: '#8b5cf6',
+    sparkline: [2, 5, 4, 7, 6, 8, 9],
+    hasSparkline: true
+  },
+  {
+    side: 'right',
+    xNorm: 0.84,
+    worldYNorm: 0.62,
+    speed: 0.6,
+    label: '@MENTION DISPATCHED',
+    tag: 'NOTIFICATIONS',
+    statusColor: '#f59e0b',
+    hasRing: true
+  },
+  {
+    side: 'left',
+    xNorm: 0.15,
+    worldYNorm: 0.78,
+    speed: 0.6,
+    label: 'MONGODB SYNCED',
+    tag: 'CLUSTER',
+    statusColor: '#10b981',
+    sparkline: [4, 6, 5, 8, 7, 9, 8],
+    hasSparkline: true
+  },
+  {
+    side: 'right',
+    xNorm: 0.80,
+    worldYNorm: 0.90,
+    speed: 1.4,
+    label: 'CI/CD PIPELINE • 100%',
+    tag: 'RELEASE',
+    statusColor: '#3b82f6',
+    hasRing: true
+  }
+];
+
 function drawRoundedRect(ctx, x, y, width, height, radius) {
   if (ctx.roundRect) {
     ctx.beginPath();
@@ -186,7 +263,13 @@ export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
 
   // The 3D Workflow Spine & Task Stream Canvas Renderer
-  const drawWorkflowSpineScene = (ctx, width, height, cur) => {
+  const drawWorkflowSpineScene = (
+    ctx,
+    width,
+    height,
+    cur,
+    animTime = typeof performance !== 'undefined' ? performance.now() * 0.001 : 0
+  ) => {
     ctx.clearRect(0, 0, width, height);
 
     // 1. Deep Obsidian Background (#0a0b0c) with subtle depth glow
@@ -241,6 +324,76 @@ export default function LandingPage() {
       }
     }
     ctx.restore();
+
+    // Fade factor for Phase 1 sideline effects before cloud takeover
+    const phase1Fade = cur < 0.46 ? 1 : Math.max(0, 1 - (cur - 0.46) / 0.06);
+
+    // 2b. Sideline Ambient Radial Auroras & 45 Depth Particles (Phase 1)
+    if (phase1Fade > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = phase1Fade;
+
+      // Left Indigo Aurora: slow drifting radial glow
+      const leftAuroraY = height * 0.42 + Math.sin(animTime * 0.6) * 45;
+      const leftGrad = ctx.createRadialGradient(
+        width * 0.16,
+        leftAuroraY,
+        15,
+        width * 0.16,
+        leftAuroraY,
+        Math.max(width * 0.38, 260)
+      );
+      leftGrad.addColorStop(0, 'rgba(99, 102, 241, 0.14)');
+      leftGrad.addColorStop(0.5, 'rgba(99, 102, 241, 0.06)');
+      leftGrad.addColorStop(1, 'rgba(99, 102, 241, 0)');
+      ctx.fillStyle = leftGrad;
+      ctx.beginPath();
+      ctx.arc(width * 0.16, leftAuroraY, Math.max(width * 0.38, 260), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Right Emerald/Cyan Aurora: slow drifting radial glow
+      const rightAuroraY = height * 0.58 + Math.cos(animTime * 0.5) * 45;
+      const rightGrad = ctx.createRadialGradient(
+        width * 0.84,
+        rightAuroraY,
+        15,
+        width * 0.84,
+        rightAuroraY,
+        Math.max(width * 0.38, 260)
+      );
+      rightGrad.addColorStop(0, 'rgba(16, 185, 129, 0.11)');
+      rightGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.05)');
+      rightGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+      ctx.fillStyle = rightGrad;
+      ctx.beginPath();
+      ctx.arc(width * 0.84, rightAuroraY, Math.max(width * 0.38, 260), 0, Math.PI * 2);
+      ctx.fill();
+
+      // 45 Multi-depth glowing dust/node particles with vertical parallax motion trails
+      for (let pIdx = 0; pIdx < AMBIENT_PARTICLES.length; pIdx++) {
+        const pt = AMBIENT_PARTICLES[pIdx];
+        const px = pt.seedX * width;
+        const py =
+          ((pt.seedY * height - (cur * height * 2.8 + animTime * 22) * pt.depth) % height + height) % height;
+
+        ctx.fillStyle = pt.isCyan ? 'rgba(56, 189, 248, 0.55)' : 'rgba(167, 139, 250, 0.55)';
+        ctx.shadowColor = pt.isCyan ? 'rgba(56, 189, 248, 0.85)' : 'rgba(167, 139, 250, 0.85)';
+        ctx.shadowBlur = 5 * pt.depth;
+        ctx.beginPath();
+        ctx.arc(px, py, pt.radius * pt.depth, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Subtle vertical parallax trail
+        ctx.strokeStyle = pt.isCyan ? 'rgba(56, 189, 248, 0.18)' : 'rgba(167, 139, 250, 0.18)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(px, py + 8 * pt.depth);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
 
     // 3. Central Glowing Workflow Spine Track
     ctx.save();
@@ -335,6 +488,135 @@ export default function LandingPage() {
       ctx.arc(cx + railOffset, screenY, 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
+
+      // Horizontal Branching Circuit/Git Traces & Inward Data Packets (Phase 1)
+      if (phase1Fade > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = phase1Fade;
+
+        // Left branch geometry
+        const bw1 = Math.round((36 + ((i * 13) % 24)) * u);
+        const bdirY = i % 2 === 0 ? -1 : 1;
+        const bdiag = Math.round(20 * u);
+        const bw3 = Math.round((30 + ((i * 17) % 28)) * u);
+
+        const lp0x = cx - railOffset;
+        const lp0y = screenY;
+        const lp1x = lp0x - bw1;
+        const lp1y = lp0y;
+        const lp2x = lp1x - bdiag;
+        const lp2y = lp1y + bdirY * bdiag;
+        const lp3x = lp2x - bw3;
+        const lp3y = lp2y;
+
+        // Draw left circuit branch
+        ctx.strokeStyle =
+          i % 2 === 0 ? 'rgba(56, 189, 248, 0.18)' : 'rgba(139, 92, 246, 0.18)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(lp0x, lp0y);
+        ctx.lineTo(lp1x, lp1y);
+        ctx.lineTo(lp2x, lp2y);
+        ctx.lineTo(lp3x, lp3y);
+        ctx.stroke();
+
+        // Terminal micro-node dot
+        ctx.fillStyle =
+          i % 2 === 0 ? 'rgba(56, 189, 248, 0.65)' : 'rgba(139, 92, 246, 0.65)';
+        ctx.beginPath();
+        ctx.arc(lp3x, lp3y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right branch geometry
+        const rbw1 = Math.round((36 + ((i * 19) % 24)) * u);
+        const rbdirY = i % 2 === 0 ? 1 : -1;
+        const rbdiag = Math.round(20 * u);
+        const rbw3 = Math.round((30 + ((i * 23) % 28)) * u);
+
+        const rp0x = cx + railOffset;
+        const rp0y = screenY;
+        const rp1x = rp0x + rbw1;
+        const rp1y = rp0y;
+        const rp2x = rp1x + rbdiag;
+        const rp2y = rp1y + rbdirY * rbdiag;
+        const rp3x = rp2x + rbw3;
+        const rp3y = rp2y;
+
+        // Draw right circuit branch
+        ctx.beginPath();
+        ctx.moveTo(rp0x, rp0y);
+        ctx.lineTo(rp1x, rp1y);
+        ctx.lineTo(rp2x, rp2y);
+        ctx.lineTo(rp3x, rp3y);
+        ctx.stroke();
+
+        // Terminal micro-node dot
+        ctx.beginPath();
+        ctx.arc(rp3x, rp3y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inward Traveling Glowing Data Packets with Trailing Tails
+        // Left packet traveling inward: Outer Tip P3 -> P2 -> P1 -> Rail P0
+        const lseg1 = bw3;
+        const lseg2 = Math.hypot(lp1x - lp2x, lp1y - lp2y);
+        const lseg3 = bw1;
+        const lTotal = lseg1 + lseg2 + lseg3;
+        const lpktProgress = (animTime * 0.75 + i * 0.27 + cur * 6.5) % 1.0;
+        const lDist = lpktProgress * lTotal;
+
+        let lpktX = lp3x;
+        let lpktY = lp3y;
+        if (lDist <= lseg1) {
+          const f = lDist / lseg1;
+          lpktX = lp3x + (lp2x - lp3x) * f;
+          lpktY = lp3y + (lp2y - lp3y) * f;
+        } else if (lDist <= lseg1 + lseg2) {
+          const f = (lDist - lseg1) / lseg2;
+          lpktX = lp2x + (lp1x - lp2x) * f;
+          lpktY = lp2y + (lp1y - lp2y) * f;
+        } else {
+          const f = (lDist - lseg1 - lseg2) / lseg3;
+          lpktX = lp1x + (lp0x - lp1x) * f;
+          lpktY = lp1y + (lp0y - lp1y) * f;
+        }
+
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = i % 2 === 0 ? '#38bdf8' : '#a855f7';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(lpktX, lpktY, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right packet traveling inward: Outer Tip RP3 -> RP2 -> RP1 -> Rail RP0
+        const rseg1 = rbw3;
+        const rseg2 = Math.hypot(rp1x - rp2x, rp1y - rp2y);
+        const rseg3 = rbw1;
+        const rTotal = rseg1 + rseg2 + rseg3;
+        const rpktProgress = (animTime * 0.75 + i * 0.33 + cur * 6.5) % 1.0;
+        const rDist = rpktProgress * rTotal;
+
+        let rpktX = rp3x;
+        let rpktY = rp3y;
+        if (rDist <= rseg1) {
+          const f = rDist / rseg1;
+          rpktX = rp3x + (rp2x - rp3x) * f;
+          rpktY = rp3y + (rp2y - rp3y) * f;
+        } else if (rDist <= rseg1 + rseg2) {
+          const f = (rDist - rseg1) / rseg2;
+          rpktX = rp2x + (rp1x - rp2x) * f;
+          rpktY = rp2y + (rp1y - rp2y) * f;
+        } else {
+          const f = (rDist - rseg1 - rseg2) / rseg3;
+          rpktX = rp1x + (rp0x - rp1x) * f;
+          rpktY = rp1y + (rp0y - rp1y) * f;
+        }
+
+        ctx.beginPath();
+        ctx.arc(rpktX, rpktY, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      }
 
       // Module Glassmorphic Body
       ctx.save();
@@ -463,6 +745,143 @@ export default function LandingPage() {
       ctx.restore();
     }
 
+    // 4b. Floating Sideline Micro-Telemetry HUD Cards (Parallax Layer in Phase 1)
+    if (phase1Fade > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = phase1Fade;
+
+      for (let hIdx = 0; hIdx < TELEMETRY_HUD_ITEMS.length; hIdx++) {
+        const item = TELEMETRY_HUD_ITEMS[hIdx];
+        const itemCameraY = climbProgress * totalClimb * item.speed;
+        const worldY = item.worldYNorm * totalClimb;
+        const hudY = startCenterY - (worldY - itemCameraY);
+
+        // Cull out of viewport
+        if (hudY + 50 < 0 || hudY - 50 > height) continue;
+
+        const cardW = Math.min(Math.max(Math.round(84 * u), 125), 165);
+        const cardH = Math.round(cardW * 0.32);
+        const cardX =
+          item.side === 'left'
+            ? Math.round(Math.min(width * item.xNorm, cx - railOffset - cardW - 16))
+            : Math.round(Math.max(width * item.xNorm, cx + railOffset + 16));
+
+        // Skip if off screen horizontally
+        if (cardX < 4 || cardX + cardW > width - 4) continue;
+
+        // Faint dotted leader line linking card to central spine rail
+        ctx.save();
+        ctx.setLineDash([2, 4]);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if (item.side === 'left') {
+          ctx.moveTo(cardX + cardW, hudY);
+          ctx.lineTo(cx - railOffset, hudY + 12);
+        } else {
+          ctx.moveTo(cardX, hudY);
+          ctx.lineTo(cx + railOffset, hudY - 12);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // Card Glassmorphic Body
+        ctx.save();
+        ctx.fillStyle = 'rgba(12, 17, 29, 0.78)';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 10;
+        drawRoundedRect(ctx, cardX, hudY - cardH * 0.5, cardW, cardH, 6);
+        ctx.fill();
+
+        // Border
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Status indicator dot
+        const dotX = cardX + 10;
+        const dotY = hudY - cardH * 0.5 + cardH * 0.36;
+        ctx.fillStyle = item.statusColor;
+        ctx.shadowColor = item.statusColor;
+        ctx.shadowBlur = 5;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Tag label (small upper text)
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+        ctx.font = `600 ${Math.max(Math.round(5.5 * u), 6)}px 'Public Sans', sans-serif`;
+        ctx.fillText(item.tag, cardX + 18, dotY + 2.5);
+
+        // Status pill / main text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `700 ${Math.max(Math.round(6.5 * u), 7.5)}px 'Public Sans', sans-serif`;
+        ctx.fillText(item.label, cardX + 10, hudY + cardH * 0.32);
+
+        // Sparkline Graph (if present)
+        if (item.hasSparkline && item.sparkline) {
+          const spW = Math.round(cardW * 0.26);
+          const spH = Math.round(cardH * 0.42);
+          const spX = cardX + cardW - spW - 8;
+          const spY = hudY - spH * 0.5;
+
+          ctx.strokeStyle = item.statusColor;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          const pts = item.sparkline;
+          const maxVal = 10;
+          for (let pIdx = 0; pIdx < pts.length; pIdx++) {
+            const px = spX + (spW / (pts.length - 1)) * pIdx;
+            const py = spY + spH - (pts[pIdx] / maxVal) * spH;
+            if (pIdx === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+
+          // Sparkline Apex Glowing Dot
+          const lastIdx = pts.length - 1;
+          const lastX = spX + spW;
+          const lastY = spY + spH - (pts[lastIdx] / maxVal) * spH;
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = item.statusColor;
+          ctx.shadowBlur = 4;
+          ctx.beginPath();
+          ctx.arc(lastX, lastY, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Connection Ring (if present)
+        if (item.hasRing) {
+          const ringR = Math.round(cardH * 0.28);
+          const ringX = cardX + cardW - ringR - 8;
+          const ringY = hudY;
+
+          ctx.strokeStyle = `${item.statusColor}66`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(ringX, ringY, ringR, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Inner pulsing ring
+          const innerR = ringR * (0.4 + Math.sin(animTime * 3) * 0.15);
+          ctx.fillStyle = item.statusColor;
+          ctx.shadowColor = item.statusColor;
+          ctx.shadowBlur = 4;
+          ctx.beginPath();
+          ctx.arc(ringX, ringY, innerR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
     // 5. Subtle Atmospheric Mist Drifting across track (Phase 1)
     if (cur < 0.52) {
       const mistAlpha =
@@ -585,7 +1004,13 @@ export default function LandingPage() {
             const dpr = window.devicePixelRatio || 1;
             ctx.save();
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            drawWorkflowSpineScene(ctx, window.innerWidth, window.innerHeight, cur);
+            drawWorkflowSpineScene(
+              ctx,
+              window.innerWidth,
+              window.innerHeight,
+              cur,
+              performance.now() * 0.001
+            );
             ctx.restore();
           }
         }
