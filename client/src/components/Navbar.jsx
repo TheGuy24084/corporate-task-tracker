@@ -15,6 +15,7 @@ import {
   Bell,
   Check,
   CheckCheck,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -118,6 +119,14 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/70 transition-all duration-150"
+            >
+              <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+              <span>About / Home</span>
+            </Link>
+
             <Link
               to="/dashboard"
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/70 transition-all duration-150"
@@ -404,6 +413,15 @@ export default function Navbar() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
           >
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
+            >
+              <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+              <span>About / Home</span>
+            </Link>
+
             <Link
               to="/dashboard"
               onClick={() => setIsOpen(false)}

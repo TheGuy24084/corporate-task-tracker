@@ -14,6 +14,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [React.js Frontend Architecture](#c-reactjs)
    - [Tailwind CSS Design System](#d-tailwind-css)
    - [UI/UX Architecture: Glassmorphism & Framer Motion](#e-uiux-architecture-glassmorphism--framer-motion-animations)
+   - [Scroll-Scrubbed Aerial Video Hero & Landing Experience](#f-scroll-scrubbed-aerial-video-hero--about-us-landing-experience)
 2. [Outcome 2: Full Stack Web Frameworks](#2-full-stack-web-frameworks)
    - [MERN Stack Architecture Diagram](#mern-stack-architecture-diagram-text)
    - [Data Modeling & Schemas](#persisted-data-schemas)
@@ -122,6 +123,49 @@ The platform incorporates modern SaaS visual aesthetics, combining **Tailwind CS
   - **Collapsible Backlog Drawer**: Product backlog accordion expands and collapses using `<AnimatePresence>` height/opacity transitions.
   - **Slide-Over Comment Drawer**: `TaskCommentsModal` renders as a right-side slide-over drawer with spring physics (`initial={{ x: "100%" }} animate={{ x: 0 }}`) and staggered entry for each message.
   - **Spring Scale-Up Modals**: Task Creation and Invite Member modals appear with spring scale and elevation transitions (`initial={{ opacity: 0, scale: 0.94, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}`) over blurred backdrop overlays (`bg-slate-950/50 backdrop-blur-sm`).
+
+#### F. Scroll-Scrubbed Aerial Video Hero & About Us Landing Experience
+Mounted at both the root route (`/`) and `/about`, the application features an immersive, scroll-driven visual landing and "About Us" experience (`LandingPage.jsx`) showcasing the engineering philosophy and multi-view capabilities of Corporate Task Tracker:
+
+1. **Sticky Scene & RAF Video Scrubber (`.scene`)**:
+   - Built within a sticky viewport container (`position: sticky; top: 0; height: 100vh; background: #0a0b0c`) across a 375vh scroll track (`height: calc(3000 / 8 * 1vh)`).
+   - High-definition aerial cloudscape video with responsive resolution switching: 720p MP4 on screens $\le 900\text{px}$ and 1080p MP4 on desktop, backed by an optimized poster fallback image.
+   - The video is never looped or autoplayed. Instead, a `requestAnimationFrame` loop scrubs `video.currentTime` frame-by-frame based on the user's scroll progress $p \in [0, 1]$.
+   - Implements a non-linear two-part `knee` time mapping formula ($knee = 0.55$) that apportions the initial 46% of the video duration to the intro fly-through and the remaining 54% to the cloud descent:
+     $$\text{mappedP} = \begin{cases} \left(\frac{p}{\text{knee}}\right) \times 0.46 & p < \text{knee} \\ 0.46 + \left(\frac{p - \text{knee}}{1 - \text{knee}}\right) \times 0.54 & p \ge \text{knee} \end{cases}$$
+   - Includes asymptotic smoothing (`cur += (target - cur) * 0.22`) and hardware seek gating (`!video.seeking && Math.abs(video.currentTime - cur) > 1/60`) for 60fps jitter-free playback.
+   - Cinematic dark radial and vertical gradients frame the scene, accompanied by a central axis guide line.
+   - Transparent floating top bar features the brand logo, a "Sign In" link (`/login`), and an illuminated "Launch Workspace" CTA button (`/dashboard` or `/register`).
+
+2. **5 Mirrored Architecture Highlights Straddling the Central Axis (`.content`)**:
+   - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"ABOUT CORPORATE TASK TRACKER"`, declaring the 4-line headline:
+     ```
+     WORKFLOWS
+     THAT MOVE
+     AS FAST AS
+     YOUR TEAM.
+     ```
+   - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central axis with custom 34u white SVG icons:
+     - **Row 1 Left** (`1500/8 vh`, $78u$ left of axis): **"ONE UNIFIED WORKSPACE"** with a Dotted Ring Globe SVG — *"Switch seamlessly between Kanban boards, Scrum sprints, and Project Management views in a single click."*
+     - **Row 1 Right** (`1500/8 vh`, $78u$ right of axis): **"FULL SPRINT VISIBILITY"** with a Stepped Container Blocks SVG — *"Track story points, velocity, and task progress in real time before bottlenecks become missed deadlines."*
+     - **Row 2 Left** (`1759/8 vh`, $88u$ left of axis): **"ENTERPRISE JWT SECURITY"** with a Dotted Ring Check Shield SVG — *"Role-based access control and JSON Web Tokens keep Admin actions and team permissions locked down."*
+     - **Row 2 Right** (`1759/8 vh`, $88u$ right of axis): **"INSTANT TEAM INVITES"** with a Bold "@" Mail Stroke SVG — *"Onboard members via automated email invitations and assign owners to every deliverable from day one."*
+     - **Row 3 Center** (`2063/8 vh`, centered on axis): **"REAL-TIME @MENTION SYNC"** with a Double Chevron SVG — *"Keep discussions attached to the work. Mention teammates in task threads to trigger instant alerts and resolve blockers."*
+   - Dynamic viewport unit scaling via `--u: min(calc(100vh / 800), calc(100vw / 716))` on desktop and responsive single-column stacked flow on mobile (`--u: min(calc(100vw / 390), 1.6px)`).
+
+3. **34vh Cloud Transition & Trust / Testimonials Section (`<section className="trust">`)**:
+   - Transitioning smoothly out of the clouds, the section is pulled up `-34vh` over the end of the sticky track with a matching `34vh` linear gradient from `transparent` to `#e2dedd` (cloud grey) and `#141516` ink text.
+   - **Mission & Purpose Statement**: Highlights the core rationale for Corporate Task Tracker—eliminating cross-functional friction by harmonizing agile rituals and project roadmaps.
+   - **2-Column Section Header**: High-impact editorial header: `"TRUSTED / BY ENGINEERING TEAMS / ACROSS THE GLOBE"`.
+   - **3 Real-World Engineering Testimonial Rows**:
+     - *Elena Rostova* (VP of Engineering, CloudScale Systems): 35% boost in sprint delivery velocity across Kanban and Scrum transitions.
+     - *Marcus Chen* (Principal Systems Architect, Hyperion Tech): Peace of mind with role-based security, automated email invites, and instant @mentions.
+     - *Sarah Jenkins* (Head of Product, FinVerse Global): Alignment between product managers and engineers through unified story points and milestone roadmaps.
+   - **"Get Started Free" Action Card**: Dark editorial card with gradient primary button directing visitors to `/register`.
+
+4. **Bidirectional Navigation Integration (`Navbar.jsx`)**:
+   - The top navigation bar includes an **"About / Home"** navigation link with a `Sparkles` icon on both desktop and mobile menus pointing to `/`, allowing users across `/dashboard`, `/login`, and `/register` to navigate back to the landing experience with one click.
+
 
 ---
 
@@ -613,6 +657,14 @@ npm run dev
    - Type a comment and use `@` autocomplete or the quick member chips to mention teammates.
    - Submitting records the comment, triggers an immediate mention email, and generates an in-app `Notification`.
    - The recipient sees an unread notification counter on the Navbar Bell icon with mark-as-read options.
+10. **Interactive Scroll-Scrubbed Video Landing & About Us Page**:
+    - Start the Vite client dev server: `cd client && npm run dev`.
+    - Open `http://localhost:5173/` or `http://localhost:5173/about` in your browser.
+    - Slowly scroll down: observe the aerial video scrubbing in frame-by-frame synchronization with your scroll position via `requestAnimationFrame` and the non-linear `knee` mapping formula.
+    - Continue scrolling past the 5 mirrored architecture highlights straddling the central axis (One Unified Workspace, Full Sprint Visibility, Enterprise JWT Security, Instant Team Invites, and Real-Time @Mention Sync).
+    - Descend through the `-34vh` cloud gradient transition into the light-toned Trust & Testimonials section, featuring the Mission & Purpose block, 3 engineering leadership quotes, and the "Get Started Free" CTA button.
+    - Click **"Launch Workspace"** or **"Sign In"** to transition to the Dashboard or Login pages.
+    - From the top navigation bar on any page (`Navbar.jsx`), click **"About / Home"** (`Sparkles` icon) to navigate back to the landing experience at any time.
 
 ---
 
@@ -666,6 +718,7 @@ corporate-task-tracker/
         │   └── TaskCommentsModal.jsx # Task comments feed, @mention autocomplete, and delete controls
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
+            ├── LandingPage.jsx    # Scroll-scrubbed aerial video hero, 5 mirrored feature blocks & trust section
             ├── Login.jsx          # Login page with secure authentication
             └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```
