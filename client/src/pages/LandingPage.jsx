@@ -1062,26 +1062,26 @@ export default function LandingPage() {
           {/* Floating Transparent Top Bar */}
           <header
             ref={headerRef}
-            className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-xs transition-opacity duration-200"
+            className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3.5 py-3 sm:px-6 md:px-12 md:py-6 backdrop-blur-xs transition-opacity duration-200"
           >
             <Link
               to="/"
-              className="flex items-center gap-3 group transition-transform duration-200 hover:scale-[1.02]"
+              className="flex items-center gap-2 sm:gap-3 group transition-transform duration-200 hover:scale-[1.02] min-w-0"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-cyan-400 text-white shadow-lg shadow-indigo-500/25">
-                <CheckSquare className="w-5 h-5" />
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-cyan-400 text-white shadow-lg shadow-indigo-500/25 flex-shrink-0">
+                <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <span className="font-['Exo_2',sans-serif] text-lg md:text-xl font-extrabold uppercase tracking-wider text-white">
+              <span className="font-['Exo_2',sans-serif] text-xs sm:text-base md:text-xl font-extrabold uppercase tracking-wider text-white truncate max-w-[125px] xs:max-w-[190px] sm:max-w-none">
                 Corporate Task Tracker
               </span>
             </Link>
 
-            <nav className="flex items-center gap-3 md:gap-4">
+            <nav className="flex items-center gap-1.5 sm:gap-3 md:gap-4 flex-shrink-0">
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
                   onClick={() => window.scrollTo(0, 0)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
+                  className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
                 >
                   Dashboard
                 </Link>
@@ -1089,7 +1089,7 @@ export default function LandingPage() {
                 <Link
                   to="/login"
                   onClick={() => window.scrollTo(0, 0)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
+                  className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
                 >
                   Sign In
                 </Link>
@@ -1097,22 +1097,23 @@ export default function LandingPage() {
               <Link
                 to={isAuthenticated ? '/dashboard' : '/register'}
                 onClick={() => window.scrollTo(0, 0)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.03] transition-all duration-200"
+                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.03] transition-all duration-200 whitespace-nowrap"
               >
-                <span>Launch Workspace</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="hidden xs:inline">Launch Workspace</span>
+                <span className="xs:hidden">Launch</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
               <button
                 type="button"
                 onClick={toggleTheme}
                 aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-                className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-200 focus:outline-none cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-200 focus:outline-none cursor-pointer"
               >
                 {theme === 'dark' ? (
-                  <Sun className="w-5 h-5 text-amber-400" />
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                 ) : (
-                  <Moon className="w-5 h-5 text-slate-200" />
+                  <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-200" />
                 )}
               </button>
             </nav>
@@ -1123,15 +1124,15 @@ export default function LandingPage() {
             Scrolling Axis Content Blocks (.content)
            ==================================================================== */}
         <div className="content absolute inset-0 pointer-events-none w-full">
-          {/* Intro Block: top calc(260 / 8 * 1vh) */}
+          {/* Intro Block: top calc(240 / 8 * 1vh) */}
           <div
-            className="intro-block absolute left-1/2 -translate-x-1/2 w-[90vw] max-w-4xl text-center z-20 pointer-events-auto"
-            style={{ top: 'calc(260 / 8 * 1vh)' }}
+            className="intro-block absolute left-1/2 -translate-x-1/2 w-[92vw] max-w-4xl text-center z-20 pointer-events-auto"
+            style={{ top: 'calc(240 / 8 * 1vh)' }}
           >
-            <div className="landing-eyebrow mb-4 inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
+            <div className="landing-eyebrow mb-3 sm:mb-4 inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[10px] sm:text-xs">
               WHY CORPORATE TASK TRACKER
             </div>
-            <h1 className="landing-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]">
+            <h1 className="landing-headline text-2xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.08] sm:leading-[1.05]">
               WORKFLOWS <br />
               THAT WORK <br />
               AS HARD AS <br />
@@ -1139,28 +1140,28 @@ export default function LandingPage() {
             </h1>
           </div>
 
-          {/* Animated Scroll Indicator: top calc(680 / 8 * 1vh) */}
+          {/* Animated Scroll Indicator: top calc(620 / 8 * 1vh) */}
           <div
             ref={scrollIndicatorRef}
             className="intro-scroll-indicator absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-auto z-20 transition-opacity duration-200"
-            style={{ top: 'calc(680 / 8 * 1vh)' }}
+            style={{ top: 'calc(620 / 8 * 1vh)' }}
           >
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/70 backdrop-blur-md border border-cyan-500/20 shadow-lg shadow-cyan-500/10 text-slate-300">
-              <span className="font-['Public_Sans',sans-serif] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-slate-900/70 backdrop-blur-md border border-cyan-500/20 shadow-lg shadow-cyan-500/10 text-slate-300">
+              <span className="font-['Public_Sans',sans-serif] text-[9px] sm:text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
                 Scroll to explore pipeline
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-cyan-400 animate-bounce" />
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 animate-bounce" />
             </div>
           </div>
 
           {/* 5 Mirrored Feature Blocks Straddling the Central Workflow Axis */}
           {/* Row 1 Left: 1500/8 vh, 78u left of spine */}
           <div className="feature-block feature-block-r1-left pointer-events-auto">
-            <div className="flex items-center justify-end md:justify-end gap-3 mb-3">
-              <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
+            <div className="flex items-center justify-center md:justify-end gap-3 mb-2.5">
+              <span className="order-2 md:order-1 font-['Exo_2',sans-serif] font-extrabold text-sm sm:text-lg md:text-xl text-white uppercase tracking-tight">
                 ONE UNIFIED WORKSPACE
               </span>
-              <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
+              <div className="order-1 md:order-2 w-8 h-8 md:w-[calc(34*var(--u))] md:h-[calc(34*var(--u))] min-w-[32px] min-h-[32px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-1.5 md:p-2 flex-shrink-0">
                 {/* Dotted ring globe SVG */}
                 <svg
                   viewBox="0 0 34 34"
@@ -1189,8 +1190,8 @@ export default function LandingPage() {
 
           {/* Row 1 Right: 1500/8 vh, 78u right of spine */}
           <div className="feature-block feature-block-r1-right pointer-events-auto">
-            <div className="flex items-center justify-start gap-3 mb-3">
-              <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-2.5">
+              <div className="w-8 h-8 md:w-[calc(34*var(--u))] md:h-[calc(34*var(--u))] min-w-[32px] min-h-[32px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-1.5 md:p-2 flex-shrink-0">
                 {/* Three stepped blocks SVG */}
                 <svg
                   viewBox="0 0 34 34"
@@ -1203,7 +1204,7 @@ export default function LandingPage() {
                   <rect x="23" y="4" width="6" height="24" rx="1.5" strokeWidth="1.8" />
                 </svg>
               </div>
-              <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
+              <span className="font-['Exo_2',sans-serif] font-extrabold text-sm sm:text-lg md:text-xl text-white uppercase tracking-tight">
                 FULL SPRINT VISIBILITY
               </span>
             </div>
@@ -1216,11 +1217,11 @@ export default function LandingPage() {
 
           {/* Row 2 Left: 1759/8 vh, 88u left of spine */}
           <div className="feature-block feature-block-r2-left pointer-events-auto">
-            <div className="flex items-center justify-end gap-3 mb-3">
-              <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
+            <div className="flex items-center justify-center md:justify-end gap-3 mb-2.5">
+              <span className="order-2 md:order-1 font-['Exo_2',sans-serif] font-extrabold text-sm sm:text-lg md:text-xl text-white uppercase tracking-tight">
                 SECURITY YOU CAN TRUST
               </span>
-              <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
+              <div className="order-1 md:order-2 w-8 h-8 md:w-[calc(34*var(--u))] md:h-[calc(34*var(--u))] min-w-[32px] min-h-[32px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-1.5 md:p-2 flex-shrink-0">
                 {/* Dotted ring check disc SVG */}
                 <svg
                   viewBox="0 0 34 34"
@@ -1257,8 +1258,8 @@ export default function LandingPage() {
 
           {/* Row 2 Right: 1759/8 vh, 88u right of spine */}
           <div className="feature-block feature-block-r2-right pointer-events-auto">
-            <div className="flex items-center justify-start gap-3 mb-3">
-              <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-2.5">
+              <div className="w-8 h-8 md:w-[calc(34*var(--u))] md:h-[calc(34*var(--u))] min-w-[32px] min-h-[32px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-1.5 md:p-2 flex-shrink-0">
                 {/* Bold "@" / mail stroke SVG */}
                 <svg
                   viewBox="0 0 34 34"
@@ -1281,7 +1282,7 @@ export default function LandingPage() {
                   />
                 </svg>
               </div>
-              <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
+              <span className="font-['Exo_2',sans-serif] font-extrabold text-sm sm:text-lg md:text-xl text-white uppercase tracking-tight">
                 INSTANT TEAM INVITES
               </span>
             </div>
@@ -1294,8 +1295,8 @@ export default function LandingPage() {
 
           {/* Row 3 Center: 2063/8 vh, centered on spine */}
           <div className="feature-block feature-block-r3-center pointer-events-auto">
-            <div className="flex flex-col items-center justify-center gap-3 mb-3">
-              <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
+            <div className="flex items-center justify-center md:flex-col gap-3 mb-2.5">
+              <div className="w-8 h-8 md:w-[calc(34*var(--u))] md:h-[calc(34*var(--u))] min-w-[32px] min-h-[32px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-1.5 md:p-2 flex-shrink-0">
                 {/* Double chevron SVG */}
                 <svg
                   viewBox="0 0 34 34"
@@ -1317,7 +1318,7 @@ export default function LandingPage() {
                   />
                 </svg>
               </div>
-              <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-2xl text-white uppercase tracking-tight">
+              <span className="font-['Exo_2',sans-serif] font-extrabold text-sm sm:text-lg md:text-2xl text-white uppercase tracking-tight">
                 FAST BLOCKER RESOLUTION
               </span>
             </div>
@@ -1437,7 +1438,7 @@ export default function LandingPage() {
           </div>
 
           {/* Get Started Free CTA Block */}
-          <div className="rounded-3xl p-8 sm:p-12 md:p-16 bg-[#141516] text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+          <div className="rounded-3xl p-6 sm:p-12 md:p-16 bg-[#141516] text-white flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 shadow-2xl text-center md:text-left">
             <div className="max-w-2xl">
               <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 block mb-2 font-['Public_Sans',sans-serif]">
                 Ready to accelerate your cycles?
@@ -1449,11 +1450,11 @@ export default function LandingPage() {
                 Join thousands of engineers delivering on schedule with automated sprints, Kanban flexibility, and instant collaboration.
               </p>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-full sm:w-auto">
               <Link
                 to="/register"
                 onClick={() => window.scrollTo(0, 0)}
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-['Public_Sans',sans-serif] font-bold text-base bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/30 hover:scale-105 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl font-['Public_Sans',sans-serif] font-bold text-base bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/30 hover:scale-105 transition-all duration-200"
               >
                 <span>Get Started Free</span>
                 <ArrowRight className="w-5 h-5" />

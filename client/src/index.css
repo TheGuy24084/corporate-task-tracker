@@ -118,9 +118,9 @@ body::before {
   --u: min(calc(100vh / 800), calc(100vw / 716));
 }
 
-@media (max-width: 609px), (orientation: portrait) {
+@media (max-width: 768px) {
   :root {
-    --u: min(calc(100vw / 390), 1.6px);
+    --u: min(calc(100vw / 390), 1.4px);
   }
 }
 
@@ -194,18 +194,50 @@ body::before {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
 }
 
-/* Stacked Single-Column Flow on Portrait / Mobile */
-@media (max-width: 609px), (orientation: portrait) {
+/* Responsive Centered Cards for Mobile Viewports */
+@media (max-width: 768px) {
   .feature-block {
-    position: relative;
-    top: auto !important;
-    left: auto !important;
+    position: absolute;
+    left: 50% !important;
     right: auto !important;
-    transform: none !important;
-    text-align: left !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: calc(36 * var(--u));
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 380px !important;
+    padding: 16px 18px !important;
+    background: rgba(12, 17, 29, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+    text-align: center !important;
+  }
+
+  .feature-block-r1-left {
+    top: calc(720 / 8 * 1vh) !important;
+  }
+
+  .feature-block-r1-right {
+    top: calc(880 / 8 * 1vh) !important;
+  }
+
+  .feature-block-r2-left {
+    top: calc(1040 / 8 * 1vh) !important;
+  }
+
+  .feature-block-r2-right {
+    top: calc(1200 / 8 * 1vh) !important;
+  }
+
+  .feature-block-r3-center {
+    top: calc(1360 / 8 * 1vh) !important;
+    width: calc(100vw - 32px) !important;
+  }
+
+  .landing-body {
+    text-align: center !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
   }
 }
 
