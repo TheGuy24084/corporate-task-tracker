@@ -14,7 +14,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [React.js Frontend Architecture](#c-reactjs)
    - [Tailwind CSS Design System](#d-tailwind-css)
    - [UI/UX Architecture: Glassmorphism & Framer Motion](#e-uiux-architecture-glassmorphism--framer-motion-animations)
-   - [Scroll-Scrubbed Corporate Glass High-Rise Hero & Landing Experience](#f-scroll-scrubbed-corporate-glass-high-rise-hero--about-us-landing-experience)
+   - [Scroll-Scrubbed 3D Workflow Spine & Task Stream Hero Experience](#f-scroll-scrubbed-3d-workflow-spine--task-stream-hero-experience)
 2. [Outcome 2: Full Stack Web Frameworks](#2-full-stack-web-frameworks)
    - [MERN Stack Architecture Diagram](#mern-stack-architecture-diagram-text)
    - [Data Modeling & Schemas](#persisted-data-schemas)
@@ -124,28 +124,31 @@ The platform incorporates modern SaaS visual aesthetics, combining **Tailwind CS
   - **Slide-Over Comment Drawer**: `TaskCommentsModal` renders as a right-side slide-over drawer with spring physics (`initial={{ x: "100%" }} animate={{ x: 0 }}`) and staggered entry for each message.
   - **Spring Scale-Up Modals**: Task Creation and Invite Member modals appear with spring scale and elevation transitions (`initial={{ opacity: 0, scale: 0.94, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}`) over blurred backdrop overlays (`bg-slate-950/50 backdrop-blur-sm`).
 
-#### F. Scroll-Scrubbed Corporate Glass High-Rise Hero & About Us Landing Experience
+#### F. Scroll-Scrubbed 3D Workflow Spine & Task Stream Hero Experience
 Mounted at both the root route (`/`) and `/about`, the application features an immersive, scroll-driven visual landing and "About Us" experience (`LandingPage.jsx`) showcasing the engineering philosophy and multi-view capabilities of Corporate Task Tracker:
 
-1. **Sticky Scene & High-Rise Ascent Canvas (`.scene`)**:
+1. **Sticky Scene & 3D Workflow Spine Canvas (`.scene`)**:
    - Built within a sticky viewport container (`position: sticky; top: 0; height: 100vh; background: #0a0b0c`) across a 375vh scroll track (`height: calc(3000 / 8 * 1vh)`).
-   - High-performance, Retina-crisp HTML5 `<canvas>` (paired with an aerial drone city building `<video>` fallback) driven frame-by-frame by smoothed scroll progress $cur \in [0, 1]$.
-   - Implements a non-linear two-part `knee` time mapping formula ($knee = 0.55$) with asymptotic lerp smoothing (`cur += (target - cur) * 0.22`):
+   - High-performance, Retina-crisp HTML5 `<canvas>` rendering engine running synchronized with the 2-stage `knee = 0.55` scroll mapping curve and `0.22` asymptotic smoothing ($cur \in [0, 1]$):
      $$\text{mappedP} = \begin{cases} \left(\frac{p}{\text{knee}}\right) \times 0.46 & p < \text{knee} \\ 0.46 + \left(\frac{p - \text{knee}}{1 - \text{knee}}\right) \times 0.54 & p \ge \text{knee} \end{cases}$$
-   - **Phase 1 ($0.00 \le cur < 0.46$ — The Glass Tower Climb)**: The camera rises directly up the central vertical corner seam ($x = 50\%$) of a sleek corporate glass skyscraper at twilight/dawn. Renders deep slate-blue glass reflections, warm amber and cyan interior office window light strips, and perspective mullions converging toward the central illuminated corner spine. Subtle horizontal wisp layers drift across the facade as the camera ascends.
-   - **Phase 2 ($0.46 \le cur \le 1.00$ — Breaching the Roof into Misty Clouds)**: The skyscraper crown and pinnacle spire recede downward as the camera breaches into the upper atmosphere. Volumetric white/grey cloud banks (`#e2dedd`) billow in from the edges, smoothly saturating the canvas until reaching solid `#e2dedd` cloud cover at $cur = 1.00$.
+   - **Phase 1 ($0.00 \le cur < 0.46$ — Climbing the Central Workflow Track)**:
+     - Set against a deep obsidian background (`#0a0b0c`) with a subtle perspective dot and depth grid matrix receding toward the center vanishing point.
+     - A glowing central timeline spine track ($x = 50\%$) with dual neon cyan/indigo rails and pulsing milestone junction nodes.
+     - A continuous vertical convoy of sleek, dark-glassmorphic 3D **Task & Sprint Modules** ($width \approx 110u$) advancing smoothly along the track—each showcasing miniature glowing UI details: status pills in emerald, amber, blue, and purple; team avatar circles with initials; story point badges; and progress bars with subtle atmospheric mist drifting across the track.
+   - **Phase 2 ($0.46 \le cur \le 1.00$ — Cloud Takeover into `#e2dedd`)**:
+     - Once the camera rises above the top "LAUNCHED / COMPLETED" apex milestone node of the spine, soft layered volumetric clouds (`#e2dedd`) slide in from the edges and bottom, expanding until solid `#e2dedd` cloud cover blankets 100% of the viewport at $cur = 1.00$, blending seamlessly into the `<section className="trust">` pulled up by `-34vh`.
    - Cinematic dark radial and vertical gradients frame the scene, accompanied by a central axis guide line.
    - Transparent floating top bar features the brand logo, dark/light mode toggle, a "Sign In" / "Dashboard" link, and an illuminated "Launch Workspace" CTA button (`/dashboard` or `/register`).
 
-2. **5 Mirrored Architecture Highlights Straddling the Skyscraper Axis (`.content`)**:
+2. **5 Mirrored Architecture Highlights Straddling the Central Workflow Axis (`.content`)**:
    - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"WHY CORPORATE TASK TRACKER"`, declaring the 4-line headline:
      ```
-     ENTERPRISE AGILITY
-     THAT RISES
-     AS HIGH AS
-     YOUR AMBITION.
+     WORKFLOWS
+     THAT WORK
+     AS HARD AS
+     YOUR TEAM.
      ```
-   - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central skyscraper corner axis with custom 34u white SVG icons:
+   - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central spine with custom 34u white SVG icons:
      - **Row 1 Left** (`1500/8 vh`, $78u$ left of axis): **"ONE UNIFIED WORKSPACE"** with a Dotted Ring Globe SVG — *"No more fragmented tools. Switch between Kanban boards, Scrum sprints, and Project Management views in one place."*
      - **Row 1 Right** (`1500/8 vh`, $78u$ right of axis): **"FULL SPRINT VISIBILITY"** with a Three Stepped Blocks SVG — *"Track story points, velocity, and task progress in real time before bottlenecks become missed deadlines."*
      - **Row 2 Left** (`1759/8 vh`, $88u$ left of axis): **"SECURITY YOU CAN TRUST"** with a Dotted Ring Check Disc SVG — *"Role-based access control and JSON Web Tokens keep Admin operations and team permissions protected at every floor."*
@@ -660,8 +663,8 @@ npm run dev
 10. **Interactive Scroll-Scrubbed Video Landing & About Us Page**:
     - Start the Vite client dev server: `cd client && npm run dev`.
     - Open `http://localhost:5173/` or `http://localhost:5173/about` in your browser.
-    - Slowly scroll down: observe the Corporate Glass High-Rise aerial ascent climbing straight up the skyscraper's central corner seam with glowing office floor strips, perspective grid lines, and wisp layers, before breaching through the rooftop crown into volumetric `#e2dedd` clouds via the 2-part `knee` mapping formula.
-    - Continue scrolling past the 5 mirrored architecture highlights straddling the central skyscraper axis (One Unified Workspace, Full Sprint Visibility, Security You Can Trust, Instant Team Invites, and Fast Blocker Resolution).
+    - Slowly scroll down: observe the 3D Workflow Spine and Task Stream canvas animation climbing smoothly upward along the central timeline track, showcasing a continuous convoy of glassmorphic 3D Task & Sprint modules with miniature status pills, avatar circles, story points, and progress bars, before breaching above the apex node into soft `#e2dedd` volumetric clouds via the 2-part `knee` mapping formula.
+    - Continue scrolling past the 5 mirrored architecture highlights straddling the central workflow spine axis (One Unified Workspace, Full Sprint Visibility, Security You Can Trust, Instant Team Invites, and Fast Blocker Resolution).
     - Descend through the `-34vh` cloud gradient transition into the light-toned Trust & Testimonials section, featuring the Mission & Purpose block, 3 engineering leadership quotes, and the "Get Started Free" CTA button.
     - Click **"Launch Workspace"** or **"Sign In"** to transition to the Dashboard or Login pages.
     - From the top navigation bar on any page (`Navbar.jsx`), click **"About / Home"** (`Sparkles` icon) to navigate back to the landing experience at any time.
@@ -718,7 +721,7 @@ corporate-task-tracker/
         │   └── TaskCommentsModal.jsx # Task comments feed, @mention autocomplete, and delete controls
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
-            ├── LandingPage.jsx    # Scroll-driven Corporate Glass High-Rise ascent, central corner axis, 5 mirrored feature blocks & cloud breach trust section
+            ├── LandingPage.jsx    # Scroll-scrubbed 3D Workflow Spine & Task Stream canvas hero, 5 mirrored feature blocks & cloud transition
             ├── Login.jsx          # Login page with secure authentication
             └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```
