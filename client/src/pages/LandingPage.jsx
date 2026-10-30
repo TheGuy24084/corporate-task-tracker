@@ -259,6 +259,7 @@ export default function LandingPage() {
   const canvasRef = useRef(null);
   const trackRef = useRef(null);
   const scrollIndicatorRef = useRef(null);
+  const headerRef = useRef(null);
   const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -968,7 +969,7 @@ export default function LandingPage() {
 
     let animationFrameId;
     let cur = 0;
-    const knee = 0.55;
+    const knee = 0.74;
 
     const handleCanvasResize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -996,6 +997,12 @@ export default function LandingPage() {
             const op = Math.max(0, 1 - cur * 14);
             scrollIndicatorRef.current.style.opacity = op;
             scrollIndicatorRef.current.style.pointerEvents = op <= 0.05 ? 'none' : 'auto';
+          }
+
+          if (headerRef.current) {
+            const hAlpha = cur < 0.46 ? 1 : Math.max(0, 1 - (cur - 0.46) / 0.12);
+            headerRef.current.style.opacity = hAlpha;
+            headerRef.current.style.pointerEvents = hAlpha <= 0.05 ? 'none' : 'auto';
           }
 
           // Render 3D Workflow Spine onto Canvas
@@ -1030,12 +1037,12 @@ export default function LandingPage() {
     <div className="relative w-full bg-[#0a0b0c] text-white selection:bg-indigo-500 selection:text-white">
       {/* ====================================================================
           Sticky Track for Central Workflow Spine & Task Stream Canvas
-          Track height: 3000 / 8 vh = 375vh
+          Track height: 2180 / 8 vh = 272.5vh
          ==================================================================== */}
       <div
         ref={trackRef}
         className="relative w-full"
-        style={{ height: 'calc(3000 / 8 * 1vh)' }}
+        style={{ height: 'calc(2180 / 8 * 1vh)' }}
       >
         {/* Full-Viewport Sticky Container (.scene) */}
         <div className="scene sticky top-0 h-screen w-full overflow-hidden bg-[#0a0b0c]">
@@ -1053,7 +1060,10 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/10 z-20 hidden md:block" />
 
           {/* Floating Transparent Top Bar */}
-          <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-xs">
+          <header
+            ref={headerRef}
+            className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-xs transition-opacity duration-200"
+          >
             <Link
               to="/"
               className="flex items-center gap-3 group transition-transform duration-200 hover:scale-[1.02]"
