@@ -103,3 +103,100 @@ body::before {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   Scroll-Driven Landing Page & Viewport-Scaled Typography (Exo 2 & Public Sans)
+   ========================================================================== */
+:root {
+  --u: min(calc(100vh / 800), calc(100vw / 716));
+}
+
+@media (max-width: 609px), (orientation: portrait) {
+  :root {
+    --u: min(calc(100vw / 390), 1.6px);
+  }
+}
+
+.landing-headline {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #F7F5EF;
+  text-shadow: 0 calc(12 * var(--u)) calc(32 * var(--u)) rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.landing-eyebrow {
+  font-family: 'Public Sans', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: calc(2.5 * var(--u));
+  color: #F7F5EF;
+  opacity: 0.85;
+  font-size: calc(13 * var(--u));
+}
+
+.landing-body {
+  font-family: 'Public Sans', sans-serif;
+  font-size: calc(14 * var(--u));
+  line-height: 1.55;
+  color: rgba(247, 245, 239, 0.82);
+}
+
+/* Mirrored Feature Block Layouts along Central Axis */
+.feature-block {
+  position: absolute;
+  width: calc(290 * var(--u));
+  color: #F7F5EF;
+  z-index: 20;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.feature-block-r1-left {
+  top: calc(1500 / 8 * 1vh);
+  right: calc(50% + (78 * var(--u)));
+  text-align: right;
+}
+
+.feature-block-r1-right {
+  top: calc(1500 / 8 * 1vh);
+  left: calc(50% + (78 * var(--u)));
+  text-align: left;
+}
+
+.feature-block-r2-left {
+  top: calc(1759 / 8 * 1vh);
+  right: calc(50% + (88 * var(--u)));
+  text-align: right;
+}
+
+.feature-block-r2-right {
+  top: calc(1759 / 8 * 1vh);
+  left: calc(50% + (88 * var(--u)));
+  text-align: left;
+}
+
+.feature-block-r3-center {
+  top: calc(2063 / 8 * 1vh);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: calc(360 * var(--u));
+}
+
+/* Stacked Single-Column Flow on Portrait / Mobile */
+@media (max-width: 609px), (orientation: portrait) {
+  .feature-block {
+    position: relative;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    text-align: left !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: calc(36 * var(--u));
+  }
+}
+
