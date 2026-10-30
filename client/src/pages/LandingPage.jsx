@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckSquare, Sparkles, Shield, Users, Layers, Zap } from 'lucide-react';
+import { ArrowRight, CheckSquare, Sparkles } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 export default function LandingPage() {
@@ -36,7 +36,7 @@ export default function LandingPage() {
       try {
         video.pause();
         video.currentTime = 0;
-      } catch (e) {
+      } catch {
         // Safe catch for media playback policies
       }
     };
@@ -468,3 +468,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
