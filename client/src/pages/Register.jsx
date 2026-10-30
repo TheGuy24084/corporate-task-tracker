@@ -42,7 +42,12 @@ export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, []);
 
   const handleChange = (e) => {
@@ -91,35 +96,35 @@ export default function Register() {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden"
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="min-h-[calc(100vh-4rem)] flex flex-col justify-start sm:justify-center items-center px-4 py-4 sm:py-8 relative overflow-y-auto"
     >
       {/* Ambient Gradient Orbs */}
       <div className="absolute top-1/4 right-1/3 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/20 via-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none animate-pulse" />
       <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-gradient-to-tr from-cyan-500/15 via-indigo-400/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md my-auto relative z-10">
         {/* Glassmorphic Card */}
         <motion.div
-          className="glass-card rounded-2xl p-8 shadow-2xl transition-all duration-200"
-          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          className="glass-card rounded-2xl p-6 sm:p-7 shadow-2xl transition-all duration-200"
+          initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         >
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-5">
             <motion.div
-              className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-purple-500/25 mb-4"
+              className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-purple-500/25 mb-3"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.2 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
-              <UserPlus className="w-6 h-6" />
+              <UserPlus className="w-5 h-5" />
             </motion.div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Create an account
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
               Join the corporate task workspace and collaborate with your team
             </p>
           </div>
@@ -127,7 +132,7 @@ export default function Register() {
           {/* Invitation Notice */}
           {(searchParams.get('inviteToken') || urlEmail) && (
             <motion.div
-              className="mb-6 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs flex items-center gap-2.5"
+              className="mb-4 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs flex items-center gap-2.5"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -141,7 +146,7 @@ export default function Register() {
           {/* Error Banner */}
           {error && (
             <motion.div
-              className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-300 text-sm flex items-start gap-3"
+              className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-300 text-sm flex items-start gap-3"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -151,12 +156,12 @@ export default function Register() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             {/* Full Name */}
             <div>
               <label
                 htmlFor="name"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
               >
                 Full Name
               </label>
@@ -173,7 +178,7 @@ export default function Register() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Alex Morgan"
-                  className="w-full pl-10 pr-4 py-3 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
                 />
               </div>
             </div>
@@ -182,7 +187,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
               >
                 Work Email
               </label>
@@ -199,7 +204,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="alex.morgan@company.com"
-                  className="w-full pl-10 pr-4 py-3 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
                 />
               </div>
             </div>
@@ -208,7 +213,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
               >
                 Password
               </label>
@@ -225,7 +230,7 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-3 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
+                  className="w-full pl-10 pr-11 py-2.5 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all backdrop-blur-sm"
                 />
                 <button
                   type="button"
@@ -242,7 +247,7 @@ export default function Register() {
             <div>
               <label
                 htmlFor="role"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2"
+                className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5"
               >
                 Role Selection
               </label>
@@ -255,7 +260,7 @@ export default function Register() {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-10 py-3 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all appearance-none cursor-pointer backdrop-blur-sm"
+                  className="w-full pl-10 pr-10 py-2.5 bg-white/60 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:border-transparent transition-all appearance-none cursor-pointer backdrop-blur-sm"
                 >
                   <option value="User" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                     User
@@ -268,7 +273,7 @@ export default function Register() {
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
-              <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                 Select <strong className="text-slate-700 dark:text-slate-300">User</strong> or{' '}
                 <strong className="text-slate-700 dark:text-slate-300">Admin</strong> role.
               </p>
@@ -278,7 +283,7 @@ export default function Register() {
             <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-2 py-3 px-4 rounded-xl font-medium text-sm text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25 transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full mt-2 py-2.5 px-4 rounded-xl font-medium text-sm text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25 transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -297,7 +302,7 @@ export default function Register() {
           </form>
 
           {/* Footer Navigation */}
-          <div className="mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-800/60 text-center">
+          <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-slate-800/60 text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
               <Link

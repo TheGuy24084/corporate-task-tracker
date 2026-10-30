@@ -952,9 +952,9 @@ export default function LandingPage() {
       ctx.fillStyle = rightFog;
       ctx.fillRect(width * 0.5, 0, width * 0.5, height);
 
-      // Solid soft cloud cover at 1.00 -> completely merges with #e2dedd
-      if (cloudProgress > 0.42) {
-        const solidAlpha = Math.min((cloudProgress - 0.42) / 0.58, 1);
+      // Solid soft cloud cover at the tail end -> completely merges with #e2dedd
+      if (cloudProgress > 0.82) {
+        const solidAlpha = Math.min((cloudProgress - 0.82) / 0.18, 1);
         ctx.fillStyle = `rgba(226, 222, 221, ${solidAlpha})`;
         ctx.fillRect(0, 0, width, height);
       }
@@ -969,7 +969,7 @@ export default function LandingPage() {
 
     let animationFrameId;
     let cur = 0;
-    const knee = 0.74;
+    const knee = 0.88;
 
     const handleCanvasResize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -1000,7 +1000,7 @@ export default function LandingPage() {
           }
 
           if (headerRef.current) {
-            const hAlpha = cur < 0.46 ? 1 : Math.max(0, 1 - (cur - 0.46) / 0.12);
+            const hAlpha = cur < 0.46 ? 1 : Math.max(0, 1 - (cur - 0.46) / 0.18);
             headerRef.current.style.opacity = hAlpha;
             headerRef.current.style.pointerEvents = hAlpha <= 0.05 ? 'none' : 'auto';
           }
@@ -1037,12 +1037,12 @@ export default function LandingPage() {
     <div className="relative w-full bg-[#0a0b0c] text-white selection:bg-indigo-500 selection:text-white">
       {/* ====================================================================
           Sticky Track for Central Workflow Spine & Task Stream Canvas
-          Track height: 2180 / 8 vh = 272.5vh
+          Track height: 1720 / 8 vh = 215vh
          ==================================================================== */}
       <div
         ref={trackRef}
         className="relative w-full"
-        style={{ height: 'calc(2180 / 8 * 1vh)' }}
+        style={{ height: 'calc(1720 / 8 * 1vh)' }}
       >
         {/* Full-Viewport Sticky Container (.scene) */}
         <div className="scene sticky top-0 h-screen w-full overflow-hidden bg-[#0a0b0c]">

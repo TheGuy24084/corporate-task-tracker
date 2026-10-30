@@ -9,14 +9,28 @@ export default function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Immediately scroll to the top of the document
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant',
-    });
-    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    // Disable native browser scroll restoration to prevent landing mid-page
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    const resetScroll = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    // Reset immediately
+    resetScroll();
+
+    // Reset on next frame and after mount in case of transitions
+    const frameId = requestAnimationFrame(resetScroll);
+    const timerId = setTimeout(resetScroll, 40);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      clearTimeout(timerId);
+    };
   }, [pathname]);
 
   return null;
