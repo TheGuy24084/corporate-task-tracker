@@ -14,7 +14,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [React.js Frontend Architecture](#c-reactjs)
    - [Tailwind CSS Design System](#d-tailwind-css)
    - [UI/UX Architecture: Glassmorphism & Framer Motion](#e-uiux-architecture-glassmorphism--framer-motion-animations)
-   - [Scroll-Scrubbed Aerial Video Hero & Landing Experience](#f-scroll-scrubbed-aerial-video-hero--about-us-landing-experience)
+   - [Scroll-Scrubbed Enterprise Data Center Video Hero & Landing Experience](#f-scroll-scrubbed-enterprise-data-center-video-hero--about-us-landing-experience)
 2. [Outcome 2: Full Stack Web Frameworks](#2-full-stack-web-frameworks)
    - [MERN Stack Architecture Diagram](#mern-stack-architecture-diagram-text)
    - [Data Modeling & Schemas](#persisted-data-schemas)
@@ -124,12 +124,12 @@ The platform incorporates modern SaaS visual aesthetics, combining **Tailwind CS
   - **Slide-Over Comment Drawer**: `TaskCommentsModal` renders as a right-side slide-over drawer with spring physics (`initial={{ x: "100%" }} animate={{ x: 0 }}`) and staggered entry for each message.
   - **Spring Scale-Up Modals**: Task Creation and Invite Member modals appear with spring scale and elevation transitions (`initial={{ opacity: 0, scale: 0.94, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}`) over blurred backdrop overlays (`bg-slate-950/50 backdrop-blur-sm`).
 
-#### F. Scroll-Scrubbed Aerial Video Hero & About Us Landing Experience
+#### F. Scroll-Scrubbed Enterprise Data Center Video Hero & About Us Landing Experience
 Mounted at both the root route (`/`) and `/about`, the application features an immersive, scroll-driven visual landing and "About Us" experience (`LandingPage.jsx`) showcasing the engineering philosophy and multi-view capabilities of Corporate Task Tracker:
 
 1. **Sticky Scene & RAF Video Scrubber (`.scene`)**:
    - Built within a sticky viewport container (`position: sticky; top: 0; height: 100vh; background: #0a0b0c`) across a 375vh scroll track (`height: calc(3000 / 8 * 1vh)`).
-   - High-definition aerial cloudscape video with responsive resolution switching: 720p MP4 on screens $\le 900\text{px}$ and 1080p MP4 on desktop, backed by an optimized poster fallback image.
+   - High-definition enterprise server room data stream video with responsive resolution switching: 720p MP4 on screens $\le 900\text{px}$ and 1080p MP4 on desktop, backed by an optimized data center server rack poster fallback image.
    - The video is never looped or autoplayed. Instead, a `requestAnimationFrame` loop scrubs `video.currentTime` frame-by-frame based on the user's scroll progress $p \in [0, 1]$.
    - Implements a non-linear two-part `knee` time mapping formula ($knee = 0.55$) that apportions the initial 46% of the video duration to the intro fly-through and the remaining 54% to the cloud descent:
      $$\text{mappedP} = \begin{cases} \left(\frac{p}{\text{knee}}\right) \times 0.46 & p < \text{knee} \\ 0.46 + \left(\frac{p - \text{knee}}{1 - \text{knee}}\right) \times 0.54 & p \ge \text{knee} \end{cases}$$
@@ -138,12 +138,12 @@ Mounted at both the root route (`/`) and `/about`, the application features an i
    - Transparent floating top bar features the brand logo, a "Sign In" link (`/login`), and an illuminated "Launch Workspace" CTA button (`/dashboard` or `/register`).
 
 2. **5 Mirrored Architecture Highlights Straddling the Central Axis (`.content`)**:
-   - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"ABOUT CORPORATE TASK TRACKER"`, declaring the 4-line headline:
+   - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"ENTERPRISE WORKSPACE PLATFORM"`, declaring the 4-line headline:
      ```
-     WORKFLOWS
-     THAT MOVE
-     AS FAST AS
-     YOUR TEAM.
+     INFRASTRUCTURE
+     DESIGNED TO DELIVER
+     EVERY SPRINT
+     ON TIME.
      ```
    - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central axis with custom 34u white SVG icons:
      - **Row 1 Left** (`1500/8 vh`, $78u$ left of axis): **"ONE UNIFIED WORKSPACE"** with a Dotted Ring Globe SVG — *"Switch seamlessly between Kanban boards, Scrum sprints, and Project Management views in a single click."*
@@ -660,7 +660,7 @@ npm run dev
 10. **Interactive Scroll-Scrubbed Video Landing & About Us Page**:
     - Start the Vite client dev server: `cd client && npm run dev`.
     - Open `http://localhost:5173/` or `http://localhost:5173/about` in your browser.
-    - Slowly scroll down: observe the aerial video scrubbing in frame-by-frame synchronization with your scroll position via `requestAnimationFrame` and the non-linear `knee` mapping formula.
+    - Slowly scroll down: observe the enterprise server room data stream video scrubbing in frame-by-frame synchronization with your scroll position via `requestAnimationFrame` and the non-linear `knee` mapping formula.
     - Continue scrolling past the 5 mirrored architecture highlights straddling the central axis (One Unified Workspace, Full Sprint Visibility, Enterprise JWT Security, Instant Team Invites, and Real-Time @Mention Sync).
     - Descend through the `-34vh` cloud gradient transition into the light-toned Trust & Testimonials section, featuring the Mission & Purpose block, 3 engineering leadership quotes, and the "Get Started Free" CTA button.
     - Click **"Launch Workspace"** or **"Sign In"** to transition to the Dashboard or Login pages.
@@ -718,7 +718,7 @@ corporate-task-tracker/
         │   └── TaskCommentsModal.jsx # Task comments feed, @mention autocomplete, and delete controls
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
-            ├── LandingPage.jsx    # Scroll-scrubbed aerial video hero, 5 mirrored feature blocks & trust section
+            ├── LandingPage.jsx    # Scroll-scrubbed enterprise data center video hero, 5 mirrored feature blocks & trust section
             ├── Login.jsx          # Login page with secure authentication
             └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```

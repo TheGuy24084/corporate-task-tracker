@@ -22,8 +22,8 @@ export default function LandingPage() {
   }, []);
 
   const videoSrc = isMobile
-    ? 'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/e8eb434f-d097-4b1b-b9e6-c8b46fa43040.mp4'
-    : 'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/e02bb27f-80d8-445f-a03e-1b609dac4261.mp4';
+    ? 'https://assets.mixkit.co/videos/preview/mixkit-server-room-with-blinking-lights-in-a-data-center-40742-medium.mp4'
+    : 'https://assets.mixkit.co/videos/preview/mixkit-server-room-with-blinking-lights-in-a-data-center-40742-large.mp4';
 
   useEffect(() => {
     const video = videoRef.current;
@@ -88,11 +88,11 @@ export default function LandingPage() {
       >
         {/* Full-Viewport Sticky Container (.scene) */}
         <div className="scene sticky top-0 h-screen w-full overflow-hidden bg-[#0a0b0c]">
-          {/* Aerial Cloudscape Scrubbed Video */}
+          {/* Enterprise Data Center Server Room Scrubbed Video */}
           <video
             ref={videoRef}
             src={videoSrc}
-            poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/5e018553-cb8a-420a-819f-fcdfa08e5df0.jpg"
+            poster="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80"
             muted
             playsInline
             preload="auto"
@@ -171,13 +171,13 @@ export default function LandingPage() {
             style={{ top: 'calc(940 / 8 * 1vh)' }}
           >
             <div className="landing-eyebrow mb-4 inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
-              ABOUT CORPORATE TASK TRACKER
+              ENTERPRISE WORKSPACE PLATFORM
             </div>
             <h1 className="landing-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]">
-              WORKFLOWS <br />
-              THAT MOVE <br />
-              AS FAST AS <br />
-              YOUR TEAM.
+              INFRASTRUCTURE <br />
+              DESIGNED TO DELIVER <br />
+              EVERY SPRINT <br />
+              ON TIME.
             </h1>
           </div>
 
