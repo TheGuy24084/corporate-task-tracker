@@ -14,7 +14,7 @@ This project is structured and documented to explicitly demonstrate mastery of t
    - [React.js Frontend Architecture](#c-reactjs)
    - [Tailwind CSS Design System](#d-tailwind-css)
    - [UI/UX Architecture: Glassmorphism & Framer Motion](#e-uiux-architecture-glassmorphism--framer-motion-animations)
-   - [Scroll-Scrubbed Enterprise Data Center Video Hero & Landing Experience](#f-scroll-scrubbed-enterprise-data-center-video-hero--about-us-landing-experience)
+   - [Scroll-Scrubbed Corporate Glass High-Rise Hero & Landing Experience](#f-scroll-scrubbed-corporate-glass-high-rise-hero--about-us-landing-experience)
 2. [Outcome 2: Full Stack Web Frameworks](#2-full-stack-web-frameworks)
    - [MERN Stack Architecture Diagram](#mern-stack-architecture-diagram-text)
    - [Data Modeling & Schemas](#persisted-data-schemas)
@@ -124,39 +124,39 @@ The platform incorporates modern SaaS visual aesthetics, combining **Tailwind CS
   - **Slide-Over Comment Drawer**: `TaskCommentsModal` renders as a right-side slide-over drawer with spring physics (`initial={{ x: "100%" }} animate={{ x: 0 }}`) and staggered entry for each message.
   - **Spring Scale-Up Modals**: Task Creation and Invite Member modals appear with spring scale and elevation transitions (`initial={{ opacity: 0, scale: 0.94, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}`) over blurred backdrop overlays (`bg-slate-950/50 backdrop-blur-sm`).
 
-#### F. Scroll-Scrubbed Enterprise Data Center Video Hero & About Us Landing Experience
+#### F. Scroll-Scrubbed Corporate Glass High-Rise Hero & About Us Landing Experience
 Mounted at both the root route (`/`) and `/about`, the application features an immersive, scroll-driven visual landing and "About Us" experience (`LandingPage.jsx`) showcasing the engineering philosophy and multi-view capabilities of Corporate Task Tracker:
 
-1. **Sticky Scene & RAF Video Scrubber (`.scene`)**:
+1. **Sticky Scene & High-Rise Ascent Canvas (`.scene`)**:
    - Built within a sticky viewport container (`position: sticky; top: 0; height: 100vh; background: #0a0b0c`) across a 375vh scroll track (`height: calc(3000 / 8 * 1vh)`).
-   - High-definition enterprise server room data stream video with responsive resolution switching: 720p MP4 on screens $\le 900\text{px}$ and 1080p MP4 on desktop, backed by an optimized data center server rack poster fallback image.
-   - The video is never looped or autoplayed. Instead, a `requestAnimationFrame` loop scrubs `video.currentTime` frame-by-frame based on the user's scroll progress $p \in [0, 1]$.
-   - Implements a non-linear two-part `knee` time mapping formula ($knee = 0.55$) that apportions the initial 46% of the video duration to the intro fly-through and the remaining 54% to the cloud descent:
+   - High-performance, Retina-crisp HTML5 `<canvas>` (paired with an aerial drone city building `<video>` fallback) driven frame-by-frame by smoothed scroll progress $cur \in [0, 1]$.
+   - Implements a non-linear two-part `knee` time mapping formula ($knee = 0.55$) with asymptotic lerp smoothing (`cur += (target - cur) * 0.22`):
      $$\text{mappedP} = \begin{cases} \left(\frac{p}{\text{knee}}\right) \times 0.46 & p < \text{knee} \\ 0.46 + \left(\frac{p - \text{knee}}{1 - \text{knee}}\right) \times 0.54 & p \ge \text{knee} \end{cases}$$
-   - Includes asymptotic smoothing (`cur += (target - cur) * 0.22`) and hardware seek gating (`!video.seeking && Math.abs(video.currentTime - cur) > 1/60`) for 60fps jitter-free playback.
+   - **Phase 1 ($0.00 \le cur < 0.46$ — The Glass Tower Climb)**: The camera rises directly up the central vertical corner seam ($x = 50\%$) of a sleek corporate glass skyscraper at twilight/dawn. Renders deep slate-blue glass reflections, warm amber and cyan interior office window light strips, and perspective mullions converging toward the central illuminated corner spine. Subtle horizontal wisp layers drift across the facade as the camera ascends.
+   - **Phase 2 ($0.46 \le cur \le 1.00$ — Breaching the Roof into Misty Clouds)**: The skyscraper crown and pinnacle spire recede downward as the camera breaches into the upper atmosphere. Volumetric white/grey cloud banks (`#e2dedd`) billow in from the edges, smoothly saturating the canvas until reaching solid `#e2dedd` cloud cover at $cur = 1.00$.
    - Cinematic dark radial and vertical gradients frame the scene, accompanied by a central axis guide line.
-   - Transparent floating top bar features the brand logo, a "Sign In" link (`/login`), and an illuminated "Launch Workspace" CTA button (`/dashboard` or `/register`).
+   - Transparent floating top bar features the brand logo, dark/light mode toggle, a "Sign In" / "Dashboard" link, and an illuminated "Launch Workspace" CTA button (`/dashboard` or `/register`).
 
-2. **5 Mirrored Architecture Highlights Straddling the Central Axis (`.content`)**:
-   - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"ENTERPRISE WORKSPACE PLATFORM"`, declaring the 4-line headline:
+2. **5 Mirrored Architecture Highlights Straddling the Skyscraper Axis (`.content`)**:
+   - **Intro Narrative Block** (`top: calc(940 / 8 * 1vh)`): Styled with uppercase `Exo 2` typography (`font-weight: 800`) and the `Public Sans` eyebrow `"WHY CORPORATE TASK TRACKER"`, declaring the 4-line headline:
      ```
-     INFRASTRUCTURE
-     DESIGNED TO DELIVER
-     EVERY SPRINT
-     ON TIME.
+     ENTERPRISE AGILITY
+     THAT RISES
+     AS HIGH AS
+     YOUR AMBITION.
      ```
-   - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central axis with custom 34u white SVG icons:
-     - **Row 1 Left** (`1500/8 vh`, $78u$ left of axis): **"ONE UNIFIED WORKSPACE"** with a Dotted Ring Globe SVG — *"Switch seamlessly between Kanban boards, Scrum sprints, and Project Management views in a single click."*
-     - **Row 1 Right** (`1500/8 vh`, $78u$ right of axis): **"FULL SPRINT VISIBILITY"** with a Stepped Container Blocks SVG — *"Track story points, velocity, and task progress in real time before bottlenecks become missed deadlines."*
-     - **Row 2 Left** (`1759/8 vh`, $88u$ left of axis): **"ENTERPRISE JWT SECURITY"** with a Dotted Ring Check Shield SVG — *"Role-based access control and JSON Web Tokens keep Admin actions and team permissions locked down."*
-     - **Row 2 Right** (`1759/8 vh`, $88u$ right of axis): **"INSTANT TEAM INVITES"** with a Bold "@" Mail Stroke SVG — *"Onboard members via automated email invitations and assign owners to every deliverable from day one."*
-     - **Row 3 Center** (`2063/8 vh`, centered on axis): **"REAL-TIME @MENTION SYNC"** with a Double Chevron SVG — *"Keep discussions attached to the work. Mention teammates in task threads to trigger instant alerts and resolve blockers."*
+   - **5 Mirrored Feature Blocks** positioned at precise vertical and horizontal offsets along the central skyscraper corner axis with custom 34u white SVG icons:
+     - **Row 1 Left** (`1500/8 vh`, $78u$ left of axis): **"ONE UNIFIED WORKSPACE"** with a Dotted Ring Globe SVG — *"No more fragmented tools. Switch between Kanban boards, Scrum sprints, and Project Management views in one place."*
+     - **Row 1 Right** (`1500/8 vh`, $78u$ right of axis): **"FULL SPRINT VISIBILITY"** with a Three Stepped Blocks SVG — *"Track story points, velocity, and task progress in real time before bottlenecks become missed deadlines."*
+     - **Row 2 Left** (`1759/8 vh`, $88u$ left of axis): **"SECURITY YOU CAN TRUST"** with a Dotted Ring Check Disc SVG — *"Role-based access control and JSON Web Tokens keep Admin operations and team permissions protected at every floor."*
+     - **Row 2 Right** (`1759/8 vh`, $88u$ right of axis): **"INSTANT TEAM INVITES"** with a Bold "@" Mail Stroke SVG — *"Onboard members via automated email invitations and assign clear ownership to every deliverable from day one."*
+     - **Row 3 Center** (`2063/8 vh`, centered on axis): **"FAST BLOCKER RESOLUTION"** with a Double Chevron SVG — *"When priorities shift, we do not lose momentum. Mention teammates with @alerts to align and act at once."*
    - Dynamic viewport unit scaling via `--u: min(calc(100vh / 800), calc(100vw / 716))` on desktop and responsive single-column stacked flow on mobile (`--u: min(calc(100vw / 390), 1.6px)`).
 
 3. **34vh Cloud Transition & Trust / Testimonials Section (`<section className="trust">`)**:
    - Transitioning smoothly out of the clouds, the section is pulled up `-34vh` over the end of the sticky track with a matching `34vh` linear gradient from `transparent` to `#e2dedd` (cloud grey) and `#141516` ink text.
    - **Mission & Purpose Statement**: Highlights the core rationale for Corporate Task Tracker—eliminating cross-functional friction by harmonizing agile rituals and project roadmaps.
-   - **2-Column Section Header**: High-impact editorial header: `"TRUSTED / BY ENGINEERING TEAMS / ACROSS THE GLOBE"`.
+   - **2-Column Section Header**: High-impact editorial header: `"TRUSTED / BY ENTERPRISE TEAMS / ACROSS THE REGION"`.
    - **3 Real-World Engineering Testimonial Rows**:
      - *Elena Rostova* (VP of Engineering, CloudScale Systems): 35% boost in sprint delivery velocity across Kanban and Scrum transitions.
      - *Marcus Chen* (Principal Systems Architect, Hyperion Tech): Peace of mind with role-based security, automated email invites, and instant @mentions.
@@ -660,8 +660,8 @@ npm run dev
 10. **Interactive Scroll-Scrubbed Video Landing & About Us Page**:
     - Start the Vite client dev server: `cd client && npm run dev`.
     - Open `http://localhost:5173/` or `http://localhost:5173/about` in your browser.
-    - Slowly scroll down: observe the enterprise server room data stream video scrubbing in frame-by-frame synchronization with your scroll position via `requestAnimationFrame` and the non-linear `knee` mapping formula.
-    - Continue scrolling past the 5 mirrored architecture highlights straddling the central axis (One Unified Workspace, Full Sprint Visibility, Enterprise JWT Security, Instant Team Invites, and Real-Time @Mention Sync).
+    - Slowly scroll down: observe the Corporate Glass High-Rise aerial ascent climbing straight up the skyscraper's central corner seam with glowing office floor strips, perspective grid lines, and wisp layers, before breaching through the rooftop crown into volumetric `#e2dedd` clouds via the 2-part `knee` mapping formula.
+    - Continue scrolling past the 5 mirrored architecture highlights straddling the central skyscraper axis (One Unified Workspace, Full Sprint Visibility, Security You Can Trust, Instant Team Invites, and Fast Blocker Resolution).
     - Descend through the `-34vh` cloud gradient transition into the light-toned Trust & Testimonials section, featuring the Mission & Purpose block, 3 engineering leadership quotes, and the "Get Started Free" CTA button.
     - Click **"Launch Workspace"** or **"Sign In"** to transition to the Dashboard or Login pages.
     - From the top navigation bar on any page (`Navbar.jsx`), click **"About / Home"** (`Sparkles` icon) to navigate back to the landing experience at any time.
@@ -718,7 +718,7 @@ corporate-task-tracker/
         │   └── TaskCommentsModal.jsx # Task comments feed, @mention autocomplete, and delete controls
         └── pages/
             ├── Dashboard.jsx      # Unified dashboard with methodology switcher, assignee filter & modals
-            ├── LandingPage.jsx    # Scroll-scrubbed enterprise data center video hero, 5 mirrored feature blocks & trust section
+            ├── LandingPage.jsx    # Scroll-driven Corporate Glass High-Rise ascent, central corner axis, 5 mirrored feature blocks & cloud breach trust section
             ├── Login.jsx          # Login page with secure authentication
             └── Register.jsx       # Registration page with URL invite query parameter pre-fill
 ```
