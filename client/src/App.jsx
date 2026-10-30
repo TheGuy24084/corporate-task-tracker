@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
+import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
@@ -113,6 +114,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <Router>
+        <ScrollToTop />
         <AuthProvider>
           <ToastProvider>
             <div className="min-h-screen bg-slate-50 text-gray-900 dark:bg-[#0B0F19] dark:text-slate-100 flex flex-col font-['Plus_Jakarta_Sans','Inter',sans-serif] transition-colors duration-200">

@@ -1080,6 +1080,7 @@ export default function LandingPage() {
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
                 >
                   Dashboard
@@ -1087,6 +1088,7 @@ export default function LandingPage() {
               ) : (
                 <Link
                   to="/login"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
                 >
                   Sign In
@@ -1094,6 +1096,7 @@ export default function LandingPage() {
               )}
               <Link
                 to={isAuthenticated ? '/dashboard' : '/register'}
+                onClick={() => window.scrollTo(0, 0)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.03] transition-all duration-200"
               >
                 <span>Launch Workspace</span>
@@ -1449,6 +1452,7 @@ export default function LandingPage() {
             <div className="flex-shrink-0">
               <Link
                 to="/register"
+                onClick={() => window.scrollTo(0, 0)}
                 className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-['Public_Sans',sans-serif] font-bold text-base bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/30 hover:scale-105 transition-all duration-200"
               >
                 <span>Get Started Free</span>
