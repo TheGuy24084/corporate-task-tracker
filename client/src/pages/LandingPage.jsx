@@ -4,262 +4,484 @@ import { ArrowRight, CheckSquare, Sparkles, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
+// Continuous convoy of 3D Task & Sprint modules along the central workflow spine
+const WORKFLOW_MODULES = [
+  {
+    code: 'SPRINT 01',
+    title: 'Core Architecture',
+    status: 'COMPLETE',
+    statusColor: '#10b981',
+    pts: '24 SP',
+    progress: 1.0,
+    avatarBg: '#6366f1',
+    avatarText: 'CA'
+  },
+  {
+    code: 'TSK-104',
+    title: 'JWT Auth & Guards',
+    status: 'DONE',
+    statusColor: '#10b981',
+    pts: '5 SP',
+    progress: 1.0,
+    avatarBg: '#06b6d4',
+    avatarText: 'AG'
+  },
+  {
+    code: 'TSK-128',
+    title: 'Kanban Column Sync',
+    status: 'DONE',
+    statusColor: '#10b981',
+    pts: '8 SP',
+    progress: 1.0,
+    avatarBg: '#ec4899',
+    avatarText: 'KB'
+  },
+  {
+    code: 'SPRINT 02',
+    title: 'Velocity Tracking',
+    status: 'COMPLETE',
+    statusColor: '#10b981',
+    pts: '38 SP',
+    progress: 1.0,
+    avatarBg: '#8b5cf6',
+    avatarText: 'VT'
+  },
+  {
+    code: 'TSK-215',
+    title: 'RBAC Permission Matrix',
+    status: 'DONE',
+    statusColor: '#10b981',
+    pts: '8 SP',
+    progress: 1.0,
+    avatarBg: '#3b82f6',
+    avatarText: 'PM'
+  },
+  {
+    code: 'TSK-280',
+    title: 'Automated Email Invites',
+    status: 'REVIEW',
+    statusColor: '#f59e0b',
+    pts: '5 SP',
+    progress: 0.9,
+    avatarBg: '#f59e0b',
+    avatarText: 'EI'
+  },
+  {
+    code: 'MILESTONE',
+    title: 'Security Audit v1.0',
+    status: 'PASSED',
+    statusColor: '#10b981',
+    pts: 'AUDIT',
+    progress: 1.0,
+    avatarBg: '#10b981',
+    avatarText: 'SA'
+  },
+  {
+    code: 'TSK-310',
+    title: '@Mention Notification Sync',
+    status: 'IN PROGRESS',
+    statusColor: '#3b82f6',
+    pts: '5 SP',
+    progress: 0.75,
+    avatarBg: '#8b5cf6',
+    avatarText: 'MS'
+  },
+  {
+    code: 'TSK-364',
+    title: 'Sprint Backlog Refactor',
+    status: 'IN PROGRESS',
+    statusColor: '#3b82f6',
+    pts: '8 SP',
+    progress: 0.8,
+    avatarBg: '#06b6d4',
+    avatarText: 'BR'
+  },
+  {
+    code: 'SPRINT 03',
+    title: 'Release Candidate 1',
+    status: 'ACTIVE',
+    statusColor: '#8b5cf6',
+    pts: '45 SP',
+    progress: 0.95,
+    avatarBg: '#6366f1',
+    avatarText: 'RC'
+  },
+  {
+    code: 'TSK-408',
+    title: 'E2E Testing & CI/CD',
+    status: 'DONE',
+    statusColor: '#10b981',
+    pts: '8 SP',
+    progress: 1.0,
+    avatarBg: '#10b981',
+    avatarText: 'TS'
+  },
+  {
+    code: 'TSK-450',
+    title: 'Milestone Timelines',
+    status: 'FINALIZING',
+    statusColor: '#06b6d4',
+    pts: '3 SP',
+    progress: 0.95,
+    avatarBg: '#ec4899',
+    avatarText: 'MT'
+  },
+  {
+    code: 'RELEASE',
+    title: 'V2 Production Workspace',
+    status: 'LAUNCHED / COMPLETED',
+    statusColor: '#10b981',
+    pts: '100%',
+    progress: 1.0,
+    avatarBg: '#fbbf24',
+    avatarText: 'GO',
+    isApex: true
+  }
+];
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  if (ctx.roundRect) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, radius);
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  }
+}
+
 export default function LandingPage() {
   const canvasRef = useRef(null);
-  const videoRef = useRef(null);
   const trackRef = useRef(null);
   const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const videoSrc =
-    'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-city-buildings-on-a-sunny-day-41465-large.mp4';
-  const posterSrc =
-    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80';
-
-  // Architectural Corporate Glass High-Rise Ascent & Cloud Breach Renderer
-  const drawHighRiseScene = (ctx, width, height, cur) => {
+  // The 3D Workflow Spine & Task Stream Canvas Renderer
+  const drawWorkflowSpineScene = (ctx, width, height, cur) => {
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Sky Gradient (Dusk / Twilight atmosphere)
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-    skyGrad.addColorStop(0, '#06080e');
-    skyGrad.addColorStop(0.55, '#0b1322');
-    skyGrad.addColorStop(1, '#152238');
-    ctx.fillStyle = skyGrad;
+    // 1. Deep Obsidian Background (#0a0b0c) with subtle depth glow
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, '#07080a');
+    bgGrad.addColorStop(0.5, '#0a0b0c');
+    bgGrad.addColorStop(1, '#0e1118');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // 2. Horizon Glow (City lights at base during early ascent)
-    if (cur < 0.65) {
-      const horizonAlpha = Math.max(0, 1 - cur / 0.55);
-      const horizonGrad = ctx.createRadialGradient(
-        width * 0.5,
-        height,
-        10,
-        width * 0.5,
-        height,
-        width * 0.65
-      );
-      horizonGrad.addColorStop(0, `rgba(56, 189, 248, ${0.16 * horizonAlpha})`);
-      horizonGrad.addColorStop(0.5, `rgba(99, 102, 241, ${0.08 * horizonAlpha})`);
-      horizonGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = horizonGrad;
-      ctx.fillRect(0, height * 0.4, width, height * 0.6);
-    }
-
-    // 3. Central Glass High-Rise Skyscraper
     const cx = width * 0.5;
-    const towerWidth = Math.min(width * 0.78, 960);
-    const leftX = cx - towerWidth * 0.5;
-    const rightX = cx + towerWidth * 0.5;
+    const u =
+      width <= 609
+        ? Math.min(width / 390, 1.6)
+        : Math.min(height / 800, width / 716);
 
-    // Camera ascending: calculate rooftop / pinnacle downward recession
-    let roofY = -1200;
-    if (cur >= 0.35 && cur < 0.46) {
-      const t = (cur - 0.35) / (0.46 - 0.35);
-      roofY = -350 + t * (height * 0.35 + 350);
-    } else if (cur >= 0.46) {
-      const t = (cur - 0.46) / 0.54;
-      roofY = height * 0.35 + t * (height * 1.5);
-    }
-
-    const towerTop = Math.max(0, roofY);
-
-    // 3A. Left Facade (Perspective converging toward central corner seam at x = 50%)
+    // 2. Perspective Dot/Grid Matrix Receding toward Central Spine
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(leftX, height);
-    ctx.lineTo(leftX + towerWidth * 0.08, towerTop);
-    ctx.lineTo(cx, towerTop);
-    ctx.lineTo(cx, height);
-    ctx.closePath();
+    const vanishingY = -height * 0.15;
+    const numPerspectiveLines = 14;
 
-    const leftGrad = ctx.createLinearGradient(leftX, 0, cx, 0);
-    leftGrad.addColorStop(0, '#070d18');
-    leftGrad.addColorStop(0.65, '#0e1828');
-    leftGrad.addColorStop(1, '#1b2a40');
-    ctx.fillStyle = leftGrad;
-    ctx.fill();
-
-    // Floor lines and warm interior office light strips (Left Facade)
-    const floorSpacing = 32;
-    const climbSpeed = 2800;
-    const floorOffset = (cur * climbSpeed) % floorSpacing;
-
-    ctx.lineWidth = 1;
-    for (let y = towerTop + floorOffset; y < height; y += floorSpacing) {
-      const t = (y - towerTop) / Math.max(height - towerTop, 1);
-      const fxLeft = leftX + (1 - t) * (towerWidth * 0.08);
-
-      // Mullion / Floor Plate
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.16)';
+    for (let i = 0; i < numPerspectiveLines; i++) {
+      const bottomX = (width / (numPerspectiveLines - 1)) * i;
       ctx.beginPath();
-      ctx.moveTo(fxLeft, y - 6);
-      ctx.lineTo(cx, y);
-      ctx.stroke();
-
-      // Interior light strip
-      const seed = Math.sin(Math.floor((y + cur * climbSpeed) / floorSpacing) * 12.9898);
-      if (seed > -0.2) {
-        const winWidth = (cx - fxLeft) * 0.65;
-        const winX = fxLeft + (cx - fxLeft) * 0.18;
-        const isAmber = seed > 0.35;
-        ctx.strokeStyle = isAmber
-          ? 'rgba(251, 191, 36, 0.65)'
-          : 'rgba(56, 189, 248, 0.5)';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(winX, y - 3);
-        ctx.lineTo(winX + winWidth * Math.abs(seed), y - 1);
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      }
-    }
-    ctx.restore();
-
-    // 3B. Right Facade (Mirrored perspective)
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(cx, height);
-    ctx.lineTo(cx, towerTop);
-    ctx.lineTo(rightX - towerWidth * 0.08, towerTop);
-    ctx.lineTo(rightX, height);
-    ctx.closePath();
-
-    const rightGrad = ctx.createLinearGradient(cx, 0, rightX, 0);
-    rightGrad.addColorStop(0, '#1c2c44');
-    rightGrad.addColorStop(0.35, '#121f33');
-    rightGrad.addColorStop(1, '#070d18');
-    ctx.fillStyle = rightGrad;
-    ctx.fill();
-
-    // Floor lines and warm interior office light strips (Right Facade)
-    for (let y = towerTop + floorOffset; y < height; y += floorSpacing) {
-      const t = (y - towerTop) / Math.max(height - towerTop, 1);
-      const fxRight = rightX - (1 - t) * (towerWidth * 0.08);
-
-      // Mullion / Floor Plate
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
-      ctx.beginPath();
-      ctx.moveTo(cx, y);
-      ctx.lineTo(fxRight, y - 6);
-      ctx.stroke();
-
-      // Interior light strip
-      const seed = Math.cos(Math.floor((y + cur * climbSpeed) / floorSpacing) * 43.123);
-      if (seed > -0.15) {
-        const winWidth = (fxRight - cx) * 0.65;
-        const winX = cx + (fxRight - cx) * 0.18;
-        const isAmber = seed > 0.35;
-        ctx.strokeStyle = isAmber
-          ? 'rgba(251, 191, 36, 0.65)'
-          : 'rgba(56, 189, 248, 0.5)';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(winX, y - 1);
-        ctx.lineTo(winX + winWidth * Math.abs(seed), y - 3);
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      }
-    }
-    ctx.restore();
-
-    // 3C. Central Vertical Corner Seam Spine (x = 50%)
-    if (towerTop < height) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(cx, towerTop);
-      ctx.lineTo(cx, height);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = 'rgba(56, 189, 248, 0.9)';
-      ctx.shadowBlur = 14;
-      ctx.stroke();
-
-      // Core white shine
+      ctx.moveTo(cx, vanishingY);
+      ctx.lineTo(bottomX, height);
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.05)';
       ctx.lineWidth = 1;
-      ctx.strokeStyle = '#ffffff';
       ctx.stroke();
-      ctx.restore();
     }
 
-    // 3D. Tower Pinnacle / Roof Crown & Beacon
-    if (roofY > -50 && roofY < height + 100) {
+    // Horizontal depth rings
+    const numHorizontalRings = 16;
+    for (let j = 1; j <= numHorizontalRings; j++) {
+      const t = j / numHorizontalRings;
+      const y = Math.pow(t, 1.6) * height;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Subtle glow dots along grid intersections
+      for (let k = 0; k < numPerspectiveLines; k += 2) {
+        const bottomX = (width / (numPerspectiveLines - 1)) * k;
+        const dotX = cx + (bottomX - cx) * (y / height);
+        ctx.fillStyle = 'rgba(147, 197, 253, 0.16)';
+        ctx.beginPath();
+        ctx.arc(dotX, y, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+
+    // 3. Central Glowing Workflow Spine Track
+    ctx.save();
+    const railOffset = Math.round(58 * u);
+
+    // Outer neon bloom for the spine
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.22)';
+    ctx.lineWidth = 6;
+    ctx.shadowColor = 'rgba(56, 189, 248, 0.5)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.moveTo(cx - railOffset, 0);
+    ctx.lineTo(cx - railOffset, height);
+    ctx.moveTo(cx + railOffset, 0);
+    ctx.lineTo(cx + railOffset, height);
+    ctx.stroke();
+
+    // Core crisp neon rails
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.moveTo(cx - railOffset, 0);
+    ctx.lineTo(cx - railOffset, height);
+    ctx.moveTo(cx + railOffset, 0);
+    ctx.lineTo(cx + railOffset, height);
+    ctx.stroke();
+
+    // Central dashed timeline spine
+    ctx.setLineDash([6, 10]);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(cx, 0);
+    ctx.lineTo(cx, height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // 4. Vertical Convoy of 3D Task & Sprint Modules (`width ~ 110u`)
+    const modWidth = Math.min(Math.max(Math.round(110 * u), 115), 180);
+    const modHeight = Math.round(modWidth * 0.52);
+    const numModules = WORKFLOW_MODULES.length;
+    const moduleSpacing = Math.round(modHeight * 2.3);
+    const totalClimb = (numModules - 1) * moduleSpacing;
+
+    // Camera climb computation: Phase 1 (0.00 to 0.46)
+    let climbProgress;
+    if (cur < 0.46) {
+      climbProgress = cur / 0.46;
+    } else {
+      // Breaching above the apex node
+      climbProgress = 1.0 + ((cur - 0.46) / 0.54) * 0.85;
+    }
+
+    const startCenterY = height * 0.68;
+    const currentCameraY = climbProgress * totalClimb;
+
+    // Render each Task/Sprint Module in sequence
+    for (let i = 0; i < numModules; i++) {
+      const m = WORKFLOW_MODULES[i];
+      const moduleWorldY = i * moduleSpacing;
+      const screenY = startCenterY - (moduleWorldY - currentCameraY);
+
+      // Frustum culling
+      if (screenY + modHeight < -60 || screenY - modHeight > height + 60) {
+        continue;
+      }
+
+      const modX = Math.round(cx - modWidth * 0.5);
+      const modY = Math.round(screenY - modHeight * 0.5);
+
+      // Connector struts linking module to central spine rails
       ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(leftX + towerWidth * 0.08, roofY);
-      ctx.lineTo(cx, roofY - 24);
-      ctx.lineTo(rightX - towerWidth * 0.08, roofY);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = 'rgba(56, 189, 248, 1)';
-      ctx.shadowBlur = 16;
+      ctx.moveTo(cx - railOffset, screenY);
+      ctx.lineTo(modX, screenY);
+      ctx.moveTo(modX + modWidth, screenY);
+      ctx.lineTo(cx + railOffset, screenY);
       ctx.stroke();
 
-      // Rooftop Spire
+      // Connector junction nodes
+      ctx.fillStyle = m.statusColor;
+      ctx.shadowColor = m.statusColor;
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.moveTo(cx, roofY - 24);
-      ctx.lineTo(cx, roofY - 110);
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
-
-      // Warning beacon light
-      ctx.fillStyle = '#ef4444';
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 14;
-      ctx.beginPath();
-      ctx.arc(cx, roofY - 110, 3.5, 0, Math.PI * 2);
+      ctx.arc(cx - railOffset, screenY, 3, 0, Math.PI * 2);
+      ctx.arc(cx + railOffset, screenY, 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
+
+      // Module Glassmorphic Body
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 14;
+      ctx.shadowOffsetY = 4;
+
+      const cardGrad = ctx.createLinearGradient(modX, modY, modX, modY + modHeight);
+      if (m.isApex) {
+        cardGrad.addColorStop(0, 'rgba(30, 41, 59, 0.96)');
+        cardGrad.addColorStop(1, 'rgba(15, 23, 42, 0.98)');
+      } else {
+        cardGrad.addColorStop(0, 'rgba(23, 30, 46, 0.92)');
+        cardGrad.addColorStop(1, 'rgba(11, 16, 28, 0.95)');
+      }
+      ctx.fillStyle = cardGrad;
+      drawRoundedRect(ctx, modX, modY, modWidth, modHeight, 8);
+      ctx.fill();
+
+      // Specular border
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = m.isApex
+        ? 'rgba(251, 191, 36, 0.75)'
+        : 'rgba(255, 255, 255, 0.16)';
+      ctx.lineWidth = m.isApex ? 1.8 : 1.1;
+      ctx.stroke();
+
+      // Left Accent Color Indicator
+      ctx.fillStyle = m.statusColor;
+      ctx.shadowColor = m.statusColor;
+      ctx.shadowBlur = 6;
+      drawRoundedRect(ctx, modX + 4, modY + 6, 3, modHeight - 12, 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Module Typography & Content
+      const contentLeft = modX + 12;
+
+      // Row 1: Code and Status Pill
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${Math.max(Math.round(8.5 * u), 9)}px 'Exo 2', sans-serif`;
+      ctx.fillText(m.code, contentLeft, modY + 14 * u);
+
+      // Status pill background
+      const pillWidth = Math.round(44 * u);
+      const pillHeight = Math.round(11 * u);
+      const pillX = modX + modWidth - pillWidth - 6;
+      const pillY = modY + 5;
+
+      ctx.fillStyle = `${m.statusColor}28`;
+      drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 3);
+      ctx.fill();
+
+      ctx.fillStyle = m.statusColor;
+      ctx.font = `700 ${Math.max(Math.round(6.5 * u), 7)}px 'Public Sans', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(m.status, pillX + pillWidth * 0.5, pillY + pillHeight * 0.75);
+      ctx.textAlign = 'left';
+
+      // Row 2: Title
+      ctx.fillStyle = 'rgba(247, 245, 239, 0.9)';
+      ctx.font = `600 ${Math.max(Math.round(7.5 * u), 8)}px 'Public Sans', sans-serif`;
+      const displayTitle =
+        m.title.length > 20 ? `${m.title.slice(0, 19)}…` : m.title;
+      ctx.fillText(displayTitle, contentLeft, modY + 28 * u);
+
+      // Row 3: Story Points, Progress Bar & Avatar
+      // Story Points
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.85)';
+      ctx.font = `500 ${Math.max(Math.round(6.5 * u), 7)}px 'Public Sans', sans-serif`;
+      ctx.fillText(m.pts, contentLeft, modY + modHeight - 7);
+
+      // Progress bar track
+      const barX = contentLeft + Math.round(30 * u);
+      const barY = modY + modHeight - 11;
+      const barWidth = Math.round(modWidth * 0.32);
+      const barHeight = Math.max(Math.round(2.5 * u), 2);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      drawRoundedRect(ctx, barX, barY, barWidth, barHeight, 1.5);
+      ctx.fill();
+
+      // Progress bar fill
+      ctx.fillStyle = m.statusColor;
+      drawRoundedRect(
+        ctx,
+        barX,
+        barY,
+        Math.max(barWidth * m.progress, 2),
+        barHeight,
+        1.5
+      );
+      ctx.fill();
+
+      // Avatar circle
+      const avatarR = Math.round(5.5 * u);
+      const avatarX = modX + modWidth - avatarR - 8;
+      const avatarY = modY + modHeight - avatarR - 5;
+
+      ctx.fillStyle = m.avatarBg;
+      ctx.beginPath();
+      ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${Math.max(Math.round(5 * u), 5)}px 'Public Sans', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(m.avatarText, avatarX, avatarY + avatarR * 0.35);
+      ctx.textAlign = 'left';
+
+      // Apex Node Extra Visual Flare
+      if (m.isApex) {
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, screenY, modWidth * 0.65, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+        ctx.beginPath();
+        ctx.arc(cx, screenY, modWidth * 0.8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
     }
 
-    // 3E. Diagonal Architectural Glass Sheen
-    ctx.save();
-    const sheenGrad = ctx.createLinearGradient(
-      cx - towerWidth * 0.45,
-      0,
-      cx + towerWidth * 0.45,
-      height
-    );
-    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-    sheenGrad.addColorStop(0.48, 'rgba(255, 255, 255, 0.03)');
-    sheenGrad.addColorStop(0.52, 'rgba(255, 255, 255, 0.12)');
-    sheenGrad.addColorStop(0.56, 'rgba(255, 255, 255, 0.02)');
-    sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = sheenGrad;
-    ctx.fillRect(leftX, towerTop, towerWidth, height - towerTop);
-    ctx.restore();
-
-    // 4. Subtle wisp layers drifting across facade during ascent (0.00 to 0.46)
+    // 5. Subtle Atmospheric Mist Drifting across track (Phase 1)
     if (cur < 0.52) {
-      const wispAlpha = Math.min(cur / 0.35, 1) * Math.max(0, 1 - (cur - 0.35) / 0.17);
-      if (wispAlpha > 0) {
+      const mistAlpha =
+        Math.min(cur / 0.35, 1) * Math.max(0, 1 - (cur - 0.35) / 0.17);
+      if (mistAlpha > 0) {
         ctx.save();
-        const wispGrad = ctx.createLinearGradient(0, height * 0.35, 0, height * 0.65);
-        wispGrad.addColorStop(0, 'rgba(226, 222, 221, 0)');
-        wispGrad.addColorStop(0.5, `rgba(226, 222, 221, ${0.18 * wispAlpha})`);
-        wispGrad.addColorStop(1, 'rgba(226, 222, 221, 0)');
-        ctx.fillStyle = wispGrad;
+        const mistGrad = ctx.createLinearGradient(
+          0,
+          height * 0.32,
+          0,
+          height * 0.68
+        );
+        mistGrad.addColorStop(0, 'rgba(226, 222, 221, 0)');
+        mistGrad.addColorStop(0.5, `rgba(226, 222, 221, ${0.14 * mistAlpha})`);
+        mistGrad.addColorStop(1, 'rgba(226, 222, 221, 0)');
+        ctx.fillStyle = mistGrad;
         ctx.fillRect(0, height * 0.3, width, height * 0.4);
         ctx.restore();
       }
     }
 
-    // 5. Breaching the Roof into Misty Clouds (0.46 to 1.00)
-    if (cur >= 0.42) {
-      const cloudProgress = Math.min(Math.max((cur - 0.42) / (1 - 0.42), 0), 1);
+    // 6. Phase 2 (0.46 to 1.00) — Cloud Takeover into Solid #e2dedd
+    if (cur >= 0.44) {
+      const cloudProgress = Math.min(Math.max((cur - 0.44) / (1 - 0.44), 0), 1);
       ctx.save();
 
-      // Volumetric cloud puffs
+      // Volumetric cloud bank layers
       const numPuffs = 12;
-      for (let i = 0; i < numPuffs; i++) {
-        const px = (width / (numPuffs - 1)) * i;
-        const py = height * (1 - cloudProgress * 1.1) + Math.sin(i * 1.7) * 60;
+      for (let p = 0; p < numPuffs; p++) {
+        const px = (width / (numPuffs - 1)) * p;
+        const py = height * (1 - cloudProgress * 1.12) + Math.sin(p * 1.7) * 55;
         const r = Math.max(width * 0.36, 320);
 
         const puffGrad = ctx.createRadialGradient(px, py, r * 0.08, px, py, r);
-        puffGrad.addColorStop(0, `rgba(226, 222, 221, ${Math.min(cloudProgress * 0.95, 0.92)})`);
-        puffGrad.addColorStop(0.6, `rgba(226, 222, 221, ${Math.min(cloudProgress * 0.78, 0.75)})`);
+        puffGrad.addColorStop(
+          0,
+          `rgba(226, 222, 221, ${Math.min(cloudProgress * 0.95, 0.92)})`
+        );
+        puffGrad.addColorStop(
+          0.6,
+          `rgba(226, 222, 221, ${Math.min(cloudProgress * 0.78, 0.75)})`
+        );
         puffGrad.addColorStop(1, 'rgba(226, 222, 221, 0)');
 
         ctx.fillStyle = puffGrad;
@@ -268,22 +490,28 @@ export default function LandingPage() {
         ctx.fill();
       }
 
-      // Encroaching side fog
+      // Encroaching side fog blankets
       const leftFog = ctx.createLinearGradient(0, 0, width * 0.5, 0);
-      leftFog.addColorStop(0, `rgba(226, 222, 221, ${Math.min(cloudProgress * 1.15, 1)})`);
+      leftFog.addColorStop(
+        0,
+        `rgba(226, 222, 221, ${Math.min(cloudProgress * 1.15, 1)})`
+      );
       leftFog.addColorStop(1, 'rgba(226, 222, 221, 0)');
       ctx.fillStyle = leftFog;
       ctx.fillRect(0, 0, width * 0.5, height);
 
       const rightFog = ctx.createLinearGradient(width, 0, width * 0.5, 0);
-      rightFog.addColorStop(0, `rgba(226, 222, 221, ${Math.min(cloudProgress * 1.15, 1)})`);
+      rightFog.addColorStop(
+        0,
+        `rgba(226, 222, 221, ${Math.min(cloudProgress * 1.15, 1)})`
+      );
       rightFog.addColorStop(1, 'rgba(226, 222, 221, 0)');
       ctx.fillStyle = rightFog;
       ctx.fillRect(width * 0.5, 0, width * 0.5, height);
 
       // Solid soft cloud cover at 1.00 -> completely merges with #e2dedd
-      if (cloudProgress > 0.45) {
-        const solidAlpha = Math.min((cloudProgress - 0.45) / 0.55, 1);
+      if (cloudProgress > 0.42) {
+        const solidAlpha = Math.min((cloudProgress - 0.42) / 0.58, 1);
         ctx.fillStyle = `rgba(226, 222, 221, ${solidAlpha})`;
         ctx.fillRect(0, 0, width, height);
       }
@@ -293,28 +521,12 @@ export default function LandingPage() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const video = videoRef.current;
     const track = trackRef.current;
     if (!canvas || !track) return;
 
     let animationFrameId;
     let cur = 0;
     const knee = 0.55;
-
-    const onLoadedMetadata = () => {
-      try {
-        if (video) {
-          video.pause();
-          video.currentTime = 0;
-        }
-      } catch {
-        // Safe catch for browser media autoplay policy
-      }
-    };
-
-    if (video) {
-      video.addEventListener('loadedmetadata', onLoadedMetadata);
-    }
 
     const handleCanvasResize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -338,21 +550,13 @@ export default function LandingPage() {
 
           cur += (mappedP - cur) * 0.22;
 
-          // Scrub video fallback if loaded
-          if (video && video.duration && !isNaN(video.duration)) {
-            const targetTime = cur * video.duration;
-            if (!video.seeking && Math.abs(video.currentTime - targetTime) > 1 / 60) {
-              video.currentTime = targetTime;
-            }
-          }
-
-          // Render Glass High-Rise Ascent onto Canvas
+          // Render 3D Workflow Spine onto Canvas
           const ctx = canvas.getContext('2d');
           if (ctx) {
             const dpr = window.devicePixelRatio || 1;
             ctx.save();
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            drawHighRiseScene(ctx, window.innerWidth, window.innerHeight, cur);
+            drawWorkflowSpineScene(ctx, window.innerWidth, window.innerHeight, cur);
             ctx.restore();
           }
         }
@@ -365,16 +569,13 @@ export default function LandingPage() {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleCanvasResize);
-      if (video) {
-        video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      }
     };
   }, []);
 
   return (
     <div className="relative w-full bg-[#0a0b0c] text-white selection:bg-indigo-500 selection:text-white">
       {/* ====================================================================
-          Sticky Track for Corporate Glass High-Rise Ascent & Cloud Breach
+          Sticky Track for Central Workflow Spine & Task Stream Canvas
           Track height: 3000 / 8 vh = 375vh
          ==================================================================== */}
       <div
@@ -384,19 +585,7 @@ export default function LandingPage() {
       >
         {/* Full-Viewport Sticky Container (.scene) */}
         <div className="scene sticky top-0 h-screen w-full overflow-hidden bg-[#0a0b0c]">
-          {/* Aerial Drone Video Fallback Layer */}
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            poster={posterSrc}
-            muted
-            playsInline
-            preload="auto"
-            tabIndex={-1}
-            className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none opacity-25"
-          />
-
-          {/* Corporate Glass High-Rise Ascent & Cloud Breach Canvas */}
+          {/* Interactive 3D Workflow Spine & Task Stream Canvas */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 h-full w-full object-cover pointer-events-none z-10"
@@ -406,8 +595,8 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute inset-0 z-15 bg-gradient-to-b from-black/75 via-transparent to-black/60" />
           <div className="pointer-events-none absolute inset-0 z-15 bg-radial-[ellipse_at_center] from-transparent via-black/20 to-black/70" />
 
-          {/* Central Skyscraper Alignment Axis Guide (Desktop) */}
-          <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/15 z-20 hidden md:block" />
+          {/* Central Workflow Spine Alignment Axis Guide (Desktop) */}
+          <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-white/10 z-20 hidden md:block" />
 
           {/* Floating Transparent Top Bar */}
           <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-xs">
@@ -476,15 +665,15 @@ export default function LandingPage() {
               WHY CORPORATE TASK TRACKER
             </div>
             <h1 className="landing-headline text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]">
-              ENTERPRISE AGILITY <br />
-              THAT RISES <br />
-              AS HIGH AS <br />
-              YOUR AMBITION.
+              WORKFLOWS <br />
+              THAT WORK <br />
+              AS HARD AS <br />
+              YOUR TEAM.
             </h1>
           </div>
 
-          {/* 5 Mirrored Feature Blocks Straddling the Skyscraper Axis */}
-          {/* Row 1 Left: 1500/8 vh, 78u left of tower seam */}
+          {/* 5 Mirrored Feature Blocks Straddling the Central Workflow Axis */}
+          {/* Row 1 Left: 1500/8 vh, 78u left of spine */}
           <div className="feature-block feature-block-r1-left pointer-events-auto">
             <div className="flex items-center justify-end md:justify-end gap-3 mb-3">
               <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
@@ -517,7 +706,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Row 1 Right: 1500/8 vh, 78u right of tower seam */}
+          {/* Row 1 Right: 1500/8 vh, 78u right of spine */}
           <div className="feature-block feature-block-r1-right pointer-events-auto">
             <div className="flex items-center justify-start gap-3 mb-3">
               <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
@@ -544,7 +733,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Row 2 Left: 1759/8 vh, 88u left of tower seam */}
+          {/* Row 2 Left: 1759/8 vh, 88u left of spine */}
           <div className="feature-block feature-block-r2-left pointer-events-auto">
             <div className="flex items-center justify-end gap-3 mb-3">
               <span className="font-['Exo_2',sans-serif] font-extrabold text-base sm:text-lg md:text-xl text-white uppercase tracking-tight">
@@ -585,7 +774,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Row 2 Right: 1759/8 vh, 88u right of tower seam */}
+          {/* Row 2 Right: 1759/8 vh, 88u right of spine */}
           <div className="feature-block feature-block-r2-right pointer-events-auto">
             <div className="flex items-center justify-start gap-3 mb-3">
               <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
@@ -622,7 +811,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Row 3 Center: 2063/8 vh, centered on tower axis */}
+          {/* Row 3 Center: 2063/8 vh, centered on spine */}
           <div className="feature-block feature-block-r3-center pointer-events-auto">
             <div className="flex flex-col items-center justify-center gap-3 mb-3">
               <div className="w-[calc(34*var(--u))] h-[calc(34*var(--u))] min-w-[34px] min-h-[34px] flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white p-2">
