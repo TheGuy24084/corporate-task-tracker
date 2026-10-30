@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckSquare, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckSquare, Sparkles, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function LandingPage() {
   const videoRef = useRef(null);
   const trackRef = useRef(null);
   const { isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth <= 900 : false
   );
@@ -119,13 +121,22 @@ export default function LandingPage() {
               </span>
             </Link>
 
-            <nav className="flex items-center gap-4">
-              <Link
-                to="/login"
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
-              >
-                Sign In
-              </Link>
+            <nav className="flex items-center gap-3 md:gap-4">
+              {isAuthenticated ? (
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-150"
+                >
+                  Sign In
+                </Link>
+              )}
               <Link
                 to={isAuthenticated ? '/dashboard' : '/register'}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.03] transition-all duration-200"
@@ -133,6 +144,19 @@ export default function LandingPage() {
                 <span>Launch Workspace</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 backdrop-blur-md transition-all duration-200 focus:outline-none cursor-pointer"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-5 h-5 text-amber-400" />
+                ) : (
+                  <Moon className="w-5 h-5 text-slate-200" />
+                )}
+              </button>
             </nav>
           </header>
         </div>

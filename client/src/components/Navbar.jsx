@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckSquare,
@@ -32,6 +32,9 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isLandingPage = location.pathname === '/' || location.pathname === '/about';
 
   const fetchNotifications = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -98,6 +101,10 @@ export default function Navbar() {
     setIsNotifOpen(false);
     navigate('/login');
   };
+
+  if (isLandingPage) {
+    return null;
+  }
 
   return (
     <>
