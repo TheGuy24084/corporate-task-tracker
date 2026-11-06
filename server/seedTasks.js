@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const User = require('./models/User');
@@ -13,11 +14,40 @@ async function seed() {
     await mongoose.connect(MONGO_URI);
     console.log('Connected successfully!');
 
-    // Fetch available users
-    const users = await User.find();
+    // 1. Ensure realistic team members exist
+    let users = await User.find();
     if (users.length === 0) {
-      console.error('No users found in database! Please register at least one user first.');
-      process.exit(1);
+      console.log('No users found. Creating default team accounts...');
+      const defaultPassword = await bcrypt.hash('password123', 10);
+      const defaultUsers = [
+        {
+          name: 'Alex Morgan',
+          email: 'alex.morgan@company.com',
+          password: defaultPassword,
+          role: 'Admin',
+        },
+        {
+          name: 'Elena Rostova',
+          email: 'elena.rostova@company.com',
+          password: defaultPassword,
+          role: 'User',
+        },
+        {
+          name: 'Marcus Chen',
+          email: 'marcus.chen@company.com',
+          password: defaultPassword,
+          role: 'User',
+        },
+        {
+          name: 'Sarah Jenkins',
+          email: 'sarah.jenkins@company.com',
+          password: defaultPassword,
+          role: 'User',
+        },
+      ];
+      users = await User.insertMany(defaultUsers);
+      console.log(`Created ${users.length} team members (password: password123):`);
+      users.forEach((u) => console.log(` - ${u.name} (${u.email}) [${u.role}]`));
     }
 
     const adminUser = users.find((u) => u.role === 'Admin') || users[0];
@@ -28,13 +58,24 @@ async function seed() {
 
     console.log(`Assigning tasks among: ${adminUser.name} (Admin), ${member1.name}, ${member2.name}, ${member3.name}`);
 
-    // Define rich corporate tasks
+    // Clear existing tasks to ensure clean, consistent data
+    const existingCount = await Task.countDocuments();
+    if (existingCount > 0) {
+      console.log(`Clearing ${existingCount} existing tasks...`);
+      await Task.deleteMany({});
+    }
+
+    // Define rich corporate tasks populated specifically for Scrum View, Kanban, and Project Management
     const now = new Date();
     const daysFromNow = (d) => new Date(now.getTime() + d * 24 * 60 * 60 * 1000);
     const daysAgo = (d) => new Date(now.getTime() - d * 24 * 60 * 60 * 1000);
 
     const taskData = [
-      // --- COMPLETED TASKS ---
+      // =========================================================================
+      // SPRINT 1: ACTIVE EXECUTION SPRINT (To-Do, In Progress, Completed)
+      // =========================================================================
+
+      // --- SPRINT 1: COMPLETED ---
       {
         title: 'Architect JWT Auth & Role-Based Access Control',
         description: 'Implement secure JSON Web Token generation with HTTP-only cookies, refresh token rotations, and Admin/User role authorization middleware.',
@@ -105,7 +146,7 @@ async function seed() {
         ],
       },
 
-      // --- IN PROGRESS TASKS ---
+      // --- SPRINT 1: IN PROGRESS ---
       {
         title: 'Interactive Kanban Drag-and-Drop Column Sync',
         description: 'Implement drag-and-drop task card interactions across Backlog, To-Do, In Progress, and Completed columns with optimistic UI updates.',
@@ -169,50 +210,116 @@ async function seed() {
           },
         ],
       },
-      {
-        title: 'Automated Team Member Email Invitations',
-        description: 'Generate secure cryptographically signed invite tokens and dispatch HTML invitation emails to onboard new team members.',
-        status: 'In Progress',
-        priority: 'Medium',
-        sprint: 'Sprint 1',
-        storyPoints: 3,
-        milestone: 'Security & Auth Hardening',
-        startDate: daysAgo(3),
-        dueDate: daysFromNow(1),
-        createdBy: adminUser._id,
-        assignedTo: adminUser._id,
-        comments: [],
-      },
 
-      // --- TO-DO TASKS ---
+      // --- SPRINT 1: TO-DO ---
       {
         title: 'Multi-Criteria Task Sorting & Filter Dropdown',
         description: 'Support multi-field sorting by Due Date, Story Points, Priority, and Creation Date across all Kanban and Scrum views.',
         status: 'To-Do',
         priority: 'Medium',
-        sprint: 'Sprint 2',
+        sprint: 'Sprint 1',
         storyPoints: 3,
         milestone: 'UI/UX Design System',
         startDate: daysFromNow(1),
-        dueDate: daysFromNow(7),
+        dueDate: daysFromNow(4),
         createdBy: adminUser._id,
         assignedTo: member1._id,
-        comments: [],
+        comments: [
+          {
+            text: 'Need to ensure sorting preserves active sprint filter state in Scrum view.',
+            author: member1._id,
+            mentions: [adminUser._id],
+            createdAt: daysAgo(1),
+          },
+        ],
       },
       {
         title: 'Safe Task Deletion Confirmation Dialog',
         description: 'Introduce double-confirmation modal with clear warning text for permanent task removals, restricted to creator and admins.',
         status: 'To-Do',
         priority: 'High',
-        sprint: 'Sprint 2',
-        storyPoints: 3,
+        sprint: 'Sprint 1',
+        storyPoints: 5,
         milestone: 'Security & Auth Hardening',
-        startDate: daysFromNow(2),
-        dueDate: daysFromNow(6),
+        startDate: daysFromNow(1),
+        dueDate: daysFromNow(5),
         createdBy: adminUser._id,
         assignedTo: adminUser._id,
         comments: [],
       },
+      {
+        title: 'Interactive Tooltips & Keyboard Shortcuts',
+        description: 'Add accessible aria-labels, shortcut hints (n = new task, / = search, esc = close), and responsive tooltips to all icon actions.',
+        status: 'To-Do',
+        priority: 'Low',
+        sprint: 'Sprint 1',
+        storyPoints: 2,
+        milestone: 'UI/UX Design System',
+        startDate: daysFromNow(2),
+        dueDate: daysFromNow(5),
+        createdBy: adminUser._id,
+        assignedTo: member3._id,
+        comments: [],
+      },
+
+      // =========================================================================
+      // SPRINT 2: UPCOMING ITERATION (To-Do, In Progress, Completed)
+      // =========================================================================
+
+      // --- SPRINT 2: COMPLETED ---
+      {
+        title: 'REST API Rate Limiting & Helmet Security Headers',
+        description: 'Configure express-rate-limit and Helmet security HTTP headers to protect against brute-force attacks and cross-site scripting.',
+        status: 'Completed',
+        priority: 'High',
+        sprint: 'Sprint 2',
+        storyPoints: 3,
+        milestone: 'Security & Auth Hardening',
+        startDate: daysAgo(5),
+        dueDate: daysAgo(1),
+        createdBy: adminUser._id,
+        assignedTo: adminUser._id,
+        comments: [
+          {
+            text: 'Rate limiting verified at 100 requests per 15-minute window for public endpoints.',
+            author: adminUser._id,
+            mentions: [],
+            createdAt: daysAgo(1),
+          },
+        ],
+      },
+
+      // --- SPRINT 2: IN PROGRESS ---
+      {
+        title: 'Granular User Permission Sets & Audit Trail',
+        description: 'Enable custom permission matrices for team leaders and maintain an immutable audit log of administrative actions.',
+        status: 'In Progress',
+        priority: 'High',
+        sprint: 'Sprint 2',
+        storyPoints: 5,
+        milestone: 'Security & Auth Hardening',
+        startDate: daysAgo(1),
+        dueDate: daysFromNow(6),
+        createdBy: adminUser._id,
+        assignedTo: member2._id,
+        comments: [],
+      },
+      {
+        title: 'Sub-second Search Query Caching with Redis',
+        description: 'Implement memory caching layer for common search and tag queries to keep response times under 20ms under heavy concurrency.',
+        status: 'In Progress',
+        priority: 'Medium',
+        sprint: 'Sprint 2',
+        storyPoints: 5,
+        milestone: 'Core Pipeline & Architecture',
+        startDate: daysAgo(1),
+        dueDate: daysFromNow(7),
+        createdBy: adminUser._id,
+        assignedTo: member3._id,
+        comments: [],
+      },
+
+      // --- SPRINT 2: TO-DO ---
       {
         title: 'Project Management Milestone Roadmap View',
         description: 'Create tabular deliverable overview grouped by project milestones with progress tracking, completion badges, and assignee tags.',
@@ -221,7 +328,7 @@ async function seed() {
         sprint: 'Sprint 2',
         storyPoints: 5,
         milestone: 'Q4 Production Release',
-        startDate: daysFromNow(2),
+        startDate: daysFromNow(3),
         dueDate: daysFromNow(9),
         createdBy: adminUser._id,
         assignedTo: member2._id,
@@ -235,14 +342,30 @@ async function seed() {
         sprint: 'Sprint 2',
         storyPoints: 3,
         milestone: 'Q4 Production Release',
-        startDate: daysFromNow(3),
+        startDate: daysFromNow(4),
         dueDate: daysFromNow(10),
         createdBy: adminUser._id,
         assignedTo: member3._id,
         comments: [],
       },
+      {
+        title: 'Automated Team Member Email Invitations',
+        description: 'Generate secure cryptographically signed invite tokens and dispatch HTML invitation emails to onboard new team members.',
+        status: 'To-Do',
+        priority: 'High',
+        sprint: 'Sprint 2',
+        storyPoints: 5,
+        milestone: 'Security & Auth Hardening',
+        startDate: daysFromNow(2),
+        dueDate: daysFromNow(8),
+        createdBy: adminUser._id,
+        assignedTo: adminUser._id,
+        comments: [],
+      },
 
-      // --- BACKLOG TASKS ---
+      // =========================================================================
+      // PRODUCT BACKLOG: UNASSIGNED SPRINT DELIVERABLES
+      // =========================================================================
       {
         title: 'Slack & Microsoft Teams Webhook Integrations',
         description: 'Configure outgoing webhooks to broadcast critical task updates and sprint completion alerts into enterprise team channels.',
@@ -285,14 +408,36 @@ async function seed() {
         assignedTo: null,
         comments: [],
       },
+      {
+        title: 'Mobile PWA Offline Sync & Background Sync API',
+        description: 'Enable service worker caching and IndexedDB background sync for offline task creation and optimistic updates on mobile devices.',
+        status: 'Backlog',
+        priority: 'Medium',
+        sprint: 'Backlog',
+        storyPoints: 8,
+        milestone: 'Core Pipeline & Architecture',
+        startDate: null,
+        dueDate: daysFromNow(35),
+        createdBy: adminUser._id,
+        assignedTo: null,
+        comments: [],
+      },
     ];
 
     console.log(`Inserting ${taskData.length} tasks...`);
     const insertedTasks = await Task.insertMany(taskData);
     console.log(`Successfully populated ${insertedTasks.length} tasks into the database!`);
 
+    console.log('\n--- Scrum Board Breakdown ---');
+    const sprint1Tasks = insertedTasks.filter((t) => t.sprint === 'Sprint 1');
+    const sprint2Tasks = insertedTasks.filter((t) => t.sprint === 'Sprint 2');
+    const backlogTasks = insertedTasks.filter((t) => t.sprint === 'Backlog');
+    console.log(`Sprint 1: ${sprint1Tasks.length} tasks (${sprint1Tasks.reduce((acc, t) => acc + t.storyPoints, 0)} Story Points)`);
+    console.log(`Sprint 2: ${sprint2Tasks.length} tasks (${sprint2Tasks.reduce((acc, t) => acc + t.storyPoints, 0)} Story Points)`);
+    console.log(`Backlog:  ${backlogTasks.length} tasks (${backlogTasks.reduce((acc, t) => acc + t.storyPoints, 0)} Story Points)`);
+
     await mongoose.disconnect();
-    console.log('MongoDB disconnected cleanly.');
+    console.log('\nMongoDB disconnected cleanly.');
     process.exit(0);
   } catch (err) {
     console.error('Error seeding tasks:', err);
@@ -301,4 +446,3 @@ async function seed() {
 }
 
 seed();
-
